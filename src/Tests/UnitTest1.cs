@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ImplicitCoordination.DEL;
 
-namespace Tests
+namespace ImplicitCoordination.Tests
 {
     [TestClass]
     public class UnitTest1
