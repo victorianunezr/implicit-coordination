@@ -1,6 +1,4 @@
-﻿using Functional;
-
-namespace ImplicitCoodrination.DEL
+﻿namespace ImplicitCoodrination.DEL
 {
     public class Agent
     {

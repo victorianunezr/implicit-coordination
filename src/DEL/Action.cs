@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using ImplicitCoodrination.DEL;
 
-namespace implicit_coordination.DEL
+namespace ImplicitCoodrination.DEL
 {
     public class Action
     {
