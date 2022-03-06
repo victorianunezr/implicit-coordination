@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ImplicitCoodrination.DEL
+namespace ImplicitCoordination.DEL
 {
     public class Formula
     {
@@ -21,13 +21,13 @@ namespace ImplicitCoodrination.DEL
                     return false;
 
                 case FormulaType.Atom:
-                    return w.valuation[proposition.id];
+                    return w.valuation.GetValue(proposition.id);
 
                 case FormulaType.Not:
                     return !child.Evaluate(s, w);
 
                 case FormulaType.And:
-                    return leftChild.Evaluate(s, w) && rightChild.Evaluate(s, w);
+                     return leftChild.Evaluate(s, w) && rightChild.Evaluate(s, w);
 
                 case FormulaType.Or:
                     return leftChild.Evaluate(s, w) || rightChild.Evaluate(s, w);
@@ -44,42 +44,42 @@ namespace ImplicitCoodrination.DEL
             }
         }
 
-        public Formula Top()
+        public static Formula Top()
         {
             return new Formula { type = FormulaType.Top };
         }
 
-        public Formula Bottom()
+        public static Formula Bottom()
         {
             return new Formula { type = FormulaType.Bottom };
         }
 
-        public Formula Not(Formula f)
+        public static Formula Not(Formula f)
         {
             return new Formula { type = FormulaType.Not, child = f };
         }
 
-        public Formula Atom(Proposition p)
+        public static Formula Atom(Proposition p)
         {
             return new Formula { type = FormulaType.Atom, proposition = p };
         }
 
-        public Formula And(Formula f1, Formula f2)
+        public static Formula And(Formula f1, Formula f2)
         {
             return new Formula { type = FormulaType.And, leftChild = f1, rightChild = f2 };
         }
 
-        public Formula Or(Formula f1, Formula f2)
+        public static Formula Or(Formula f1, Formula f2)
         {
             return new Formula { type = FormulaType.Or, leftChild = f1, rightChild = f2 };
         }
 
-        public Formula Knows(Formula f)
+        public static Formula Knows(Formula f)
         {
             return new Formula { type = FormulaType.Knows, child = f };
         }
 
-        public Formula CommonKnow(Formula f)
+        public static Formula CommonKnow(Formula f)
         {
             return new Formula { type = FormulaType.CommonKnow, child = f };
         }

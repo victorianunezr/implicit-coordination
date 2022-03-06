@@ -5,6 +5,11 @@ namespace ImplicitCoordination.DEL.utils
     {
         public uint data;
 
+        public BitArray(uint data = 0)
+        {
+            this.data = data;
+        }
+
         public bool GetValue(ushort idx)
         {
             var value = (data >> idx) & 1;

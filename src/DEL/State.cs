@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-namespace ImplicitCoodrination.DEL
+namespace ImplicitCoordination.DEL
 {
     public class State
     {
@@ -10,30 +10,28 @@ namespace ImplicitCoodrination.DEL
 
         public HashSet<World> designatedWorlds;
 
-        public IDictionary<Agent, HashSet<Tuple<World, World>>> accessibility;
+        public AccessibilityRelation accessibility;
 
         //public IDictionary<World, BitVector32> assignment;
 
         public State(
             HashSet<World> possibleWorlds,
             HashSet<World> designatedWorlds,
-            IDictionary<Agent, HashSet<Tuple<World, World>>> accessibility,
-            IDictionary<World, BitVector32> assignment)
+            AccessibilityRelation accessibility)
         {
             this.possibleWorlds = possibleWorlds ?? throw new ArgumentNullException(nameof(possibleWorlds));
             this.designatedWorlds = designatedWorlds ?? throw new ArgumentNullException(nameof(designatedWorlds));
             this.accessibility = accessibility ?? throw new ArgumentNullException(nameof(accessibility));
-            //this.assignment = assignment ?? throw new ArgumentNullException(nameof(assignment));
         }
 
         public bool GetValuation(World w, Proposition p)
         {
-            return w.valuation[p.id];
+            return w.valuation.GetValue(p.id);
         }
 
         public void SetValuation(World w, Proposition p, bool value)
         {
-            w.valuation[p.id] = value;
+            w.valuation.SetValue(p.id, value);
         }
     }
 }

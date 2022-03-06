@@ -1,4 +1,4 @@
-﻿namespace ImplicitCoodrination.DEL
+﻿namespace ImplicitCoordination.DEL
 {
     public enum FormulaType
     {

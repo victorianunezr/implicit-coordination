@@ -11,9 +11,13 @@
   <ItemGroup>
     <None Remove="Microsoft.TestPlatform" />
     <None Remove="Microsoft.VisualStudio.UnitTesting" />
+    <None Remove="DEL\utils\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.TestPlatform" Version="17.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.UnitTesting" Version="11.0.50727.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DEL\utils\" />
   </ItemGroup>
 </Project>

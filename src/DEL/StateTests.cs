@@ -1,5 +1,5 @@
 ﻿using System;
-namespace ImplicitCoodrination.DEL.Test
+namespace ImplicitCoordination.DEL.Test
 {
     public class StateTests
     {

@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-namespace ImplicitCoodrination.DEL
+namespace ImplicitCoordination.DEL
 {
     public interface IEpistemicModel
     {
