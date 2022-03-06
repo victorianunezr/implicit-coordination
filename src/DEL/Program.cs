@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using ImplicitCoordination.DEL;
 using ImplicitCoordination.DEL.utils;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ImplicitCoordination
 {
@@ -18,7 +17,6 @@ namespace ImplicitCoordination
             var v = new World();
             graph.Add((w, v));
             var edge = (w, v);
-            Assert.IsTrue(graph.Contains(edge));
             graph.Add(edge);
 
             graph.Remove(edge);
