@@ -3,10 +3,10 @@ using ExpectedException = Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedE
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace ImplicitCoordination.Tests
+namespace DEL.Tests
 {
     [TestFixture]
-    public class Tests
+    public class AccessibilityRelationTests
     {
         private Agent a = new Agent();
         private Agent b = new Agent();
@@ -48,15 +48,12 @@ namespace ImplicitCoordination.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(AgentNotFoundException))]
         public void AddEdge_AgentNotInGraph_Throws()
         {
-            // Arrange
-
-            // Act
-            this.accessibility.AddEdge(new Agent(), (w, v));
-
-            // Assert
+            Assert.Throws<AgentNotFoundException>(() =>
+            {
+                this.accessibility.AddEdge(new Agent(), (w, v));
+            });
         }
 
         [Test]
@@ -74,15 +71,13 @@ namespace ImplicitCoordination.Tests
 
 
         [Test]
-        [ExpectedException(typeof(AgentNotFoundException))]
         public void RemoveEdge_AgentNotInGraph_Throws()
         {
-            // Arrange
 
-            // Act
-            this.accessibility.RemoveEdge(new Agent(), (w, v));
-
-            // Assert
+            Assert.Throws<AgentNotFoundException>(() =>
+            {
+                this.accessibility.RemoveEdge(new Agent(), (w, v));
+            });
         }
     }
 }

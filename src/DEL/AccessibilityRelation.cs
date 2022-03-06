@@ -14,7 +14,7 @@ namespace ImplicitCoordination.DEL
 
             foreach (Agent a in agents)
             {
-                graph.Add(a, null);
+                graph.Add(a, new HashSet<(World, World)>());
             }
         }
 
