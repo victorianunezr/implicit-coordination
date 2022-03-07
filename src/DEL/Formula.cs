@@ -9,6 +9,7 @@ namespace ImplicitCoordination.DEL
         private Formula leftChild;
         private Formula rightChild;
         private Proposition proposition;
+        private Agent agent;
 
         public bool Evaluate(State s, World w)
         {
@@ -33,7 +34,14 @@ namespace ImplicitCoordination.DEL
                     return leftChild.Evaluate(s, w) || rightChild.Evaluate(s, w);
 
                 case FormulaType.Knows:
-                    return false;
+
+                    if (!child.Evaluate(s, w)) { return false; }
+
+                    foreach (World v in s.accessibility.GetAccessibleWorlds(agent, w))
+                    {
+                        if (!child.Evaluate(s, v)) { return false; }
+                    }
+                    return true;
 
                 case FormulaType.CommonKnow:
                     return false;
@@ -74,9 +82,9 @@ namespace ImplicitCoordination.DEL
             return new Formula { type = FormulaType.Or, leftChild = f1, rightChild = f2 };
         }
 
-        public static Formula Knows(Formula f)
+        public static Formula Knows(Agent a, Formula f)
         {
-            return new Formula { type = FormulaType.Knows, child = f };
+            return new Formula { type = FormulaType.Knows, child = f, agent = a };
         }
 
         public static Formula CommonKnow(Formula f)

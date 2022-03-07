@@ -1,5 +1,4 @@
 ﻿using ImplicitCoordination.DEL;
-using ExpectedException = Microsoft.VisualStudio.TestTools.UnitTesting.ExpectedExceptionAttribute;
 using NUnit.Framework;
 using System.Collections.Generic;
 
@@ -13,6 +12,8 @@ namespace DEL.Tests
         private Agent c = new Agent();
         private World w = new World();
         private World v = new World();
+        private World u = new World();
+
 
         private AccessibilityRelation accessibility;
 
@@ -78,6 +79,40 @@ namespace DEL.Tests
             {
                 this.accessibility.RemoveEdge(new Agent(), (w, v));
             });
+        }
+
+        [Test]
+        public void GetAccessibleWorlds_WorldsReachable_ReturnsNonEmptySet()
+        {
+            // Arrange
+            this.accessibility.AddEdge(a, (v, w));
+            this.accessibility.AddEdge(a, (w, v)); // Same edge as before but mirrored.
+            this.accessibility.AddEdge(a, (u, w)); // Current edges for a : (w, v), (u, w)
+
+            // Act
+            var worlds = this.accessibility.GetAccessibleWorlds(a, w);
+
+            // Assert
+            Assert.IsTrue(worlds.Contains(v));
+            Assert.IsTrue(worlds.Contains(u));
+            Assert.IsFalse(worlds.Contains(w));
+            Assert.AreEqual(2, worlds.Count);
+        }
+
+        [Test]
+        public void GetAccessibleWorlds_NoWorldsReachable_ReturnsEmptySet()
+        {
+            // Arrange
+            this.accessibility.AddEdge(c, (v, u));
+
+            // Act
+            var worlds = this.accessibility.GetAccessibleWorlds(c, w);
+
+            // Assert
+            Assert.IsFalse(worlds.Contains(v));
+            Assert.IsFalse(worlds.Contains(u));
+            Assert.IsFalse(worlds.Contains(w));
+            Assert.AreEqual(0, worlds.Count);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace ImplicitCoordination.DEL
             AccessibilityRelation accessibility)
         {
             this.possibleWorlds = possibleWorlds ?? throw new ArgumentNullException(nameof(possibleWorlds));
-            this.designatedWorlds = designatedWorlds ?? throw new ArgumentNullException(nameof(designatedWorlds));
+            this.designatedWorlds = designatedWorlds;
             this.accessibility = accessibility ?? throw new ArgumentNullException(nameof(accessibility));
         }
 

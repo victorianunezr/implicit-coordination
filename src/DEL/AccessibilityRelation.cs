@@ -49,7 +49,7 @@ namespace ImplicitCoordination.DEL
 
         }
 
-        public HashSet<(World, World)> GetAccessibility(Agent a)
+        public HashSet<(World, World)> GetAccessibilityEdges(Agent a)
         {
             try
             {
@@ -59,6 +59,33 @@ namespace ImplicitCoordination.DEL
             {
                 throw new AgentNotFoundException("Agent does not exist in accessibility graph.");
             }
+        }
+
+        /// <summary>
+        /// Returns worlds reachable for agent A from world W
+        /// </summary>
+        /// <param name="a">The agent for which we want the accessible worlds.</param>
+        /// <param name="w">The world from which output worlds are reachable.</param>
+        /// <returns></returns>
+        public HashSet<World> GetAccessibleWorlds(Agent a, World w)
+        {
+            var edges = this.GetAccessibilityEdges(a);
+
+            var accesibleWorlds = new HashSet<World>();
+
+            foreach (var (u,v) in edges)
+            {
+                if (w == u)
+                {
+                    accesibleWorlds.Add(v);
+                }
+                else if (w == v)
+                {
+                    accesibleWorlds.Add(u);
+                }
+            }
+
+            return accesibleWorlds;
         }
     }
 
