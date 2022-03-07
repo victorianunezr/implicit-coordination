@@ -1,4 +1,6 @@
-﻿namespace ImplicitCoordination.DEL
+﻿using System;
+
+namespace ImplicitCoordination.DEL
 {
     public class Proposition
     {
@@ -12,6 +14,15 @@
             this.name = name;
             this.id = Counter;
             Counter++;
+            if (Counter >= 32)
+            {
+                throw new PropositionIdxOutOfRangeException("No more space for new propositions.");
+            }
         }
+    }
+
+    public class PropositionIdxOutOfRangeException : Exception
+    {
+        public PropositionIdxOutOfRangeException(string msg) : base(msg) { }
     }
 }

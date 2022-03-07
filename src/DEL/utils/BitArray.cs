@@ -12,6 +12,11 @@ namespace ImplicitCoordination.DEL.utils
 
         public bool GetValue(ushort idx)
         {
+            if (!(0 <= idx && idx <= 31))
+            {
+                throw new PropositionIdxOutOfRangeException("Cannot evaluate proposition.");
+            }
+
             var value = (data >> idx) & 1;
             if (!(value == 0 || value == 1))
             {
