@@ -26,11 +26,10 @@ namespace DEL.Tests
         [Test]
         public void GetAndSet_OutOfRangeIndex()
         {
-            var bb = new BitArray { data = UInt32.MaxValue };
+            var bb = new BitArray { data = UInt64.MaxValue };
 
-            Assert.Throws<PropositionIdxOutOfRangeException>(() => bb.GetValue(32));
-            Assert.Throws<PropositionIdxOutOfRangeException>(() => bb.GetValue(33));
-            Assert.Throws<PropositionIdxOutOfRangeException>(() => bb.GetValue(0));
+            Assert.Throws<PropositionIdxOutOfRangeException>(() => bb.GetValue(64));
+            Assert.Throws<PropositionIdxOutOfRangeException>(() => bb.GetValue(65));
         }
     }
 }

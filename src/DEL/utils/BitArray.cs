@@ -3,16 +3,16 @@ namespace ImplicitCoordination.DEL.utils
 {
     public struct BitArray
     {
-        public uint data;
+        public ulong data;
 
-        public BitArray(uint data = 0)
+        public BitArray(ulong data = 0)
         {
             this.data = data;
         }
 
         public bool GetValue(ushort idx)
         {
-            if (!(0 <= idx && idx <= 31))
+            if (!(0 <= idx && idx <= 63))
             {
                 throw new PropositionIdxOutOfRangeException("Cannot evaluate proposition.");
             }

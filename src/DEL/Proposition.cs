@@ -2,6 +2,9 @@
 
 namespace ImplicitCoordination.DEL
 {
+    /// <summary>
+    /// Proposition are atomic n-ary formulas and their negations. E.g. Has(Alice, Keys), ~Has(Bob, Keys)
+    /// </summary>
     public class Proposition
     {
         private static ushort Counter = 0;
@@ -14,7 +17,7 @@ namespace ImplicitCoordination.DEL
             this.name = name;
             this.id = Counter;
             Counter++;
-            if (Counter >= 32)
+            if (Counter >= 64)
             {
                 throw new PropositionIdxOutOfRangeException("No more space for new propositions.");
             }
