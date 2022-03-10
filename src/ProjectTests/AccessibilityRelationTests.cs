@@ -1,4 +1,5 @@
 ﻿using ImplicitCoordination.DEL;
+using ImplicitCoordination.utils;
 using NUnit.Framework;
 using System.Collections.Generic;
 
@@ -32,20 +33,19 @@ namespace DEL.Tests
             this.accessibility.AddEdge(a, (w, v));
 
             // Assert
-            Assert.IsTrue(this.accessibility.graph[a].Contains((w, v)));
+            Assert.IsTrue(this.accessibility.graph[a].ContainsEdge((w, v)));
         }
 
         [Test]
-        public void AddEdge_MirrorEdgeExists_EdgeNotAdded()
+        public void AddEdge_EdgeAdded_MirrorEdgeExists()
         {
             // Arrange
             this.accessibility.AddEdge(b, (v, w));
 
             // Act
-            this.accessibility.AddEdge(b, (w, v));
 
             // Assert
-            Assert.IsFalse(this.accessibility.graph[b].Contains((w, v)));
+            Assert.IsTrue(this.accessibility.graph[b].ContainsEdge((w, v)));
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace DEL.Tests
             this.accessibility.RemoveEdge(c, (v, w));
 
             // Assert
-            Assert.IsFalse(this.accessibility.graph[c].Contains((v, w)));
+            Assert.IsFalse(this.accessibility.graph[c].ContainsEdge((v, w)));
         }
 
 

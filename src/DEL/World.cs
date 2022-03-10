@@ -5,13 +5,17 @@ namespace ImplicitCoordination.DEL
     public class World : IWorld
     {
         private static ushort Counter = 0;
-        public ushort id;
+        private readonly ushort id;
+
+        public ushort Id => this.id;
+
         // valuation[i] gives truth value for atomic proposition with id i. BitVector32 only allows 32 propositions per world.
         public BitArray valuation;
 
         // Parent world and event used to track source of new world generated during product update
         public World parentWorld;
         public Event parentEvent;
+
 
         /// <summary>
         /// Returns a world with automatically incremented id and BitArray with proposition valuations.

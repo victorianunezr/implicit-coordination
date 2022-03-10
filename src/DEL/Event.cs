@@ -5,6 +5,11 @@ namespace ImplicitCoordination.DEL
 {
     public class Event : IWorld
     {
+        private static ushort Counter = 0;
+        private readonly ushort id;
+
+        public ushort Id => this.id;
+
         /// <summary>
         /// Precondition Formula that is evaluated in each world when applying the product update.
         /// </summary>
@@ -26,6 +31,8 @@ namespace ImplicitCoordination.DEL
         {
             this.pre = pre;
             this.post = post;
+            this.id = Counter;
+            Counter++;
         }
 
         /// <summary>

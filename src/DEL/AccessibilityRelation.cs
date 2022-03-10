@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ImplicitCoordination.DEL;
+using ImplicitCoordination.utils;
 
 namespace ImplicitCoordination.DEL
 {
@@ -40,10 +41,9 @@ namespace ImplicitCoordination.DEL
         {
             try
             {
-                // Only add (w,v) if (v,w) not in set
-                (IWorld w, IWorld v) = edge;
-
-                if (!this.graph[a].Contains((v, w)))
+                // Only add (w,v) if edge not already in set.
+                // Although this is a set, we must check because to avoid adding symmetric edges, which the set does not consider as equal.
+                if (!this.graph[a].ContainsEdge(edge))
                 {
                     this.graph[a].Add(edge);
                 }

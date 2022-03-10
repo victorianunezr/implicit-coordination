@@ -42,10 +42,15 @@ namespace DEL.Tests
             this.events = new HashSet<IWorld> { e, f };
 
             AccessibilityRelation stateAccessibility = new AccessibilityRelation(agents, worlds);
+            stateAccessibility.AddEdge(a, (w, u));
+            stateAccessibility.AddEdge(b, (w, v));
+
             AccessibilityRelation actionAccessibility = new AccessibilityRelation(agents, events);
+            actionAccessibility.AddEdge(a, (e, f));
+            actionAccessibility.AddEdge(b, (e, f));
 
             this.state = new State(worlds, new HashSet<IWorld>() { w }, stateAccessibility);
-            this.action = new Action(events, new HashSet<IWorld>() { e }, stateAccessibility);
+            this.action = new Action(events, new HashSet<IWorld>() { e }, actionAccessibility);
         }
 
         [Test]
@@ -102,16 +107,16 @@ namespace DEL.Tests
         public void UpdateAccessibility()
         {
             // Arrange
-            //var newAccessibility = this.state.accessibility.CopyEmptyGraph();
+            var newAccessibility = this.state.accessibility.CopyEmptyGraph();
             // Cartesian product in this case includes all ordered pairs (w, e), not only those where precondition holds
             var childWorlds = new HashSet<IWorld>();
 
             var we = w.CreateChild(e);
             var wf = w.CreateChild(f);
             var ue = u.CreateChild(e);
-            var uf = w.CreateChild(f);
-            var ve = w.CreateChild(e);
-            var vf = w.CreateChild(f);
+            var uf = u.CreateChild(f);
+            var ve = v.CreateChild(e);
+            var vf = v.CreateChild(f);
 
             childWorlds.Add(we);
             childWorlds.Add(wf);
@@ -121,16 +126,17 @@ namespace DEL.Tests
             childWorlds.Add(vf);
 
             // Act
-            var newAccessibility = state.UpdateAccessibility(this.action, childWorlds);
+            state.UpdateAccessibility(this.action, newAccessibility, childWorlds);
 
             // Assert
+            // Agent a
             // Reflexive edges check
-            //Assert.IsTrue(newAccessibility.graph[a].Contains((we, we)));
-            //Assert.IsTrue(newAccessibility.graph[a].Contains((wf, wf)));
-            //Assert.IsTrue(newAccessibility.graph[a].Contains((ue, ue)));
-            //Assert.IsTrue(newAccessibility.graph[a].Contains((uf, uf)));
-            //Assert.IsTrue(newAccessibility.graph[a].Contains((ve, ve)));
-            //Assert.IsTrue(newAccessibility.graph[a].Contains((vf, vf)));
+            Assert.IsTrue(newAccessibility.graph[a].Contains((we, we)));
+            Assert.IsTrue(newAccessibility.graph[a].Contains((wf, wf)));
+            Assert.IsTrue(newAccessibility.graph[a].Contains((ue, ue)));
+            Assert.IsTrue(newAccessibility.graph[a].Contains((uf, uf)));
+            Assert.IsTrue(newAccessibility.graph[a].Contains((ve, ve)));
+            Assert.IsTrue(newAccessibility.graph[a].Contains((vf, vf)));
 
             // Other edges
             Assert.IsTrue(newAccessibility.graph[a].Contains((we, wf)) || newAccessibility.graph[a].Contains((wf, we)));
@@ -144,11 +150,38 @@ namespace DEL.Tests
             Assert.IsFalse(newAccessibility.graph[a].Contains((ve, we)) || newAccessibility.graph[a].Contains((we, ve)));
             Assert.IsFalse(newAccessibility.graph[a].Contains((ve, wf)) || newAccessibility.graph[a].Contains((wf, ve)));
             Assert.IsFalse(newAccessibility.graph[a].Contains((ve, ue)) || newAccessibility.graph[a].Contains((ue, ve)));
-            Assert.IsFalse(newAccessibility.graph[a].Contains((vf, uf)) || newAccessibility.graph[a].Contains((uf, ve)));
+            Assert.IsFalse(newAccessibility.graph[a].Contains((ve, uf)) || newAccessibility.graph[a].Contains((uf, ve)));
             Assert.IsFalse(newAccessibility.graph[a].Contains((vf, we)) || newAccessibility.graph[a].Contains((we, vf)));
             Assert.IsFalse(newAccessibility.graph[a].Contains((vf, wf)) || newAccessibility.graph[a].Contains((wf, vf)));
             Assert.IsFalse(newAccessibility.graph[a].Contains((vf, ue)) || newAccessibility.graph[a].Contains((ue, vf)));
             Assert.IsFalse(newAccessibility.graph[a].Contains((vf, uf)) || newAccessibility.graph[a].Contains((uf, vf)));
+
+            // Agent b
+            // Reflexive edges check
+            Assert.IsTrue(newAccessibility.graph[b].Contains((we, we)));
+            Assert.IsTrue(newAccessibility.graph[b].Contains((wf, wf)));
+            Assert.IsTrue(newAccessibility.graph[b].Contains((ue, ue)));
+            Assert.IsTrue(newAccessibility.graph[b].Contains((uf, uf)));
+            Assert.IsTrue(newAccessibility.graph[b].Contains((ve, ve)));
+            Assert.IsTrue(newAccessibility.graph[b].Contains((vf, vf)));
+
+            // Other edges
+            Assert.IsTrue(newAccessibility.graph[b].Contains((we, wf)) || newAccessibility.graph[b].Contains((wf, we)));
+            Assert.IsTrue(newAccessibility.graph[b].Contains((we, ve)) || newAccessibility.graph[b].Contains((ve, we)));
+            Assert.IsTrue(newAccessibility.graph[b].Contains((we, vf)) || newAccessibility.graph[b].Contains((vf, we)));
+            Assert.IsTrue(newAccessibility.graph[b].Contains((wf, ve)) || newAccessibility.graph[b].Contains((ve, wf)));
+            Assert.IsTrue(newAccessibility.graph[b].Contains((wf, vf)) || newAccessibility.graph[b].Contains((vf, wf)));
+            Assert.IsTrue(newAccessibility.graph[b].Contains((ve, vf)) || newAccessibility.graph[b].Contains((vf, ve)));
+
+            // Should not contain edges to child worlds of u
+            Assert.IsFalse(newAccessibility.graph[b].Contains((ue, we)) || newAccessibility.graph[b].Contains((we, ue)));
+            Assert.IsFalse(newAccessibility.graph[b].Contains((ue, wf)) || newAccessibility.graph[b].Contains((wf, ue)));
+            Assert.IsFalse(newAccessibility.graph[b].Contains((ue, ve)) || newAccessibility.graph[b].Contains((ve, ue)));
+            Assert.IsFalse(newAccessibility.graph[b].Contains((ue, vf)) || newAccessibility.graph[b].Contains((vf, ue)));
+            Assert.IsFalse(newAccessibility.graph[b].Contains((uf, we)) || newAccessibility.graph[b].Contains((we, uf)));
+            Assert.IsFalse(newAccessibility.graph[b].Contains((uf, wf)) || newAccessibility.graph[b].Contains((wf, uf)));
+            Assert.IsFalse(newAccessibility.graph[b].Contains((uf, ve)) || newAccessibility.graph[b].Contains((ve, uf)));
+            Assert.IsFalse(newAccessibility.graph[b].Contains((uf, vf)) || newAccessibility.graph[a].Contains((vf, uf)));
         }
     }
 }

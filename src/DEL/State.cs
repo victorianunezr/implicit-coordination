@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ImplicitCoordination.utils;
 
 namespace ImplicitCoordination.DEL
 {
@@ -90,8 +91,8 @@ namespace ImplicitCoordination.DEL
                     {
                         try
                         {
-                            if (this.accessibility.graph[a].Contains((w.parentWorld, v.parentWorld))
-                                && action.accessibility.graph[a].Contains((w.parentEvent, v.parentEvent)))
+                            if (this.accessibility.graph[a].ContainsEdge(w.parentWorld, v.parentWorld)
+                                && action.accessibility.graph[a].ContainsEdge(w.parentEvent, v.parentEvent))
                             {
                                 newAccessibility.graph[a].Add((w, v));
                             }
