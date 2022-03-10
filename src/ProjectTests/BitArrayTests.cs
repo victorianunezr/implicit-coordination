@@ -26,7 +26,7 @@ namespace DEL.Tests
         [Test]
         public void GetAndSet_OutOfRangeIndex()
         {
-            var bb = new BitArray { data = UInt64.MaxValue };
+            var bb = new BitArray { data = ulong.MaxValue };
 
             Assert.Throws<PropositionIdxOutOfRangeException>(() => bb.GetValue(64));
             Assert.Throws<PropositionIdxOutOfRangeException>(() => bb.GetValue(65));

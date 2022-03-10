@@ -3,7 +3,7 @@
 namespace ImplicitCoordination.DEL
 {
     /// <summary>
-    /// Proposition are atomic n-ary formulas and their negations. E.g. Has(Alice, Keys), ~Has(Bob, Keys)
+    /// Proposition are atomic n-ary formulas and their negations, e.g. Has(Alice, Keys), ~Has(Bob, Keys)
     /// </summary>
     public class Proposition
     {
@@ -12,7 +12,7 @@ namespace ImplicitCoordination.DEL
         public ushort id; // id will be used to access truth assignment of proposition in bitvector of a world
         public ushort arity;
 
-        public Proposition(string name, int arity)
+        public Proposition(string name, int arity=0)
         {
             this.name = name;
             this.id = Counter;

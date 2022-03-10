@@ -20,7 +20,7 @@ namespace DEL.Tests
         [SetUp]
         public void TestInit()
         {
-            this.accessibility = new AccessibilityRelation(new HashSet<Agent> { this.a, this.b, this.c });
+            this.accessibility = new AccessibilityRelation(new HashSet<Agent> { this.a, this.b, this.c }, new HashSet<IWorld>{ this.w, this.v, this.u });
         }
 
         [Test]
@@ -95,8 +95,8 @@ namespace DEL.Tests
             // Assert
             Assert.IsTrue(worlds.Contains(v));
             Assert.IsTrue(worlds.Contains(u));
-            Assert.IsFalse(worlds.Contains(w));
-            Assert.AreEqual(2, worlds.Count);
+            Assert.IsTrue(worlds.Contains(w));
+            Assert.AreEqual(3, worlds.Count);
         }
 
         [Test]
@@ -111,8 +111,10 @@ namespace DEL.Tests
             // Assert
             Assert.IsFalse(worlds.Contains(v));
             Assert.IsFalse(worlds.Contains(u));
-            Assert.IsFalse(worlds.Contains(w));
-            Assert.AreEqual(0, worlds.Count);
+
+            // Only contains w due to reflexive edge
+            Assert.IsTrue(worlds.Contains(w));
+            Assert.AreEqual(1, worlds.Count);
         }
     }
 }

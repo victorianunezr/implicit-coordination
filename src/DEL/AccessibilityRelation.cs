@@ -4,26 +4,44 @@ using ImplicitCoordination.DEL;
 
 namespace ImplicitCoordination.DEL
 {
+    /// <summary>
+    /// A dictionary mapping each agent to the set of edges in the accessibility graph.
+    /// graph[a] -> (w, v) | w, v \in W.
+    /// </summary>
+    /// <remarks></remarks>
     public class AccessibilityRelation
     {
-        public IDictionary<Agent, HashSet<(World, World)>> graph;
+        public IDictionary<Agent, HashSet<(IWorld, IWorld)>> graph;
 
-        public AccessibilityRelation(HashSet<Agent> agents)
+        public AccessibilityRelation(ICollection<Agent> agents, ICollection<IWorld> worlds)
         {
-            this.graph = new Dictionary<Agent, HashSet<(World, World)>>();
+            this.graph = new Dictionary<Agent, HashSet<(IWorld, IWorld)>>();
 
             foreach (Agent a in agents)
             {
-                graph.Add(a, new HashSet<(World, World)>());
+                graph.Add(a, new HashSet<(IWorld, IWorld)>());
+
+                if (worlds != null)
+                {
+                    foreach (IWorld w in worlds)
+                    {
+                        // Adding reflexive edges for all agents
+                        graph[a].Add((w, w));
+                    }
+                }
+                else { throw new ArgumentNullException(nameof(worlds)); }
             }
         }
 
-        public void AddEdge(Agent a, (World, World) edge)
+        private AccessibilityRelation(ICollection<Agent> agents) : this(agents, new HashSet<IWorld> { }) { }
+
+
+        public void AddEdge(Agent a, (IWorld, IWorld) edge)
         {
             try
             {
                 // Only add (w,v) if (v,w) not in set
-                (World w, World v) = edge;
+                (IWorld w, IWorld v) = edge;
 
                 if (!this.graph[a].Contains((v, w)))
                 {
@@ -36,7 +54,7 @@ namespace ImplicitCoordination.DEL
             }
         }
 
-        public void RemoveEdge(Agent a, (World, World) edge)
+        public void RemoveEdge(Agent a, (IWorld, IWorld) edge)
         {
             try
             {
@@ -49,7 +67,7 @@ namespace ImplicitCoordination.DEL
 
         }
 
-        public HashSet<(World, World)> GetAccessibilityEdges(Agent a)
+        public HashSet<(IWorld, IWorld)> GetAccessibilityEdges(Agent a)
         {
             try
             {
@@ -67,11 +85,11 @@ namespace ImplicitCoordination.DEL
         /// <param name="a">The agent for which we want the accessible worlds.</param>
         /// <param name="w">The world from which output worlds are reachable.</param>
         /// <returns></returns>
-        public HashSet<World> GetAccessibleWorlds(Agent a, World w)
+        public HashSet<IWorld> GetAccessibleWorlds(Agent a, IWorld w)
         {
             var edges = this.GetAccessibilityEdges(a);
 
-            var accesibleWorlds = new HashSet<World>();
+            var accesibleWorlds = new HashSet<IWorld>();
 
             foreach (var (u,v) in edges)
             {
@@ -86,6 +104,22 @@ namespace ImplicitCoordination.DEL
             }
 
             return accesibleWorlds;
+        }
+
+        /// <summary>
+        /// Returns an instance of AccessibilityRelation with a dictionary containing the same keys (agents) as in the source graph and empty sets as values (no edges).
+        /// </summary>
+        /// <returns></returns>
+        public AccessibilityRelation CopyEmptyGraph()
+        {
+            var newGraph = new Dictionary<Agent, HashSet<(IWorld, IWorld)>>();
+
+            foreach (Agent a in this.graph.Keys)
+            {
+                newGraph[a] = new HashSet<(IWorld, IWorld)>();
+            }
+
+            return new AccessibilityRelation(this.graph.Keys);
         }
     }
 

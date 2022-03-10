@@ -5,17 +5,17 @@ namespace ImplicitCoordination.DEL
 {
     public class Action
     {
-        public HashSet<Event> events;
-        public HashSet<Event> designatedEvents;
+        public HashSet<IWorld> events;
+        public HashSet<IWorld> designatedEvents;
         public AccessibilityRelation accessibility;
 
-        public Action(HashSet<Event> events, HashSet<Event> designatedEvents, AccessibilityRelation accessibility)
+        public Action(HashSet<IWorld> events, HashSet<IWorld> designatedEvents, AccessibilityRelation accessibility)
         {
             this.events = events ?? throw new ArgumentNullException(nameof(events));
 
-            if (!(designatedEvents == null || designatedEvents.IsSubsetOf(events)))
+            if (designatedEvents == null || designatedEvents.IsSubsetOf(events))
             {
-                this.designatedEvents = designatedEvents ?? new HashSet<Event>();
+                this.designatedEvents = designatedEvents ?? new HashSet<IWorld>();
             }
             else
             {

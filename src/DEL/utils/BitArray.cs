@@ -31,13 +31,13 @@ namespace ImplicitCoordination.DEL.utils
             // If we want to set the bit to true, simply OR the number with the shifted 1-bit
             if (value)
             {
-                data |= Convert.ToUInt32((uint)1 << idx);
+                data |= (ulong)1 << idx;
             }
 
             // If we want to set the bit, NOT the shifted 1-bit and AND it with the number
             else
             {
-                data &= Convert.ToUInt32(~((uint)1 << idx));
+                data &= ~((ulong)1 << idx);
             }
         }
 

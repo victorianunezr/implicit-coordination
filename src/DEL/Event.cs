@@ -3,8 +3,11 @@ using System.Collections.Generic;
 
 namespace ImplicitCoordination.DEL
 {
-    public class Event
+    public class Event : IWorld
     {
+        /// <summary>
+        /// Precondition Formula that is evaluated in each world when applying the product update.
+        /// </summary>
         public Formula pre { get; set; }
 
         /// <summary>

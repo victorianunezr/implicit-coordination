@@ -75,10 +75,10 @@ namespace DEL.Tests
 
             // Arrange
             Agent a = new Agent();
-            AccessibilityRelation r = new AccessibilityRelation(new HashSet<Agent>{ a });
+            AccessibilityRelation r = new AccessibilityRelation(new HashSet<Agent>{ a }, new HashSet<IWorld> { w, u, v });
             r.AddEdge(a, (w, v));
             r.AddEdge(a, (w, u));
-            State s = new State(new HashSet<World> { w, u, v }, null, r);
+            State s = new State(new HashSet<IWorld> { w, u, v }, new HashSet<IWorld> { w }, r);
 
             var f1 = Formula.Knows(a, atomP);
             var f2 = Formula.Knows(a, atomQ);
@@ -115,13 +115,13 @@ namespace DEL.Tests
             Agent a = new Agent();
             Agent b = new Agent();
 
-            AccessibilityRelation r = new AccessibilityRelation(new HashSet<Agent> { a, b });
+            AccessibilityRelation r = new AccessibilityRelation(new HashSet<Agent> { a, b }, new HashSet<IWorld> { t, u, v, w });
             r.AddEdge(a, (w, v));
             r.AddEdge(a, (w, u));
             r.AddEdge(a, (w, t));
             r.AddEdge(b, (w, v));
             r.AddEdge(b, (u, v));
-            State s = new State(new HashSet<World> { w, u, v, t }, null, r);
+            State s = new State(new HashSet<IWorld> { w, u, v, t }, null, r);
 
             // Assert
             var f1 = Formula.Knows(a, Formula.Knows(b, atomQ));

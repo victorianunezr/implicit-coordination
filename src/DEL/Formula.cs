@@ -35,8 +35,6 @@ namespace ImplicitCoordination.DEL
 
                 case FormulaType.Knows:
 
-                    if (!child.Evaluate(s, w)) { return false; }
-
                     foreach (World v in s.accessibility.GetAccessibleWorlds(agent, w))
                     {
                         if (!child.Evaluate(s, v)) { return false; }
