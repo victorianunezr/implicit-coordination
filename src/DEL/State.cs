@@ -53,7 +53,7 @@ namespace ImplicitCoordination.DEL
 
                         newPossibleWorlds.Add(wPrime);
 
-                        if (this.possibleWorlds.Contains(w) && action.designatedEvents.Contains(e))
+                        if (this.designatedWorlds.Contains(w) && action.designatedEvents.Contains(e))
                         {
                             newDesignatedWorlds.Add(wPrime);
                         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ImplicitCoordination.DEL;
 using NUnit.Framework;
 using Action = ImplicitCoordination.DEL.Action;
@@ -182,6 +181,62 @@ namespace DEL.Tests
             Assert.IsFalse(newAccessibility.graph[b].Contains((uf, wf)) || newAccessibility.graph[b].Contains((wf, uf)));
             Assert.IsFalse(newAccessibility.graph[b].Contains((uf, ve)) || newAccessibility.graph[b].Contains((ve, uf)));
             Assert.IsFalse(newAccessibility.graph[b].Contains((uf, vf)) || newAccessibility.graph[a].Contains((vf, uf)));
+        }
+
+        [Test]
+        public void ProductUpdate()
+        {
+            // Arrange
+
+            // Act
+            State sPrime = this.state.ProductUpdate(this.action);
+
+            // Assert
+            // Checks on valuations based on parent worlds and events, since this is the only way to track which child world is which
+            foreach (World childW in sPrime.possibleWorlds)
+            {
+                if (childW.parentWorld == w && childW.parentEvent == e)
+                {
+                    Assert.IsTrue(childW.GetValuation(q));
+                    Assert.IsFalse(childW.GetValuation(p));
+                }
+                else if (childW.parentWorld == w && childW.parentEvent == f)
+                {
+                    Assert.IsTrue(childW.GetValuation(p));
+                    Assert.IsFalse(childW.GetValuation(q));
+                }
+                else if (childW.parentWorld == u && childW.parentEvent == e)
+                {
+                    Assert.IsFalse(childW.GetValuation(p));
+                    Assert.IsFalse(childW.GetValuation(q));
+                }
+                else if (childW.parentWorld == u && childW.parentEvent == f)
+                {
+                    Assert.Fail($"New state should not contain this world. Precondition of {nameof(f)} is not valid in {nameof(u)}");
+                }
+                else if (childW.parentWorld == v && childW.parentEvent == e)
+                {
+                    Assert.Fail($"New state should not contain this world. Precondition of {nameof(e)} is not valid in {nameof(v)}");
+                }
+                else if (childW.parentWorld == v && childW.parentEvent == f)
+                {
+                    Assert.IsTrue(childW.GetValuation(p));
+                    Assert.IsFalse(childW.GetValuation(q));
+                }
+                else
+                {
+                    Assert.Fail("No other child worlds should exist.");
+                }
+            }
+
+            // Validate designated worlds
+            Assert.IsTrue(sPrime.designatedWorlds.Count == 1);
+            foreach (World world in sPrime.designatedWorlds)
+            {
+                Assert.IsTrue(world.parentWorld == w && world.parentEvent == e);
+            }
+
+
         }
     }
 }
