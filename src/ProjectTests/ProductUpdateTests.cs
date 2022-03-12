@@ -24,6 +24,7 @@ namespace DEL.Tests
         [OneTimeSetUp]
         public void TestInit()
         {
+            // To visualize scenario, see ProductUpdateExampple.png
             this.a = new Agent();
             this.b = new Agent();
             var agents = new HashSet<Agent>() { a, b };
@@ -193,6 +194,7 @@ namespace DEL.Tests
 
             // Assert
             // Checks on valuations based on parent worlds and events, since this is the only way to track which child world is which
+            Assert.AreEqual(sPrime.possibleWorlds.Count, 4);
             foreach (World childW in sPrime.possibleWorlds)
             {
                 if (childW.parentWorld == w && childW.parentEvent == e)
@@ -236,7 +238,54 @@ namespace DEL.Tests
                 Assert.IsTrue(world.parentWorld == w && world.parentEvent == e);
             }
 
+            // Validate accessibility relations
+            // Graph contains two entries (two agents)
+            Assert.AreEqual(2, sPrime.accessibility.graph.Count);
 
+            foreach (var entry in sPrime.accessibility.graph)
+            {
+                if (entry.Key == a)
+                {
+                    // Accessibility for agent a has 7 edges (4 of which reflexive)
+                    Assert.AreEqual(7, entry.Value.Count);
+                    foreach (var edge in entry.Value)
+                    {
+                        Assert.IsTrue(IsReflexiveEdge(edge) ||
+                                      CorrectParentsForEdge(edge, w, w, e, f) ||
+                                      CorrectParentsForEdge(edge, w, u, f, e) ||
+                                      CorrectParentsForEdge(edge, w, u, e, e));
+                    }
+                }
+                else if (entry.Key == b)
+                {
+                    // Accessibility for agent b has 7 edges (4 of which reflexive)
+                    Assert.AreEqual(7, entry.Value.Count);
+                    foreach (var edge in entry.Value)
+                    {
+                        Assert.IsTrue(IsReflexiveEdge(edge) ||
+                                      CorrectParentsForEdge(edge, w, w, e, f) ||
+                                      CorrectParentsForEdge(edge, w, v, e, f) ||
+                                      CorrectParentsForEdge(edge, w, v, f, f));
+                    }
+                }
+                else { Assert.Fail("Accessibility graph should only contain agents a or b"); }
+            }
+
+        }
+
+        public bool CorrectParentsForEdge((IWorld, IWorld) edge, World parentWorld1, World parentWorld2, Event parentEvent1, Event parentEvent2)
+        {
+            World u = (World)edge.Item1;
+            World v = (World)edge.Item2;
+
+            return ((u.parentWorld == parentWorld1 && u.parentEvent == parentEvent1) && (v.parentWorld == parentWorld2 && v.parentEvent == parentEvent2)) ||
+            ((v.parentWorld == parentWorld1 && v.parentEvent == parentEvent1) && (u.parentWorld == parentWorld2 && u.parentEvent == parentEvent2));
+        }
+
+        public bool IsReflexiveEdge((IWorld, IWorld) edge)
+        {
+            (IWorld u, IWorld v) = edge;
+            return u == v;
         }
     }
 }

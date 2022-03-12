@@ -94,7 +94,10 @@ namespace ImplicitCoordination.DEL
                             if (this.accessibility.graph[a].ContainsEdge(w.parentWorld, v.parentWorld)
                                 && action.accessibility.graph[a].ContainsEdge(w.parentEvent, v.parentEvent))
                             {
-                                newAccessibility.graph[a].Add((w, v));
+                                if (!newAccessibility.graph[a].ContainsEdge(w, v))
+                                {
+                                    newAccessibility.graph[a].Add((w, v));
+                                }
                             }
                         }
                         catch (KeyNotFoundException) {  }
