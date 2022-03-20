@@ -14,6 +14,8 @@ namespace DEL.Tests
         private World w = new World();
         private World v = new World();
         private World u = new World();
+        private World t = new World();
+        private World s = new World();
 
 
         private AccessibilityRelation accessibility;
@@ -21,7 +23,7 @@ namespace DEL.Tests
         [SetUp]
         public void TestInit()
         {
-            this.accessibility = new AccessibilityRelation(new HashSet<Agent> { this.a, this.b, this.c }, new HashSet<IWorld>{ this.w, this.v, this.u });
+            this.accessibility = new AccessibilityRelation(new HashSet<Agent> { this.a, this.b, this.c }, new HashSet<IWorld>{ this.w, this.v, this.u, this.t, this.s });
         }
 
         [Test]
@@ -74,7 +76,6 @@ namespace DEL.Tests
         [Test]
         public void RemoveEdge_AgentNotInGraph_Throws()
         {
-
             Assert.Throws<AgentNotFoundException>(() =>
             {
                 this.accessibility.RemoveEdge(new Agent(), (w, v));
@@ -97,6 +98,29 @@ namespace DEL.Tests
             Assert.IsTrue(worlds.Contains(u));
             Assert.IsTrue(worlds.Contains(w));
             Assert.AreEqual(3, worlds.Count);
+        }
+
+        [Test]
+        public void GetAccessibleWorlds_TransitiveEdges_ReturnsNonEmptySet()
+        {
+
+            // Arrange
+            this.accessibility.AddEdge(a, (w, u));
+            this.accessibility.AddEdge(a, (u, v));
+            this.accessibility.AddEdge(a, (v, t));
+
+            // Act
+            var worlds = this.accessibility.GetAccessibleWorlds(a, w);
+
+            // Assert
+            Assert.IsTrue(worlds.Contains(v));
+            Assert.IsTrue(worlds.Contains(u));
+            Assert.IsTrue(worlds.Contains(w));
+            Assert.IsTrue(worlds.Contains(t));
+            Assert.IsFalse(worlds.Contains(s));
+
+
+            Assert.AreEqual(4, worlds.Count);
         }
 
         [Test]

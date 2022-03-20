@@ -34,7 +34,7 @@ namespace ImplicitCoordination.DEL.utils
                 data |= (ulong)1 << idx;
             }
 
-            // If we want to set the bit, NOT the shifted 1-bit and AND it with the number
+            // If we want to set the bit to false, NOT the shifted 1-bit and AND it with the number
             else
             {
                 data &= ~((ulong)1 << idx);

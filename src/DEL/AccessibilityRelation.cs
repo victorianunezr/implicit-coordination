@@ -9,7 +9,8 @@ namespace ImplicitCoordination.DEL
     /// A dictionary mapping each agent to the set of edges in the accessibility graph.
     /// graph[a] -> (w, v) | w, v \in W.
     /// </summary>
-    /// <remarks></remarks>
+    /// <remarks>Symmetric and transitive edges are omitted to save space.
+    /// However, these edges are considered during graph search when evaluating validity of formulas.</remarks>
     public class AccessibilityRelation
     {
         public IDictionary<Agent, HashSet<(IWorld, IWorld)>> graph;
@@ -80,26 +81,42 @@ namespace ImplicitCoordination.DEL
         }
 
         /// <summary>
-        /// Returns worlds reachable for agent A from world W
+        /// Returns worlds reachable for agent A from world W, as found by BFS on the accessibility graph for agent A
         /// </summary>
         /// <param name="a">The agent for which we want the accessible worlds.</param>
         /// <param name="w">The world from which output worlds are reachable.</param>
-        /// <returns></returns>
+        /// <returns>The hashset of worlds that are accessible from w. Implicit transitive edges are taken into account.</returns>
         public HashSet<IWorld> GetAccessibleWorlds(Agent a, IWorld w)
         {
             var edges = this.GetAccessibilityEdges(a);
 
             var accesibleWorlds = new HashSet<IWorld>();
+            var queue = new Queue<IWorld>();
 
-            foreach (var (u,v) in edges)
+            queue.Enqueue(w);
+            IWorld current;
+
+            while (queue.Count != 0)
             {
-                if (w == u)
+                current = queue.Dequeue();
+                foreach (var (u,v) in edges)
                 {
-                    accesibleWorlds.Add(v);
-                }
-                else if (w == v)
-                {
-                    accesibleWorlds.Add(u);
+                    if (current == u)
+                    {
+                        if (!accesibleWorlds.Contains(v))
+                        {
+                            queue.Enqueue(v);
+                            accesibleWorlds.Add(v);
+                        }
+                    }
+                    else if (current == v)
+                    {
+                        if (!accesibleWorlds.Contains(u))
+                        {
+                            queue.Enqueue(u);
+                            accesibleWorlds.Add(u);
+                        }
+                    }
                 }
             }
 

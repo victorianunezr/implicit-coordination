@@ -22,7 +22,13 @@ namespace ImplicitCoordination.DEL
                 throw new PropositionIdxOutOfRangeException("No more space for new propositions.");
             }
         }
+
+        public static void ResetIdCounter()
+        {
+            Counter = 0;
+        }
     }
+
 
     public class PropositionIdxOutOfRangeException : Exception
     {

@@ -24,6 +24,8 @@ namespace DEL.Tests
         [OneTimeSetUp]
         public void TestInit()
         {
+            Proposition.ResetIdCounter();
+
             // To visualize scenario, see ProductUpdateExampple.png
             this.a = new Agent();
             this.b = new Agent();
@@ -185,7 +187,7 @@ namespace DEL.Tests
         }
 
         [Test]
-        public void ProductUpdate()
+        public void ProductUpdate_ApplicableAction()
         {
             // Arrange
 

@@ -34,6 +34,8 @@ namespace DEL.Tests
         [Test]
         public void PropositionalLogic()
         {
+            Proposition.ResetIdCounter();
+
             // Evaluating formulas in a world. The setup is:
             // p = false (idx = 0), q = true (idx = 1), r = true (idx = 1)
 
@@ -89,15 +91,15 @@ namespace DEL.Tests
 
             // Assert
             Assert.IsFalse(f1.Evaluate(s, w));
-            Assert.IsTrue(f1.Evaluate(s, u));
+            Assert.IsFalse(f1.Evaluate(s, u));
             Assert.IsTrue(f2.Evaluate(s, w));
             Assert.IsFalse(f3.Evaluate(s, w));
-            Assert.IsTrue(f3.Evaluate(s, v));
-            Assert.IsTrue(f4.Evaluate(s, u));
+            Assert.IsFalse(f3.Evaluate(s, v));
+            Assert.IsFalse(f4.Evaluate(s, u));
             Assert.IsFalse(f4.Evaluate(s, w));
             Assert.IsFalse(f4.Evaluate(s, v));
             Assert.IsFalse(f5.Evaluate(s, w));
-            Assert.IsTrue(f5.Evaluate(s, u));
+            Assert.IsFalse(f5.Evaluate(s, u));
             Assert.IsTrue(f6.Evaluate(s, w));
         }
 
@@ -106,8 +108,8 @@ namespace DEL.Tests
         {
             // Setup state with agents a and b: State S = {W, R},
             // W = {w, u, v, t},
-            // R[a] = {(w, u), (w, v), (t, w)}
-            // R[b] = {(u, v), (w, v)}
+            // R[a] = {(w, u), (w, v)}
+            // R[b] = {(u, v), (w, v), (w, t)}
             // Propositions p (LSB),q ,r (MSB). Valuations:
             // w = 111, u = 011, v = 110, t = 001
 
@@ -118,22 +120,22 @@ namespace DEL.Tests
             AccessibilityRelation r = new AccessibilityRelation(new HashSet<Agent> { a, b }, new HashSet<IWorld> { t, u, v, w });
             r.AddEdge(a, (w, v));
             r.AddEdge(a, (w, u));
-            r.AddEdge(a, (w, t));
+            r.AddEdge(b, (w, t));
             r.AddEdge(b, (w, v));
             r.AddEdge(b, (u, v));
             State s = new State(new HashSet<IWorld> { w, u, v, t }, null, r);
 
             // Assert
             var f1 = Formula.Knows(a, Formula.Knows(b, atomQ));
-            Assert.IsTrue(f1.Evaluate(s, v));
+            Assert.IsFalse(f1.Evaluate(s, v));
             Assert.IsFalse(f1.Evaluate(s, w));
-            Assert.IsTrue(f1.Evaluate(s, u));
+            Assert.IsFalse(f1.Evaluate(s, u));
             Assert.IsFalse(f1.Evaluate(s, t));
 
-            Assert.IsTrue(Formula.Knows(b, atomR).Evaluate(s, w));
-            Assert.IsTrue(Formula.Knows(b, atomR).Evaluate(s, t));
+            Assert.IsFalse(Formula.Knows(b, atomR).Evaluate(s, w));
+            Assert.IsFalse(Formula.Knows(b, atomR).Evaluate(s, t));
             var f2 = Formula.Knows(a, Formula.Knows(b, atomR));
-            Assert.IsTrue(f2.Evaluate(s, t));
+            Assert.IsFalse(f2.Evaluate(s, t));
             Assert.IsFalse(f2.Evaluate(s, w));
             Assert.IsFalse(f2.Evaluate(s, u));
 
@@ -142,6 +144,38 @@ namespace DEL.Tests
             Assert.IsFalse(f3.Evaluate(s, u));
             Assert.IsFalse(f3.Evaluate(s, t));
             Assert.IsFalse(f3.Evaluate(s, v));
+        }
+
+        [Test]
+        public void Transitivity()
+        {
+            // Setup: agent a, b
+            // W = {w, u, v, t}
+            // R[a] = {(w, u), (v, t)}
+            // R[b] = {(u, v), (v, t)} By transitivity, there is an implicit edge (u, t)
+            // Propositions p (LSB),q ,r (MSB). Valuations:
+            // w = 111, u = 011, v = 110, t = 100
+
+            // Arrange
+            var t = new World(0b100);
+            Agent a = new Agent();
+            Agent b = new Agent();
+
+            AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent> { a, b }, new HashSet<IWorld> { w, u, v, t });
+            R.AddEdge(a, (w, u));
+            R.AddEdge(a, (v, t));
+            R.AddEdge(b, (v, t));
+            R.AddEdge(b, (u, v));
+            State s = new State(new HashSet<IWorld> { w, u, v, t }, null, R);
+
+            // Assert
+            Assert.IsTrue(Formula.Knows(a, atomR).Evaluate(s, t));
+            Assert.IsFalse(Formula.Knows(b, atomR).Evaluate(s, t));
+            Assert.IsTrue(Formula.Knows(a, atomQ).Evaluate(s, u));
+            Assert.IsTrue(Formula.Knows(a, atomP).Evaluate(s, u));
+            Assert.IsFalse(Formula.Knows(b, atomQ).Evaluate(s, u));
+
+
         }
     }
 }
