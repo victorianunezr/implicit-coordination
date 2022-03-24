@@ -11,6 +11,12 @@ namespace ImplicitCoordination.DEL
         private Proposition proposition;
         private Agent agent;
 
+        /// <summary>
+        /// Evaluates validity of a formula in a pointed world model (i.e. truth of a formula in a given world).
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="w"></param>
+        /// <returns></returns>
         public bool Evaluate(State s, World w)
         {
             switch (type)
@@ -48,6 +54,21 @@ namespace ImplicitCoordination.DEL
                     return false;
 
             }
+        }
+
+        /// <summary>
+        /// Evaluates validity of formula in a model (state). Formula is valid if it is valid in every designated world
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public bool Evaluate(State s)
+        {
+            foreach (World w in s.designatedWorlds)
+            {
+                if (!Evaluate(s, w)) return false;
+            }
+
+            return true;
         }
 
         public static Formula Top()

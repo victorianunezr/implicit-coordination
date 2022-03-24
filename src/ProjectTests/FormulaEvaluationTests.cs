@@ -174,8 +174,32 @@ namespace DEL.Tests
             Assert.IsTrue(Formula.Knows(a, atomQ).Evaluate(s, u));
             Assert.IsTrue(Formula.Knows(a, atomP).Evaluate(s, u));
             Assert.IsFalse(Formula.Knows(b, atomQ).Evaluate(s, u));
+        }
 
+        [Test]
+        public void ValidityInState()
+        {
+            // Setup: agent a, b
+            // W = {w, u, v}
+            // R[a] = {(w, u)}
+            // R[b] = {(u, v)} 
+            // Propositions p (LSB),q ,r (MSB). Valuations:
+            // w = 111, u = 011, v = 110
 
+            // Arrange
+            Agent a = new Agent();
+            Agent b = new Agent();
+
+            AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent> { a, b }, new HashSet<IWorld> { w, u, v });
+            R.AddEdge(a, (w, u));
+            R.AddEdge(b, (u, v));
+            State s = new State(new HashSet<IWorld> { w, u, v }, new HashSet<IWorld> { w, u}, R);
+
+            Assert.IsTrue(atomQ.Evaluate(s));
+            Assert.IsTrue(atomP.Evaluate(s));
+            Assert.IsFalse(atomR.Evaluate(s));
+            Assert.IsTrue(Formula.And(atomP, atomQ).Evaluate(s));
+            Assert.IsFalse(Formula.And(atomR, atomQ).Evaluate(s));
         }
     }
 }

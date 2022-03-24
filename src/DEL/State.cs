@@ -6,16 +6,25 @@ namespace ImplicitCoordination.DEL
 {
     public class State
     {
+        //todo: implement LocalState
+        //todo: maybe create an interface for epistemic model from which both State and Action inherit.
         public HashSet<IWorld> possibleWorlds;
 
         public HashSet<IWorld> designatedWorlds;
 
         public AccessibilityRelation accessibility;
 
+        /// <summary>
+        /// Pointer to global state from which local (or perspective shifted state) is generated.
+        /// For higher order shifted states, e.g. (s^i)^j, it is a pointer to the state of one order less, e.g. s^i
+        /// </summary>
+        public State globalState;
+
         public State(
             HashSet<IWorld> possibleWorlds,
             HashSet<IWorld> designatedWorlds,
-            AccessibilityRelation accessibility)
+            AccessibilityRelation accessibility,
+            State globalState=null)
         {
             this.possibleWorlds = possibleWorlds ?? throw new ArgumentNullException(nameof(possibleWorlds));
 
@@ -29,7 +38,55 @@ namespace ImplicitCoordination.DEL
             }
 
             this.accessibility = accessibility ?? throw new ArgumentNullException(nameof(accessibility));
+            this.globalState = globalState;
         }
+
+        public State(HashSet<IWorld> possibleWorlds, HashSet<IWorld> designatedWorlds, ICollection<Agent> agents)
+        {
+            this.possibleWorlds = possibleWorlds ?? throw new ArgumentNullException(nameof(possibleWorlds));
+
+            if (designatedWorlds == null || designatedWorlds.IsSubsetOf(possibleWorlds))
+            {
+                this.designatedWorlds = designatedWorlds ?? new HashSet<IWorld>();
+            }
+            else
+            {
+                throw new ArgumentException("Set of designated worlds is not a subset of possible worlds.");
+            }
+
+            if (agents == null) throw new ArgumentNullException(nameof(agents));
+
+            AccessibilityRelation acs = new AccessibilityRelation(agents, possibleWorlds);
+            this.accessibility = acs;
+        }
+
+
+        /// <summary>
+        /// Returns true if the state is in the set of goal states defined for the problem
+        /// </summary>
+        /// <returns></returns>
+        public bool IsGoalState(Formula goalFormula)
+        {
+            return goalFormula.Evaluate(this);
+        }
+
+
+        /// <summary>
+        /// Generates the perspective shift of s for agent a by closing on accessibility relation for a on the designated worlds of s.
+        /// </summary>
+        /// <returns>Returns the local state of s for agent a, i.e. s^a.</returns>
+        public State PerspectiveShift(Agent a)
+        {
+            HashSet<IWorld> newDesignatedWorlds = new HashSet<IWorld>();
+
+            foreach (IWorld w in this.designatedWorlds)
+            {
+                newDesignatedWorlds.UnionWith(this.accessibility.GetAccessibleWorlds(a, w));
+            }
+
+            return new State(this.possibleWorlds, newDesignatedWorlds, this.accessibility, this);
+        }
+
 
         /// <summary>
         /// An action is applicable in a state if for all designated worlds there is a designated event s.t. (M,w) |= pre(e)
@@ -61,6 +118,7 @@ namespace ImplicitCoordination.DEL
 
             return true;
         }
+
 
         /// <summary>
         /// Generates the new state s' resulting from applying action a on state s
@@ -99,6 +157,7 @@ namespace ImplicitCoordination.DEL
             return new State(newPossibleWorlds, newDesignatedWorlds, newAccessibility);
         }
 
+
         /// <summary>
         /// Updates the valuation function of w according to the postcondition of the event e.
         /// </summary>
@@ -121,6 +180,7 @@ namespace ImplicitCoordination.DEL
                 }
             }
         }
+
 
         public void UpdateAccessibility(Action action, AccessibilityRelation newAccessibility, HashSet<IWorld> newWorlds)
         {

@@ -9,7 +9,10 @@ namespace ImplicitCoordination.DEL
 
         public ushort Id => this.id;
 
-        // valuation[i] gives truth value for atomic proposition with id i. BitVector32 only allows 32 propositions per world.
+        /// <summary>
+        /// valuation[i] gives truth value for atomic proposition with id i. BitArray currently only allows 64 propositions per world.
+        /// If more propositions are needed, valuation can be modified into a collection of BitArrays.
+        /// </summary>
         public BitArray valuation;
 
         // Parent world and event used to track source of new world generated during product update
@@ -37,6 +40,11 @@ namespace ImplicitCoordination.DEL
         public bool GetValuation(Proposition p)
         {
             return this.valuation.GetValue(p.id);
+        }
+
+        public void AddProposition(Proposition p)
+        {
+            this.SetValuation(p.id, true);
         }
 
         public void SetValuation(Proposition p, bool value)
