@@ -50,25 +50,38 @@ namespace ImplicitCoordination.DEL
             {
                 throw new Exception($"The given state is not a global state. It contains {this.designatedWorlds.Count} designated worlds");
             }
-            return this.PerspectiveShift(a);
+
+            return new State(this.possibleWorlds, this.accessibility.GetAccessibleWorlds(a, this.designatedWorlds.GetSingleElement()), this.accessibility, this);
         }
 
 
         //todo: do connected components search. Right now returned states are not minimal
         /// <summary>
-        /// Generates the perspective shift of s for agent a by closing on accessibility relation for a on the designated worlds of s.
+        /// Generates the set of perspective shifted states of s for agent a by closing on accessibility relation for a on the designated worlds of s.
         /// </summary>
-        /// <returns>Returns the perspective shifted state of s for agent a, i.e. s^a.</returns>
-        public State PerspectiveShift(Agent a)
+        /// <returns>Returns the set of perspective shifted states of s for agent a, i.e. s^a.</returns>
+        public HashSet<State> PerspectiveShift(Agent a)
         {
-            HashSet<IWorld> newDesignatedWorlds = new HashSet<IWorld>();
+            HashSet<IWorld> newDesignatedWorlds;
+            HashSet<IWorld> seenDesignatedWorlds = new HashSet<IWorld>();
+            HashSet<State> perspectiveShiftedStates = new HashSet<State>();
 
             foreach (IWorld w in this.designatedWorlds)
             {
-                newDesignatedWorlds.UnionWith(this.accessibility.GetAccessibleWorlds(a, w));
+                if (!seenDesignatedWorlds.Contains(w))
+                {
+                    newDesignatedWorlds = new HashSet<IWorld>();
+
+                    foreach (IWorld reachableWorld in this.accessibility.GenerateAccessibleWorlds(a, w))
+                    {
+                        seenDesignatedWorlds.Add(reachableWorld);
+                        newDesignatedWorlds.Add(reachableWorld);
+                    }
+                    perspectiveShiftedStates.Add(new State(this.possibleWorlds, newDesignatedWorlds, this.accessibility));
+                }
             }
 
-            return new State(this.possibleWorlds, newDesignatedWorlds, this.accessibility, this);
+            return perspectiveShiftedStates;
         }
 
         /// <summary>

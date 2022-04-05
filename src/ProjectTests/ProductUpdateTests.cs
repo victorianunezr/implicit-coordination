@@ -301,6 +301,7 @@ namespace DEL.Tests
             Assert.IsNull(sPrime);
         }
 
+
         public bool CorrectParentsForEdge((IWorld, IWorld) edge, World parentWorld1, World parentWorld2, Event parentEvent1, Event parentEvent2)
         {
             World u = (World)edge.Item1;
@@ -309,6 +310,7 @@ namespace DEL.Tests
             return ((u.parentWorld == parentWorld1 && u.parentEvent == parentEvent1) && (v.parentWorld == parentWorld2 && v.parentEvent == parentEvent2)) ||
             ((v.parentWorld == parentWorld1 && v.parentEvent == parentEvent1) && (u.parentWorld == parentWorld2 && u.parentEvent == parentEvent2));
         }
+
 
         public bool IsReflexiveEdge((IWorld, IWorld) edge)
         {

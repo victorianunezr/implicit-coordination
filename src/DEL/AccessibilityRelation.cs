@@ -119,8 +119,51 @@ namespace ImplicitCoordination.DEL
                     }
                 }
             }
-
             return accesibleWorlds;
+        }
+
+        /// <summary>
+        /// Yields worlds reachable for agent A from world W, as found by BFS on the accessibility graph for agent A.
+        /// Same as method above, but this is a generator.
+        /// </summary>
+        /// <param name="a">The agent for which we want the accessible worlds.</param>
+        /// <param name="w">The world from which output worlds are reachable.</param>
+        /// <returns>Iterator with reachable worlds from source world.</returns>
+        public IEnumerable<IWorld> GenerateAccessibleWorlds(Agent a, IWorld w)
+        {
+            var edges = this.GetAccessibilityEdges(a);
+
+            var accesibleWorlds = new HashSet<IWorld>();
+            var queue = new Queue<IWorld>();
+
+            queue.Enqueue(w);
+            IWorld current;
+
+            while (queue.Count != 0)
+            {
+                current = queue.Dequeue();
+                foreach (var (u, v) in edges)
+                {
+                    if (current == u)
+                    {
+                        if (!accesibleWorlds.Contains(v))
+                        {
+                            queue.Enqueue(v);
+                            accesibleWorlds.Add(v);
+                            yield return v;
+                        }
+                    }
+                    else if (current == v)
+                    {
+                        if (!accesibleWorlds.Contains(u))
+                        {
+                            queue.Enqueue(u);
+                            accesibleWorlds.Add(u);
+                            yield return v;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>

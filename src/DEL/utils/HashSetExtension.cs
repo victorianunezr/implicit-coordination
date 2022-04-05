@@ -16,5 +16,23 @@ namespace ImplicitCoordination.utils
             (IWorld w, IWorld v) = edge;
             return set.Contains((w, v)) || set.Contains((v, w));
         }
+
+        public static T GetSingleElement<T>(this HashSet<T> set)
+        {
+            var iterator = set.GetEnumerator();
+
+            if (!iterator.MoveNext())
+            {
+                throw new Exception("Set is empty");
+            }
+
+            T element = iterator.Current;
+
+            if (iterator.MoveNext())
+            {
+                throw new Exception("Set contains more than one element");
+            }
+            return element;
+        }
     }
 }
