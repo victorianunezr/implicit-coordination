@@ -4,15 +4,9 @@ using ImplicitCoordination.utils;
 
 namespace ImplicitCoordination.DEL
 {
-    public class State
+    public class State : EpistemicModel
     {
-        //todo: implement LocalState
-        //todo: maybe create an interface for epistemic model from which both State and Action inherit.
-        public HashSet<IWorld> possibleWorlds;
-
-        public HashSet<IWorld> designatedWorlds;
-
-        public AccessibilityRelation accessibility;
+        //todo: consider implementing LocalState and GlobalState
 
         /// <summary>
         /// Pointer to global state from which local (or perspective shifted state) is generated.
@@ -25,39 +19,14 @@ namespace ImplicitCoordination.DEL
             HashSet<IWorld> designatedWorlds,
             AccessibilityRelation accessibility,
             State globalState=null)
+            : base(possibleWorlds, designatedWorlds, accessibility)
         {
-            this.possibleWorlds = possibleWorlds ?? throw new ArgumentNullException(nameof(possibleWorlds));
-
-            if (designatedWorlds == null || designatedWorlds.IsSubsetOf(possibleWorlds))
-            {
-                this.designatedWorlds = designatedWorlds ?? new HashSet<IWorld>();
-            }
-            else
-            {
-                throw new ArgumentException("Set of designated worlds is not a subset of possible worlds.");
-            }
-
-            this.accessibility = accessibility ?? throw new ArgumentNullException(nameof(accessibility));
             this.globalState = globalState;
         }
 
         public State(HashSet<IWorld> possibleWorlds, HashSet<IWorld> designatedWorlds, ICollection<Agent> agents)
+            : base(possibleWorlds, designatedWorlds, agents)
         {
-            this.possibleWorlds = possibleWorlds ?? throw new ArgumentNullException(nameof(possibleWorlds));
-
-            if (designatedWorlds == null || designatedWorlds.IsSubsetOf(possibleWorlds))
-            {
-                this.designatedWorlds = designatedWorlds ?? new HashSet<IWorld>();
-            }
-            else
-            {
-                throw new ArgumentException("Set of designated worlds is not a subset of possible worlds.");
-            }
-
-            if (agents == null) throw new ArgumentNullException(nameof(agents));
-
-            AccessibilityRelation acs = new AccessibilityRelation(agents, possibleWorlds);
-            this.accessibility = acs;
         }
 
 
@@ -70,11 +39,26 @@ namespace ImplicitCoordination.DEL
             return goalFormula.Evaluate(this);
         }
 
+        /// <summary>
+        /// Generates the associated local state for a GLOBAL state for agent a by closing on accessibility relation for a on the designated world of s.
+        /// </summary>
+        /// <returns>Returns the local state of s for agent a, i.e. s^a.</returns>
+        /// <remarks>If the state is not global</remarks>>
+        public State GetAssociatedLocal(Agent a)
+        {
+            if (this.designatedWorlds.Count != 1)
+            {
+                throw new Exception($"The given state is not a global state. It contains {this.designatedWorlds.Count} designated worlds");
+            }
+            return this.PerspectiveShift(a);
+        }
 
+
+        //todo: do connected components search. Right now returned states are not minimal
         /// <summary>
         /// Generates the perspective shift of s for agent a by closing on accessibility relation for a on the designated worlds of s.
         /// </summary>
-        /// <returns>Returns the local state of s for agent a, i.e. s^a.</returns>
+        /// <returns>Returns the perspective shifted state of s for agent a, i.e. s^a.</returns>
         public State PerspectiveShift(Agent a)
         {
             HashSet<IWorld> newDesignatedWorlds = new HashSet<IWorld>();
@@ -85,6 +69,19 @@ namespace ImplicitCoordination.DEL
             }
 
             return new State(this.possibleWorlds, newDesignatedWorlds, this.accessibility, this);
+        }
+
+        /// <summary>
+        /// Generator yielding the global states for a given states,
+        /// i.e. returns the set of states {(M, w) | w \in W_d}, where W_d is the designated worlds of the input state.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<State> Globals()
+        {
+            foreach (IWorld w in this.designatedWorlds)
+            {
+                yield return new State(this.possibleWorlds, new HashSet<IWorld>() { w }, this.accessibility);
+            }
         }
 
 
@@ -101,7 +98,7 @@ namespace ImplicitCoordination.DEL
             {
                 eventExistsForWorld = false;
 
-                foreach (Event e in action.designatedEvents)
+                foreach (Event e in action.designatedWorlds)
                 {
                     if (w.IsValid(this, e.pre))
                     {
@@ -124,16 +121,23 @@ namespace ImplicitCoordination.DEL
         /// Generates the new state s' resulting from applying action a on state s
         /// </summary>
         /// <param name="action">Action to apply.</param>
-        /// <returns></returns>
+        /// <returns>New state after appliying an action on the source state.</returns>
         public State ProductUpdate(Action action)
         {
             HashSet<IWorld> newPossibleWorlds = new HashSet<IWorld>();
             HashSet<IWorld> newDesignatedWorlds = new HashSet<IWorld>();
             AccessibilityRelation newAccessibility = this.accessibility.CopyEmptyGraph();
 
+            bool eventExistsForWorld = false;
+
             foreach (World w in this.possibleWorlds)
             {
-                foreach (Event e in action.events)
+                if (this.designatedWorlds.Contains(w))
+                {
+                    eventExistsForWorld = false;
+                }
+
+                foreach (Event e in action.possibleWorlds)
                 {
                     if (w.IsValid(this, e.pre))
                     {
@@ -145,12 +149,22 @@ namespace ImplicitCoordination.DEL
 
                         newPossibleWorlds.Add(wPrime);
 
-                        if (this.designatedWorlds.Contains(w) && action.designatedEvents.Contains(e))
+                        if (this.designatedWorlds.Contains(w) && action.designatedWorlds.Contains(e))
                         {
                             newDesignatedWorlds.Add(wPrime);
+
+                            eventExistsForWorld = true;
                         }
                     }
                 }
+
+                if (!eventExistsForWorld)
+                {
+                    // If we get here, it means we didn't find a designated world w and designated event e such that w |= pre(e)
+                    // i.e. action is not applicable
+                    return null;
+                }
+
             }
 
             UpdateAccessibility(action, newAccessibility, newPossibleWorlds);
@@ -167,24 +181,26 @@ namespace ImplicitCoordination.DEL
         /// The valuation of w is initalized as a copy of the parent world's valuation.
         /// This means that the new valuation of p will remain the same if it is not set to a value in the postcondition of e.
         /// </remarks>
-        public static void UpdateValuation(World w, IDictionary<ushort, bool?> postcondition)
+        public static void UpdateValuation(World w, IDictionary<ushort, bool> postcondition)
         {
             if (postcondition != null)
             {
                 foreach (var entry in postcondition)
                 {
-                    if (entry.Value != null)
-                    {
-                        w.SetValuation(entry.Key, entry.Value == true);
-                    }
+                    w.SetValuation(entry.Key, entry.Value);
                 }
             }
         }
 
 
+        /// <summary>
+        /// Takes in a copy of the source accessibility relation and applies the changes according to the product update on it
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="newAccessibility"></param>
+        /// <param name="newWorlds"></param>
         public void UpdateAccessibility(Action action, AccessibilityRelation newAccessibility, HashSet<IWorld> newWorlds)
         {
-
             foreach (World w in newWorlds)
             {
                 foreach (World v in newWorlds)

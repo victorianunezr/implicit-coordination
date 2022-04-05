@@ -19,15 +19,14 @@ namespace ImplicitCoordination.DEL
         /// Postcondition is a dictionary mapping a proposition id to their valuation.
         /// </summary>
         /// <remarks>
-        /// It is modelled as a dictionary to allow null values. When a proposition p maps to null,
-        /// it means the valuation for p is not set, and if w |= p before applying the event,
+        /// If some p.id is not in the dict, and if w |= p before applying the event,
         /// the resulting world w' after applying the event will have w' |= p.
         /// If a postcondition is a negated proposition ~p, set post[p.id] to false.
-        /// If post is null, it is interpreted as all entries being null.
+        /// If dictionary is null, valuation remains the same as in the source state.
         /// </remarks>
-        public IDictionary<ushort, bool?>? post;
+        public IDictionary<ushort, bool>? post;
 
-        public Event(Formula pre, IDictionary<ushort, bool?> post=null)
+        public Event(Formula pre, IDictionary<ushort, bool> post=null)
         {
             this.pre = pre;
             this.post = post;
@@ -38,11 +37,28 @@ namespace ImplicitCoordination.DEL
         /// <summary>
         /// Sets the valuation of a proposition should have after applying the event
         /// </summary>
+        /// <param name="proposition">The proposition to set.</param>
+        /// <param name="value">Boolean value that the proposition is set to after event e is applied. Null means it will keep its previous value</param>
+        public void SetPostcondition(Proposition prop, bool value)
+        {
+            this.SetPostcondition(prop.id, value);
+        }
+
+        /// <summary>
+        /// Sets the valuation of a proposition should have after applying the event
+        /// </summary>
         /// <param name="propositionId">The id of the proposition.</param>
         /// <param name="value">Boolean value that the proposition is set to after event e is applied. Null means it will keep its previous value</param>
-        public void SetPostcondition(ushort propositionId, bool? value)
+        public void SetPostcondition(ushort propositionId, bool value)
         {
-            this.post[propositionId] = value;
+            try
+            {
+                this.post[propositionId] = value;
+            }
+            catch (KeyNotFoundException)
+            {
+                this.post.Add(propositionId, value);
+            }
         }
     }
 }

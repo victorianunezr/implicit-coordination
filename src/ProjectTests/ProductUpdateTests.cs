@@ -39,8 +39,8 @@ namespace DEL.Tests
             this.v = new World(0b10); // ~p, q
             this.worlds = new HashSet<IWorld> { w, u, v };
 
-            this.e = new Event(Formula.Atom(p), new Dictionary<ushort, bool?> { { 0, false } }); // pre: p, post: ~p (q not set)
-            this.f = new Event(Formula.Atom(q), new Dictionary<ushort, bool?> { { 0, true }, { 1, false } }); // pre: q, post: p, ~q
+            this.e = new Event(Formula.Atom(p), new Dictionary<ushort, bool> { { 0, false } }); // pre: p, post: ~p (q not set)
+            this.f = new Event(Formula.Atom(q), new Dictionary<ushort, bool> { { 0, true }, { 1, false } }); // pre: q, post: p, ~q
             this.events = new HashSet<IWorld> { e, f };
 
             AccessibilityRelation stateAccessibility = new AccessibilityRelation(agents, worlds);
@@ -273,6 +273,32 @@ namespace DEL.Tests
                 else { Assert.Fail("Accessibility graph should only contain agents a or b"); }
             }
 
+        }
+
+        [Test]
+        public void ProductUpdate_NonApplicableAction()
+        {
+            // Arrange
+            // New action and state where f is the designated event, which is not applicable in the designated world u
+            var agents = new HashSet<Agent>() { a, b };
+
+            AccessibilityRelation stateAccessibility = new AccessibilityRelation(agents, worlds);
+            stateAccessibility.AddEdge(a, (w, u));
+            stateAccessibility.AddEdge(b, (w, v));
+
+            AccessibilityRelation actionAccessibility = new AccessibilityRelation(agents, events);
+            actionAccessibility.AddEdge(a, (e, f));
+            actionAccessibility.AddEdge(b, (e, f));
+
+            this.state = new State(worlds, new HashSet<IWorld>() { u }, stateAccessibility);
+
+            Action aPrime = new Action(events, new HashSet<IWorld>() { f }, actionAccessibility);
+
+            // Act
+            State sPrime = this.state.ProductUpdate(aPrime);
+
+            // Assert
+            Assert.IsNull(sPrime);
         }
 
         public bool CorrectParentsForEdge((IWorld, IWorld) edge, World parentWorld1, World parentWorld2, Event parentEvent1, Event parentEvent2)
