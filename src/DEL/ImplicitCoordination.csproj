@@ -5,9 +5,9 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
-  <!-- <ItemGroup>
+   <ItemGroup>
     <ProjectReference Include="Functional\Functional.fsproj" />
-  </ItemGroup> -->
+  </ItemGroup> 
   <ItemGroup>
     <None Remove="Microsoft.TestPlatform" />
     <None Remove="Microsoft.VisualStudio.UnitTesting" />

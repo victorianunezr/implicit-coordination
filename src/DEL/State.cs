@@ -6,14 +6,6 @@ namespace ImplicitCoordination.DEL
 {
     public class State : EpistemicModel
     {
-        //todo: consider implementing LocalState and GlobalState
-
-        /// <summary>
-        /// Pointer to global state from which local (or perspective shifted state) is generated.
-        /// For higher order shifted states, e.g. (s^i)^j, it is a pointer to the state of one order less, e.g. s^i
-        /// </summary>
-        public State globalState;
-
         public State(
             HashSet<IWorld> possibleWorlds,
             HashSet<IWorld> designatedWorlds,
@@ -21,7 +13,6 @@ namespace ImplicitCoordination.DEL
             State globalState=null)
             : base(possibleWorlds, designatedWorlds, accessibility)
         {
-            this.globalState = globalState;
         }
 
         public State(HashSet<IWorld> possibleWorlds, HashSet<IWorld> designatedWorlds, ICollection<Agent> agents)
