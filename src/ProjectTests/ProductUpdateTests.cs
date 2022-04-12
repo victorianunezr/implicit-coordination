@@ -70,14 +70,14 @@ namespace DEL.Tests
             State.UpdateValuation(vPrime, this.e.post);
 
             // Assert
-            Assert.IsFalse(wPrime.GetValuation(p));
-            Assert.IsTrue(wPrime.GetValuation(q));
+            Assert.IsFalse(wPrime.IsTrue(p));
+            Assert.IsTrue(wPrime.IsTrue(q));
 
-            Assert.IsFalse(uPrime.GetValuation(p));
-            Assert.IsFalse(uPrime.GetValuation(q));
+            Assert.IsFalse(uPrime.IsTrue(p));
+            Assert.IsFalse(uPrime.IsTrue(q));
 
-            Assert.IsFalse(vPrime.GetValuation(p));
-            Assert.IsTrue(vPrime.GetValuation(q));
+            Assert.IsFalse(vPrime.IsTrue(p));
+            Assert.IsTrue(vPrime.IsTrue(q));
         }
 
         [Test]
@@ -95,14 +95,14 @@ namespace DEL.Tests
             State.UpdateValuation(vPrime, this.f.post);
 
             // Assert
-            Assert.IsTrue(wPrime.GetValuation(p));
-            Assert.IsFalse(wPrime.GetValuation(q));
+            Assert.IsTrue(wPrime.IsTrue(p));
+            Assert.IsFalse(wPrime.IsTrue(q));
 
-            Assert.IsTrue(uPrime.GetValuation(p));
-            Assert.IsFalse(uPrime.GetValuation(q));
+            Assert.IsTrue(uPrime.IsTrue(p));
+            Assert.IsFalse(uPrime.IsTrue(q));
 
-            Assert.IsTrue(vPrime.GetValuation(p));
-            Assert.IsFalse(vPrime.GetValuation(q));
+            Assert.IsTrue(vPrime.IsTrue(p));
+            Assert.IsFalse(vPrime.IsTrue(q));
         }
 
         [Test]
@@ -201,18 +201,18 @@ namespace DEL.Tests
             {
                 if (childW.parentWorld == w && childW.parentEvent == e)
                 {
-                    Assert.IsTrue(childW.GetValuation(q));
-                    Assert.IsFalse(childW.GetValuation(p));
+                    Assert.IsTrue(childW.IsTrue(q));
+                    Assert.IsFalse(childW.IsTrue(p));
                 }
                 else if (childW.parentWorld == w && childW.parentEvent == f)
                 {
-                    Assert.IsTrue(childW.GetValuation(p));
-                    Assert.IsFalse(childW.GetValuation(q));
+                    Assert.IsTrue(childW.IsTrue(p));
+                    Assert.IsFalse(childW.IsTrue(q));
                 }
                 else if (childW.parentWorld == u && childW.parentEvent == e)
                 {
-                    Assert.IsFalse(childW.GetValuation(p));
-                    Assert.IsFalse(childW.GetValuation(q));
+                    Assert.IsFalse(childW.IsTrue(p));
+                    Assert.IsFalse(childW.IsTrue(q));
                 }
                 else if (childW.parentWorld == u && childW.parentEvent == f)
                 {
@@ -224,8 +224,8 @@ namespace DEL.Tests
                 }
                 else if (childW.parentWorld == v && childW.parentEvent == f)
                 {
-                    Assert.IsTrue(childW.GetValuation(p));
-                    Assert.IsFalse(childW.GetValuation(q));
+                    Assert.IsTrue(childW.IsTrue(p));
+                    Assert.IsFalse(childW.IsTrue(q));
                 }
                 else
                 {

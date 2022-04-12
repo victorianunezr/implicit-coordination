@@ -99,7 +99,7 @@ namespace ImplicitCoordination.DEL
             while (queue.Count != 0)
             {
                 current = queue.Dequeue();
-                foreach (var (u,v) in edges)
+                foreach (var (u, v) in edges)
                 {
                     if (current == u)
                     {

@@ -3,7 +3,7 @@ using ImplicitCoordination.DEL;
 using ImplicitCoordination.DEL.utils;
 using NUnit.Framework;
 
-namespace DEL.Tests
+namespace DEL.Utils.Tests
 {
     public class BitArrayTests
     {

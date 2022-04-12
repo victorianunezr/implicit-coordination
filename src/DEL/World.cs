@@ -37,7 +37,7 @@ namespace ImplicitCoordination.DEL
             Counter++;
         }
 
-        public bool GetValuation(Proposition p)
+        public bool IsTrue(Proposition p)
         {
             return this.valuation.GetValue(p.id);
         }
@@ -78,6 +78,16 @@ namespace ImplicitCoordination.DEL
         public World CreateChild(Event e)
         {
             return new World(this.valuation.data, this, e);
+        }
+
+        /// <summary>
+        /// Two worlds are equal if their valuation (set of true propositions) is equal
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns>True if worlds valuations are equal</returns>
+        public bool Equals(World other)
+        {
+            return this.valuation.data == other.valuation.data;
         }
     }
 }

@@ -28,11 +28,6 @@ namespace ImplicitCoordination.Planning
             this.id = Counter;
             Counter++;
         }
-
-        public static Node RootNode(State state)
-        {
-            return new Node(state, null, NodeType.And, null);
-        }
     }
 
     public enum NodeStatus

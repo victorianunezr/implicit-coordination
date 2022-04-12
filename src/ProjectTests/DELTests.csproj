@@ -15,4 +15,10 @@
   <ItemGroup>
     <ProjectReference Include="..\DEL\ImplicitCoordination.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="utils\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="utils\" />
+  </ItemGroup>
 </Project>
