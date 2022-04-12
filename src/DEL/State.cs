@@ -6,6 +6,7 @@ namespace ImplicitCoordination.DEL
 {
     public class State : EpistemicModel
     {
+        //todo: maybe List<Wordls> is better for checking equality as elementwise check is O(1)
         public State(
             HashSet<IWorld> possibleWorlds,
             HashSet<IWorld> designatedWorlds,
@@ -226,6 +227,13 @@ namespace ImplicitCoordination.DEL
                     }
                 }
             }
+        }
+
+        public bool Equals(State other)
+        {
+            if (!this.designatedWorlds.ContainsSameWorlds(other.designatedWorlds)) return false;
+            if (!this.possibleWorlds.ContainsSameWorlds(other.possibleWorlds)) return false;
+            return true;
         }
     }
 }

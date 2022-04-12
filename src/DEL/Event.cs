@@ -60,5 +60,10 @@ namespace ImplicitCoordination.DEL
                 this.post.Add(propositionId, value);
             }
         }
+
+        public bool IsEqualTo(World other)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -85,7 +85,7 @@ namespace ImplicitCoordination.DEL
         /// </summary>
         /// <param name="other"></param>
         /// <returns>True if worlds valuations are equal</returns>
-        public bool Equals(World other)
+        public bool IsEqualTo(World other)
         {
             return this.valuation.data == other.valuation.data;
         }

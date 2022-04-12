@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ImplicitCoordination.DEL;
 
 namespace ImplicitCoordination.utils
@@ -15,6 +16,16 @@ namespace ImplicitCoordination.utils
         {
             (IWorld w, IWorld v) = edge;
             return set.Contains((w, v)) || set.Contains((v, w));
+        }
+
+        public static bool ContainsSameWorlds(this HashSet<IWorld> thisSet, HashSet<IWorld> other)
+        {
+            if (thisSet.Count != other.Count) return false;
+            foreach (IWorld w in thisSet)
+            {
+                if (!other.Any(x => x.IsEqualTo((World)w))) return false;
+            }
+            return true;
         }
 
         public static T GetSingleElement<T>(this HashSet<T> set)
