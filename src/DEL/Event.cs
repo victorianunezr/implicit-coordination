@@ -1,4 +1,5 @@
 ﻿using ImplicitCoordination.DEL.utils;
+using System;
 using System.Collections.Generic;
 
 namespace ImplicitCoordination.DEL
@@ -9,6 +10,7 @@ namespace ImplicitCoordination.DEL
         private readonly ushort id;
 
         public ushort Id => this.id;
+        public ulong TruePropositions => throw new NotImplementedException();
 
         /// <summary>
         /// Precondition Formula that is evaluated in each world when applying the product update.
@@ -61,9 +63,9 @@ namespace ImplicitCoordination.DEL
             }
         }
 
-        public bool IsEqualTo(World other)
+        public bool IsEqualTo(IWorld other)
         {
-            throw new System.NotImplementedException();
+            return this.TruePropositions == other.TruePropositions;
         }
     }
 }

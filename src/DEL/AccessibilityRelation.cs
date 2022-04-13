@@ -8,7 +8,7 @@ using ImplicitCoordination.utils;
 namespace ImplicitCoordination.DEL
 {
     /// <summary>
-    /// A dictionary mapping each agent to the set of edges in the accessibility graph.
+    /// A dictionary mapping each agent to the set pairs of indistinguishable worlds.
     /// graph[a] -> (w, v) | w, v \in W.
     /// </summary>
     /// <remarks>Symmetric and transitive edges are omitted to save space.
@@ -17,7 +17,7 @@ namespace ImplicitCoordination.DEL
     {
         public IDictionary<Agent, HashSet<(IWorld, IWorld)>> graph;
 
-        public AccessibilityRelation(ICollection<Agent> agents, ICollection<IWorld> worlds=null)
+        public AccessibilityRelation(ICollection<Agent> agents, ICollection<IWorld> worlds = null)
         {
             this.graph = new Dictionary<Agent, HashSet<(IWorld, IWorld)>>();
 
@@ -53,11 +53,19 @@ namespace ImplicitCoordination.DEL
             {
                 throw new AgentNotFoundException("Agent does not exist in accessibility graph.");
             }
-            AddReflexive(a, edge.Item1);
-            AddReflexive(a, edge.Item2);
+            AddReflexiveEdgeForAllAgents(edge.Item1);
+            AddReflexiveEdgeForAllAgents(edge.Item2);
         }
 
-        private void AddReflexive(Agent a, IWorld world)
+        public void AddReflexiveEdgeForAllAgents(IWorld world)
+        {
+            foreach (var key in this.graph.Keys)
+            {
+                graph[key].Add((world, world));
+            }
+        }
+
+        public void AddReflexive(Agent a, IWorld world)
         {
             this.graph[a].Add((world, world));
         }
@@ -179,63 +187,87 @@ namespace ImplicitCoordination.DEL
         /// <returns></returns>
         public AccessibilityRelation CopyEmptyGraph()
         {
-            var newGraph = new Dictionary<Agent, HashSet<(IWorld, IWorld)>>();
+            //var newGraph = new Dictionary<Agent, HashSet<(IWorld, IWorld)>>();
 
-            foreach (Agent a in this.graph.Keys)
-            {
-                newGraph[a] = new HashSet<(IWorld, IWorld)>();
-            }
+            //foreach (Agent a in this.graph.Keys)
+            //{
+            //    newGraph[a] = new HashSet<(IWorld, IWorld)>();
+            //}
 
             return new AccessibilityRelation(this.graph.Keys);
         }
 
-       
-        public bool Equals(AccessibilityRelation other)
+        /// <summary>
+        /// Returns an instance of AccessibilityRelation with a dictionary containing the same keys (agents) as in the source graph and only reflexive edges as values.
+        /// </summary>
+        /// <returns></returns>
+        public AccessibilityRelation CopyEmptyGraph(HashSet<IWorld> worlds)
         {
-            foreach (var entry in this.graph)
+            return new AccessibilityRelation(this.graph.Keys, worlds);
+        }
+
+
+        //public bool Equals(AccessibilityRelation other)
+        //{
+        //    foreach (var entry in this.graph)
+        //    {
+        //        try
+        //        {
+        //            var edges = other.graph[entry.Key];
+        //            if (!AreEdgesEqual(entry.Value, edges)) return false;
+        //        }
+        //        catch (KeyNotFoundException)
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    return true;
+        //}
+
+
+        //todo: this casting workaround is terrible
+        public bool AreEdgesEqual(HashSet<(IWorld, IWorld)> set1, HashSet<(IWorld, IWorld)> set2)
+        {
+            if (set1.Count != set2.Count) return false;
+
+            foreach (var (w, u) in set1)
             {
-                try
-                {
-                    var edges = other.graph[entry.Key];
-                    if (!entry.Value.Equals(edges)) return false;
-                }
-                catch (KeyNotFoundException)
-                {
-                    return false;
-                }
+                if (!set2.Any(x =>
+                       x.Item1.IsEqualTo((World)w) && x.Item2.IsEqualTo((World)u) ||
+                       x.Item1.IsEqualTo((World)u) && x.Item2.IsEqualTo((World)w))) return false;
             }
             return true;
         }
-
-        private static void SortSetOfEdges(HashSet<(ulong, ulong)> set)
-        {
-            List<(ulong, ulong)> list = set.ToList();
-            SortEdgesInList(list);
-
-            list.Sort((t1, t2) =>
-            {
-                int res = t1.Item1.CompareTo(t2.Item1);
-                return res != 0 ? res : t1.Item2.CompareTo(t2.Item2);
-            });
-        }
-
-        private static void SortEdgesInList(List<(ulong, ulong)> list)
-        {
-            for (int i = 0; i < list.Count; i++)
-            {
-                list[i] = SortTuple(list[i]);
-            }
-        }
-
-        private static (ulong, ulong) SortTuple((ulong, ulong) tup)
-        {
-            var t1 = tup.Item1;
-            var t2 = tup.Item2;
-
-            if (t1 <= t2) return tup;
-            else return (t2, t1);
-        }
     }
+    //    private static void SortSetOfEdges(HashSet<(ulong, ulong)> set)
+    //    {
+    //        List<(ulong, ulong)> list = set.ToList();
+    //        SortEdgesInList(list);
+
+    //        list.Sort((t1, t2) =>
+    //        {
+    //            int res = t1.Item1.CompareTo(t2.Item1);
+    //            return res != 0 ? res : t1.Item2.CompareTo(t2.Item2);
+    //        });
+    //    }
+
+    //    private static void SortEdgesInList(List<(ulong, ulong)> list)
+    //    {
+    //        for (int i = 0; i < list.Count; i++)
+    //        {
+    //            list[i] = SortTuple(list[i]);
+    //        }
+    //    }
+
+    //    private static (ulong, ulong) SortTuple((ulong, ulong) tup)
+    //    {
+    //        var t1 = tup.Item1;
+    //        var t2 = tup.Item2;
+
+    //        if (t1 <= t2) return tup;
+    //        else return (t2, t1);
+    //    }
+    //}
 
     public class AgentNotFoundException : Exception
     {

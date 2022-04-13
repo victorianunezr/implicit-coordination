@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using ImplicitCoordination.utils;
 
 namespace ImplicitCoordination.DEL
 {
     public class State : EpistemicModel
     {
+        public readonly byte[] accessibilityHash;
+
         //todo: maybe List<Wordls> is better for checking equality as elementwise check is O(1)
         public State(
             HashSet<IWorld> possibleWorlds,
@@ -14,11 +19,13 @@ namespace ImplicitCoordination.DEL
             State globalState=null)
             : base(possibleWorlds, designatedWorlds, accessibility)
         {
+            this.accessibilityHash = HashingHelper.HashAccessibilityRelation(this.accessibility);
         }
 
         public State(HashSet<IWorld> possibleWorlds, HashSet<IWorld> designatedWorlds, ICollection<Agent> agents)
             : base(possibleWorlds, designatedWorlds, agents)
         {
+            this.accessibilityHash = HashingHelper.HashAccessibilityRelation(this.accessibility);
         }
 
 
@@ -131,7 +138,6 @@ namespace ImplicitCoordination.DEL
         {
             HashSet<IWorld> newPossibleWorlds = new HashSet<IWorld>();
             HashSet<IWorld> newDesignatedWorlds = new HashSet<IWorld>();
-            AccessibilityRelation newAccessibility = this.accessibility.CopyEmptyGraph();
 
             bool eventExistsForWorld = false;
 
@@ -171,6 +177,8 @@ namespace ImplicitCoordination.DEL
                 }
 
             }
+
+            AccessibilityRelation newAccessibility = this.accessibility.CopyEmptyGraph(newPossibleWorlds);
 
             UpdateAccessibility(action, newAccessibility, newPossibleWorlds);
             return new State(newPossibleWorlds, newDesignatedWorlds, newAccessibility);
@@ -233,7 +241,7 @@ namespace ImplicitCoordination.DEL
         {
             if (!this.designatedWorlds.ContainsSameWorlds(other.designatedWorlds)) return false;
             if (!this.possibleWorlds.ContainsSameWorlds(other.possibleWorlds)) return false;
-            return true;
+            return this.accessibilityHash.SequenceEqual(other.accessibilityHash);
         }
     }
 }

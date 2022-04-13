@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using ImplicitCoordination.DEL;
 
@@ -7,12 +8,36 @@ namespace ImplicitCoordination.utils
 {
     public static class HashingHelper
     {
-        public static string CompressEntry(KeyValuePair<Agent, HashSet<(World, World)>> entry)
+        private static readonly MD5 md5Hasher = MD5.Create();
+
+        public static byte[] HashAccessibilityRelation(this AccessibilityRelation R)
+        {
+            return md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(R.AccessibilityGraphToString()));
+        }
+
+        public static string AccessibilityGraphToString(this AccessibilityRelation R)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (var entry in R.graph)
+            {
+                builder.Append(KVPairToString(entry));
+            }
+            return builder.ToString();
+        }
+
+        public static string KVPairToString(KeyValuePair<Agent, HashSet<(IWorld, IWorld)>> entry)
         {
             List<(ulong, ulong)> edges = new List<(ulong, ulong)>();
             foreach (var (w, u) in entry.Value)
             {
-                edges.Add((w.valuation.data, u.valuation.data));
+                if (w.TruePropositions <= u.TruePropositions)
+                {
+                    edges.Add((w.TruePropositions, u.TruePropositions));
+                }
+                else
+                {
+                    edges.Add((u.TruePropositions, w.TruePropositions));
+                }
             }
 
             SortListOfTuples(edges);
@@ -29,7 +54,7 @@ namespace ImplicitCoordination.utils
 
         public static void SortListOfTuples(List<(ulong, ulong)> list)
         {
-            SortTuplesInList(list);
+            //SortTuplesInList(list);
 
             list.Sort((t1, t2) =>
             {
@@ -38,21 +63,21 @@ namespace ImplicitCoordination.utils
             });
         }
 
-        public static void SortTuplesInList(List<(ulong, ulong)> list)
-        {
-            for (int i = 0; i < list.Count; i++)
-            {
-                list[i] = SortTuple(list[i]);
-            }
-        }
+        //public static void SortTuplesInList(List<(ulong, ulong)> list)
+        //{
+        //    for (int i = 0; i < list.Count; i++)
+        //    {
+        //        list[i] = SortTuple(list[i]);
+        //    }
+        //}
 
-        public static (ulong, ulong) SortTuple((ulong, ulong) tup)
-        {
-            var t1 = tup.Item1;
-            var t2 = tup.Item2;
+        //public static (ulong, ulong) SortTuple((ulong, ulong) tup)
+        //{
+        //    var t1 = tup.Item1;
+        //    var t2 = tup.Item2;
 
-            if (t1 <= t2) return tup;
-            else return (t2, t1);
-        }
+        //    if (t1 <= t2) return tup;
+        //    else return (t2, t1);
+        //}
     }
 }

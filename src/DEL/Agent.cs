@@ -15,5 +15,10 @@
             this.id = Counter;
             Counter++;
         }
+
+        public static void ResetIdCounter()
+        {
+            Counter = 0;
+        }
     }
 }

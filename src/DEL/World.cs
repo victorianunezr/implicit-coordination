@@ -9,6 +9,8 @@ namespace ImplicitCoordination.DEL
 
         public ushort Id => this.id;
 
+        public ulong TruePropositions => this.valuation.data;
+
         /// <summary>
         /// valuation[i] gives truth value for atomic proposition with id i. BitArray currently only allows 64 propositions per world.
         /// If more propositions are needed, valuation can be modified into a collection of BitArrays.
@@ -85,9 +87,14 @@ namespace ImplicitCoordination.DEL
         /// </summary>
         /// <param name="other"></param>
         /// <returns>True if worlds valuations are equal</returns>
-        public bool IsEqualTo(World other)
+        public bool IsEqualTo(IWorld other)
         {
-            return this.valuation.data == other.valuation.data;
+            return this.TruePropositions == other.TruePropositions;
+        }
+
+        public static void ResetIdCounter()
+        {
+            Counter = 0;
         }
     }
 }

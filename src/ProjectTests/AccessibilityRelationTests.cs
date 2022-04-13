@@ -153,44 +153,72 @@ namespace DEL.Tests
         }
 
 
-        [Test]
-        public void Equals_EmptyRelations()
-        {
+        //[Test]
+        //public void Equals_EmptyRelations()
+        //{
+        //    // Arrange
+        //    AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent>{ a, b, c });
+        //    AccessibilityRelation P = new AccessibilityRelation(new HashSet<Agent> { a, b, c });
 
-        }
-
-
-        [Test]
-        public void Equals_EqualRelations()
-        {
-            // Arrange
-            this.accessibility.AddEdge(a, (w, u));
-            this.accessibility.AddEdge(a, (u, v));
-            this.accessibility.AddEdge(b, (u, v));
-            this.accessibility.AddEdge(b, (v, t));
-            this.accessibility.AddEdge(c, (s, w));
-
-            World wP = new World(1);
-            World vP = new World(3);
-            World uP = new World(3);
-            World tP = new World(4);
-            World sP = new World(5);
-
-            AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent> { this.a, this.b, this.c });
+        //    // Assert
+        //    Assert.IsTrue(R.Equals(P));
+        //}
 
 
+        //[Test]
+        //public void Equals_EqualRelations()
+        //{
+        //    // Arrange
+        //    this.accessibility.AddEdge(a, (w, u));
+        //    this.accessibility.AddEdge(a, (u, v));
+        //    this.accessibility.AddEdge(b, (u, v));
+        //    this.accessibility.AddEdge(b, (v, t));
+        //    this.accessibility.AddEdge(c, (s, w));
 
-        }
+        //    World wP = new World(1);
+        //    World vP = new World(3);
+        //    World uP = new World(3);
+        //    World tP = new World(4);
+        //    World sP = new World(5);
 
-        [Test]
-        public void Equals_NotEqualRelations()
-        {
-            this.accessibility.AddEdge(a, (w, u));
-            this.accessibility.AddEdge(a, (u, v));
-            this.accessibility.AddEdge(b, (u, v));
-            this.accessibility.AddEdge(b, (v, t));
-            this.accessibility.AddEdge(c, (s, w));
+        //    AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent> { this.a, this.b, this.c });
 
-        }
+        //    R.AddEdge(a, (uP, wP));
+        //    R.AddEdge(a, (vP, uP));
+        //    R.AddEdge(b, (v, u));
+        //    R.AddEdge(b, (tP, u));
+        //    R.AddEdge(c, (w, sP));
+
+        //    // Assert
+        //    Assert.IsTrue(this.accessibility.Equals(R));
+        //}
+
+        //[Test]
+        //public void Equals_NotEqualRelations()
+        //{
+        //    // Arrange
+        //    this.accessibility.AddEdge(a, (w, u));
+        //    this.accessibility.AddEdge(a, (u, v));
+        //    this.accessibility.AddEdge(b, (u, v));
+        //    this.accessibility.AddEdge(b, (v, t));
+        //    this.accessibility.AddEdge(c, (s, w));
+
+        //    World wP = new World(1);
+        //    World vP = new World(3);
+        //    World uP = new World(3);
+        //    World tP = new World(4);
+        //    World sP = new World(5);
+
+        //    AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent> { this.a, this.b, this.c });
+
+        //    R.AddEdge(a, (uP, wP));
+        //    R.AddEdge(a, (vP, uP));
+        //    R.AddEdge(b, (v, u));
+        //    R.AddEdge(b, (tP, u));
+        //    R.AddEdge(c, (w, sP));
+
+        //    // Assert
+        //    Assert.IsTrue(this.accessibility.Equals(R));
+        //}
     }
 }

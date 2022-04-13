@@ -5,7 +5,9 @@ namespace ImplicitCoordination.DEL
     {
         public ushort Id { get; }
 
-        public bool IsEqualTo(World other);
+        public ulong TruePropositions { get; }
+
+        public bool IsEqualTo(IWorld other);
 
     }
 }

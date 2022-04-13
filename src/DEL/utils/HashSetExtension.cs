@@ -23,7 +23,7 @@ namespace ImplicitCoordination.utils
             if (thisSet.Count != other.Count) return false;
             foreach (IWorld w in thisSet)
             {
-                if (!other.Any(x => x.IsEqualTo((World)w))) return false;
+                if (!other.Any(x => x.IsEqualTo(w))) return false;
             }
             return true;
         }

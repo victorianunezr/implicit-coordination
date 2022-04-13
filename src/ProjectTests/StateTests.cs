@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ImplicitCoordination.DEL;
+using ImplicitCoordination.utils;
 using NUnit.Framework;
 using Action = ImplicitCoordination.DEL.Action;
 
@@ -20,7 +22,9 @@ namespace DEL.Tests
         private Event e;
         private Event f;
         private State state;
-        private Action action;
+        private Action applicableAction;
+        private AccessibilityRelation stateAccessibility;
+
         private HashSet<IWorld> worlds;
         private HashSet<IWorld> events;
 
@@ -30,6 +34,8 @@ namespace DEL.Tests
         public void TestInit()
         {
             Proposition.ResetIdCounter();
+            Agent.ResetIdCounter();
+            World.ResetIdCounter();
 
             // To visualize scenario, see ProductUpdateExampple.png
             this.a = new Agent();
@@ -50,7 +56,7 @@ namespace DEL.Tests
             this.f = new Event(Formula.Atom(q), new Dictionary<ushort, bool> { { 0, true }, { 1, false } }); // pre: q, post: p, ~q
             this.events = new HashSet<IWorld> { e, f };
 
-            AccessibilityRelation stateAccessibility = new AccessibilityRelation(agents, worlds);
+            stateAccessibility = new AccessibilityRelation(agents, worlds);
             stateAccessibility.AddEdge(a, (w, u));
             stateAccessibility.AddEdge(b, (w, v));
             stateAccessibility.AddEdge(b, (u, t));
@@ -61,7 +67,9 @@ namespace DEL.Tests
             actionAccessibility.AddEdge(b, (e, f));
 
             this.state = new State(worlds, new HashSet<IWorld>() { w }, stateAccessibility);
-            this.action = new Action(events, new HashSet<IWorld>() { e }, actionAccessibility);
+            this.applicableAction = new Action(events, new HashSet<IWorld>() { e }, actionAccessibility);
+            this.applicableAction = new Action(events, new HashSet<IWorld>() { f }, actionAccessibility);
+
         }
 
         [Test]
@@ -149,6 +157,87 @@ namespace DEL.Tests
             Assert.AreEqual(2, current.designatedWorlds.Count);
             Assert.IsTrue(current.designatedWorlds.Contains(t) && current.designatedWorlds.Contains(u));
 
+        }
+
+        [Test]
+        public void Equals_SmallStates()
+        {
+            // Arrange
+            State s1 = new State(new HashSet<IWorld> { w }, new HashSet<IWorld> { w }, new HashSet<Agent>() { a, b });
+            AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent>() { a, b });
+            R.AddReflexiveEdgeForAllAgents(w);
+
+            World wP = new World(0b11);
+            State s2 = new State(new HashSet<IWorld> { wP }, new HashSet<IWorld> { wP }, R);
+            State s3 = new State(new HashSet<IWorld> { wP }, new HashSet<IWorld> { wP }, new HashSet<Agent>() { a });
+            State s4 = new State(new HashSet<IWorld> { wP }, new HashSet<IWorld> { }, new HashSet<Agent>() { a, b });
+            State s5 = new State(new HashSet<IWorld> { wP, w }, new HashSet<IWorld> { w }, new HashSet<Agent>() { a, b });
+
+
+            // Assert
+            Assert.AreEqual(HashingHelper.AccessibilityGraphToString(s1.accessibility), HashingHelper.AccessibilityGraphToString(s2.accessibility));
+            Assert.AreEqual(HashingHelper.HashAccessibilityRelation(s1.accessibility), HashingHelper.HashAccessibilityRelation(s2.accessibility));
+            Assert.AreEqual(s1.accessibilityHash, s2.accessibilityHash);
+            Assert.IsTrue(s1.accessibilityHash.SequenceEqual(s2.accessibilityHash));
+
+            Assert.IsTrue(s1.Equals(s2));
+            Assert.IsFalse(s1.Equals(s3));
+            Assert.IsFalse(s1.Equals(s4));
+            Assert.IsFalse(s1.Equals(s5));
+        }
+
+        [Test]
+        public void Equals_CopyState()
+        {
+            // Arrange
+            State sCopy = this.state = new State(worlds, new HashSet<IWorld>() { w }, stateAccessibility);
+
+            // Assert
+            Assert.IsTrue(state.Equals(sCopy));
+        }
+
+        [Test]
+        public void Equals_EqualStates()
+        {
+            // Arrange
+            World wP = new World(0b11); // p, q
+            World uP = new World(0b01); // p, ~q
+            World vP = new World(0b10); // ~p, q
+            World tP = new World(0b00); // ~p, ~q
+            AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent>() { a, b });
+            R.AddEdge(a, (wP, uP));
+            R.AddEdge(b, (wP, vP));
+            R.AddEdge(b, (uP, tP));
+
+            State sP = new State(new HashSet<IWorld> { wP, uP, vP, tP }, new HashSet<IWorld>() { wP }, R);
+
+            // Assert
+            Assert.IsTrue(state.Equals(sP));
+        }
+
+        [Test]
+        public void Equals_ActionWithNoEffect_EqualWorldsAfter()
+        {
+            // Arrange
+            Event eP = new Event(Formula.Atom(p), new Dictionary<ushort, bool> { { 0, true } }); // pre: p, post: p (no change)
+            AccessibilityRelation Q = new AccessibilityRelation(new HashSet<Agent>() { a, b });
+            Q.AddReflexiveEdgeForAllAgents(eP);
+
+            Action noEffectAction = new Action(new HashSet<IWorld>() { eP }, new HashSet<IWorld>() { eP }, Q);
+            State sP = state.ProductUpdate(noEffectAction);
+
+            // Assert
+            Assert.IsTrue(state.Equals(sP));
+        }
+
+        [Test]
+        public void Equals_ApplicableAction_NotEqualWorlds()
+        {
+            // Arrange
+            State sP = state.ProductUpdate(applicableAction);
+
+            // Assert
+            Assert.IsFalse(state.Equals(sP));
         }
     }
 }
