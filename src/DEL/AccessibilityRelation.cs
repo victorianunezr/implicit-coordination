@@ -57,6 +57,16 @@ namespace ImplicitCoordination.DEL
             AddReflexiveEdgeForAllAgents(edge.Item2);
         }
 
+
+        public void AddEdgeForAllAgents((IWorld, IWorld) edge)
+        {
+            foreach (var key in this.graph.Keys)
+            {
+                this.AddEdge(key, edge);
+            }
+        }
+
+
         public void AddReflexiveEdgeForAllAgents(IWorld world)
         {
             foreach (var key in this.graph.Keys)
@@ -187,13 +197,6 @@ namespace ImplicitCoordination.DEL
         /// <returns></returns>
         public AccessibilityRelation CopyEmptyGraph()
         {
-            //var newGraph = new Dictionary<Agent, HashSet<(IWorld, IWorld)>>();
-
-            //foreach (Agent a in this.graph.Keys)
-            //{
-            //    newGraph[a] = new HashSet<(IWorld, IWorld)>();
-            //}
-
             return new AccessibilityRelation(this.graph.Keys);
         }
 
@@ -239,36 +242,6 @@ namespace ImplicitCoordination.DEL
             return true;
         }
     }
-    //    private static void SortSetOfEdges(HashSet<(ulong, ulong)> set)
-    //    {
-    //        List<(ulong, ulong)> list = set.ToList();
-    //        SortEdgesInList(list);
-
-    //        list.Sort((t1, t2) =>
-    //        {
-    //            int res = t1.Item1.CompareTo(t2.Item1);
-    //            return res != 0 ? res : t1.Item2.CompareTo(t2.Item2);
-    //        });
-    //    }
-
-    //    private static void SortEdgesInList(List<(ulong, ulong)> list)
-    //    {
-    //        for (int i = 0; i < list.Count; i++)
-    //        {
-    //            list[i] = SortTuple(list[i]);
-    //        }
-    //    }
-
-    //    private static (ulong, ulong) SortTuple((ulong, ulong) tup)
-    //    {
-    //        var t1 = tup.Item1;
-    //        var t2 = tup.Item2;
-
-    //        if (t1 <= t2) return tup;
-    //        else return (t2, t1);
-    //    }
-    //}
-
     public class AgentNotFoundException : Exception
     {
         public AgentNotFoundException(string message)

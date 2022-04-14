@@ -220,10 +220,14 @@ namespace DEL.Tests
         {
             // Arrange
             Event eP = new Event(Formula.Atom(p), new Dictionary<ushort, bool> { { 0, true } }); // pre: p, post: p (no change)
+            Event fP = new Event(Formula.Not(Formula.Atom(p)), new Dictionary<ushort, bool> { { 0, false } }); // pre: ~p, post: ~p (no change)
+
             AccessibilityRelation Q = new AccessibilityRelation(new HashSet<Agent>() { a, b });
             Q.AddReflexiveEdgeForAllAgents(eP);
+            Q.AddEdgeForAllAgents((eP, fP));
 
-            Action noEffectAction = new Action(new HashSet<IWorld>() { eP }, new HashSet<IWorld>() { eP }, Q);
+
+            Action noEffectAction = new Action(new HashSet<IWorld>() { eP, fP }, new HashSet<IWorld>() { eP }, Q);
             State sP = state.ProductUpdate(noEffectAction);
 
             // Assert
