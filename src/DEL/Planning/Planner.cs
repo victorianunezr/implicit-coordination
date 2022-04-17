@@ -1,170 +1,97 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using ImplicitCoordination.DEL;
-//using ImplicitCoordination.utils;
-//using Action = ImplicitCoordination.DEL.Action;
+﻿using System;
+using System.Collections.Generic;
+using ImplicitCoordination.DEL;
+using ImplicitCoordination.utils;
+using Action = ImplicitCoordination.DEL.Action;
 
-//namespace ImplicitCoordination.Planning
-//{
-//    public class Planner
-//    {
-//        private Graph Graph;
+namespace ImplicitCoordination.Planning
+{
+    public class Planner
+    {
+        private Graph Graph;
 
-//        /// <summary>
-//        /// The planning task to solve
-//        /// </summary>
-//        private PlanningTask task;
+        /// <summary>
+        /// The planning task to solve
+        /// </summary>
+        private PlanningTask task;
 
-//        public Planner(PlanningTask task)
-//        {
-//            this.task = task;
-//        }
+        public Planner(PlanningTask task)
+        {
+            this.task = task;
+        }
 
-//        //todo: without contraction, we need a way to check equality of states in order to avoid revisiting states already seen
-//        public void Plan()
-//        {
-//            Init();
+        public void Plan()
+        {
+            Init();
 
-//            Node s;
-//            State sPrime;
-//            State sJ;
+            Node s;
+            State sJ;
+            Node sPrime;
+            Node newGlobal;
 
-//            while (Graph.frontier.Count > 0)
-//            {
-//                s = Graph.DequeueFrontier();
+            while (Graph.frontier.Count > 0)
+            {
+                s = Graph.frontier.Dequeue();
 
-//                foreach (Action action in task.actions)
-//                {
-//                    sJ = s.state.GetAssociatedLocal(action.owner);
-//                    sPrime = sJ.ProductUpdate(action);
+                foreach (Action action in task.actions.Values)
+                {
+                    sJ = s.state.GetAssociatedLocal(action.owner);
+                    sPrime = new Node(sJ.ProductUpdate(action), s, NodeType.And, action);                   
 
-//                    // Continue if action was not applicable or if s' already exists in AndNodes
-//                    if (sPrime == null || AndNodes.Contains(sPrime)) continue;
+                    // Continue if action was not applicable or if s' already exists in AndNodes
+                    if (sPrime == null || !Graph.AddAndNode(sPrime)) continue;
 
-//                    Node newNode = Graph.CreateAndNode(sPrime, action, s);
+                    foreach (State global in sPrime.state.Globals())
+                    {
+                        newGlobal = new Node(global, sPrime, NodeType.Or);
+                        if (!Graph.AddOrNode(newGlobal)) continue;
 
-//                    foreach (State global in sPrime.Globals())
-//                    {
-//                        if (OrNodes.Contains(global)) continue;
+                        if (task.goalFormula.Evaluate(sPrime.state))
+                        {
+                            Graph.UpdateSolvedDead(newGlobal);
+                        }
+                        else
+                        {
+                            Graph.frontier.Enqueue(newGlobal);
+                        }
+                    }
+                }
+                Graph.UpdateSolvedDead(s);
 
-//                        Graph.CreateOrNode(global, newNode);
+                if (Graph.root.status == NodeStatus.Solved)
+                {
+                    // extract policy
+                }
+                if (Graph.root.status == NodeStatus.Dead)
+                {
+                    throw new Exception("Root node is dead. Planning failed.");
+                }
+            }
+            throw new Exception("Root node is dead. Planning failed.");
+        }
 
-//                        if (task.goalFormula.Evaluate(sPrime))
-//                        {
-//                            UpdateSolvedDead(global);
-//                        }
-//                        else
-//                        {
-//                            frontier.Enqueue(sPrime);
-//                        }
-//                    }
-//                }
-//                UpdateSolvedDead(s);
+        public void Init()
+        {
+            this.Graph = new Graph(task);
 
-//                if (IsSolved(root))
-//                {
-//                    // extract policy
-//                }
-//                if (IsDead(root))
-//                {
-//                    throw new Exception("Root node is dead. Planning failed.");
-//                }
-//            }
-//            throw new Exception("Root node is dead. Planning failed.");
-//        }
+            Node newNode;
 
-//        public void Init()
-//        {
-//            this.Graph = new Graph(task.initialState);
+            foreach (State global in Graph.root.state.Globals())
+            {
+                newNode = new Node(global, Graph.root, NodeType.Or);
 
-//            AndNodes.Add(root);
-//            root.type = NodeType.And;
+                if (!Graph.AddOrNode(newNode)) continue;
 
-//            foreach (State global in root.state.Globals())
-//            {
-//                if (OrNodes.Contains(global)) continue;
+                if (task.goalFormula.Evaluate(Graph.root.state))
+                {
+                    Graph.UpdateSolvedDead(newNode);
+                }
+                else
+                {
+                    Graph.frontier.Enqueue(newNode);
+                }
+            }
+        }
 
-//                OrNodes.Add(global);
-//                global.isOrNode = true;
-
-//                global.parent = root;
-//                root.children.Add(global);
-
-//                if (gamma.Evaluate(root))
-//                {
-//                    UpdateSolvedDead(global);
-//                }
-//                else
-//                {
-//                    frontier.Enqueue(root);
-//                }
-//            }
-//        }
-
-//        public void UpdateSolvedDead(State state)
-//        {
-//            var currentStatus = state.nodeStatus;
-
-//            if (state.isAndNode)
-//            {
-
-//            }
-//            else if (state.isOrNode)
-//            {
-//                if (IsSolved(state))
-//                {
-//                    var newStatus = NodeStatus.Solved;
-
-//                    // If node status was changed, propagate up to parent
-//                    if (newStatus != state.nodeStatus)
-//                    {
-//                        state.nodeStatus = newStatus;
-//                        UpdateSolvedDead(state.parent);
-//                    }
-//                }
-//            }
-//        }
-
-//        public bool IsSolved(State state)
-//        {
-//            if (state.isAndNode)
-//            {
-//                foreach (State child in state.children)
-//                {
-//                    if (!IsSolved(child)) return false;
-//                }
-//                return true;
-//            }
-//            else
-//            {
-//                if (task.goalFormula.Evaluate(state)) return true;
-
-//                foreach (State child in state.children)
-//                {
-//                    if (IsSolved(child)) return true;
-//                }
-//                return false;
-//            }
-//        }
-
-//        public bool IsDead(State state)
-//        {
-//            if (state.isAndNode)
-//            {
-//                foreach (State child in state.children)
-//                {
-//                    if (IsDead(child)) return true;
-//                }
-//                return false;
-//            }
-//            else
-//            {
-//                foreach (State child in state.children)
-//                {
-//                    if (!IsDead(child)) return false;
-//                }
-//                return !task.goalFormula.Evaluate(state);
-//            }
-//        }
-//    }
-//}
+    }
+}

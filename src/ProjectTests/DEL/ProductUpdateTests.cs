@@ -52,7 +52,7 @@ namespace DEL.Tests
             actionAccessibility.AddEdge(b, (e, f));
 
             this.state = new State(worlds, new HashSet<IWorld>() { w }, stateAccessibility);
-            this.action = new Action(events, new HashSet<IWorld>() { e }, actionAccessibility);
+            this.action = new Action(events, new HashSet<IWorld>() { e }, actionAccessibility, "act", a);
         }
 
         [Test]
@@ -292,7 +292,7 @@ namespace DEL.Tests
 
             this.state = new State(worlds, new HashSet<IWorld>() { u }, stateAccessibility);
 
-            Action aPrime = new Action(events, new HashSet<IWorld>() { f }, actionAccessibility);
+            Action aPrime = new Action(events, new HashSet<IWorld>() { f }, actionAccessibility, "act2", a);
 
             // Act
             State sPrime = this.state.ProductUpdate(aPrime);

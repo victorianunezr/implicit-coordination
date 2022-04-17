@@ -67,9 +67,7 @@ namespace DEL.Tests
             actionAccessibility.AddEdge(b, (e, f));
 
             this.state = new State(worlds, new HashSet<IWorld>() { w }, stateAccessibility);
-            this.applicableAction = new Action(events, new HashSet<IWorld>() { e }, actionAccessibility);
-            this.applicableAction = new Action(events, new HashSet<IWorld>() { f }, actionAccessibility);
-
+            this.applicableAction = new Action(events, new HashSet<IWorld>() { e }, actionAccessibility, "act1", a);
         }
 
         [Test]
@@ -227,7 +225,7 @@ namespace DEL.Tests
             Q.AddEdgeForAllAgents((eP, fP));
 
 
-            Action noEffectAction = new Action(new HashSet<IWorld>() { eP, fP }, new HashSet<IWorld>() { eP }, Q);
+            Action noEffectAction = new Action(new HashSet<IWorld>() { eP, fP }, new HashSet<IWorld>() { eP }, Q, "noEffect", a);
             State sP = state.ProductUpdate(noEffectAction);
 
             // Assert

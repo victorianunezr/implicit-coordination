@@ -17,8 +17,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="utils\" />
+    <None Remove="DEL\" />
+    <None Remove="Planning\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="utils\" />
+    <Folder Include="DEL\" />
+    <Folder Include="Planning\" />
   </ItemGroup>
 </Project>

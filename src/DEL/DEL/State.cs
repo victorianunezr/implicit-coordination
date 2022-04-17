@@ -54,7 +54,6 @@ namespace ImplicitCoordination.DEL
         }
 
 
-        //todo: do connected components search. Right now returned states are not minimal
         /// <summary>
         /// Generates the set of perspective shifted states of s for agent a by closing on accessibility relation for a on the designated worlds of s.
         /// </summary>
@@ -94,6 +93,21 @@ namespace ImplicitCoordination.DEL
             {
                 yield return new State(this.possibleWorlds, new HashSet<IWorld>() { w }, this.accessibility);
             }
+        }
+
+        /// <summary>
+        /// Generator yielding the global states for a given states,
+        /// i.e. returns the set of states {(M, w) | w \in W_d}, where W_d is the designated worlds of the input state.
+        /// </summary>
+        /// <returns></returns>
+        public HashSet<State> GetSetOfGlobals()
+        {
+            HashSet<State> globals = new HashSet<State>();
+            foreach (IWorld w in this.designatedWorlds)
+            {
+                globals.Add(new State(this.possibleWorlds, new HashSet<IWorld>() { w }, this.accessibility));
+            }
+            return globals;
         }
 
 

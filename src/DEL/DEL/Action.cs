@@ -7,22 +7,27 @@ namespace ImplicitCoordination.DEL
     public class Action : EpistemicModel
     {
         public Agent owner;
+        public string name;
 
         public Action(HashSet<IWorld> events,
                       HashSet<IWorld> designatedEvents,
                       AccessibilityRelation accessibility,
-                      Agent owner=null)
+                      string name,
+                      Agent owner)
             : base(events, designatedEvents, accessibility)
         {
+            this.name = name;
             this.owner = owner;
         }
 
         public Action(HashSet<IWorld> events,
                       HashSet<IWorld> designatedEvents,
                       ICollection<Agent> agents,
-                      Agent owner=null)
+                      string name,
+                      Agent owner)
             : base(events, designatedEvents, agents)
         {
+            this.name = name;
             this.owner = owner;
         }
     }
