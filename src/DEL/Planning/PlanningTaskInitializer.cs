@@ -35,7 +35,7 @@ namespace ImplicitCoordination.Planning
 
             // Actions
             Event cutRedE1 = new Event(Formula.Atom(r), new Dictionary<ushort, bool>() { { l.id, false } });
-            Event cutRedE2 = new Event(Formula.Not(Formula.Atom(r)), null);
+            Event cutRedE2 = new Event(Formula.Not(Formula.Atom(r)));
 
             Action cutRed = new Action(new HashSet<IWorld>() { cutRedE1, cutRedE2},
                                        new HashSet<IWorld>() { cutRedE1 },
@@ -43,7 +43,7 @@ namespace ImplicitCoordination.Planning
             cutRed.accessibility.AddEdge(agent1, (cutRedE1, cutRedE2));
 
             Event cutBlueE1 = new Event(Formula.Not(Formula.Atom(r)), new Dictionary<ushort, bool>() { { l.id, false } });
-            Event cutBlueE2 = new Event(Formula.Atom(r), null);
+            Event cutBlueE2 = new Event(Formula.Atom(r));
 
             Action cutBlue = new Action(new HashSet<IWorld>() { cutBlueE1, cutBlueE2 },
                                         new HashSet<IWorld>() { cutBlueE1 },
@@ -59,8 +59,8 @@ namespace ImplicitCoordination.Planning
             take.accessibility.AddEdge(agent0, (takeE1, takeE2));
             take.accessibility.AddEdge(agent1, (takeE1, takeE2));
 
-            IDictionary<string, Action> actions = new Dictionary<string, Action>()
-                                    { { cutRed.name, cutRed }, { cutBlue.name, cutBlue }, {take.name, take } };
+            HashSet<Action> actions = new HashSet<Action>()
+                                    { cutRed, cutBlue, take };
 
             // Goal formula
             Formula goalFormula = Formula.Atom(h);

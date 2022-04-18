@@ -33,7 +33,7 @@ namespace ImplicitCoordination.Planning
             {
                 s = Graph.frontier.Dequeue();
 
-                foreach (Action action in task.actions.Values)
+                foreach (Action action in task.actions)
                 {
                     sJ = s.state.GetAssociatedLocal(action.owner);
                     sPrime = new Node(sJ.ProductUpdate(action), s, NodeType.And, action);                   

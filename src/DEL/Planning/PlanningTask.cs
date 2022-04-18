@@ -8,10 +8,11 @@ namespace ImplicitCoordination.Planning
     public class PlanningTask
     {
         public readonly State initialState;
-        public readonly IDictionary<string,Action> actions;
+
+        public readonly ICollection<Action> actions;
         public readonly Formula goalFormula;
 
-        public PlanningTask(State initialState, IDictionary<string, Action> actions, Formula goalFormula)
+        public PlanningTask(State initialState, HashSet<Action> actions, Formula goalFormula)
         {
             this.initialState = initialState;
             this.actions = actions;

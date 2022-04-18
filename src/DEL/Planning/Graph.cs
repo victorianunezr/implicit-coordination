@@ -172,10 +172,20 @@ namespace ImplicitCoordination.Planning
                 if (IsSolved(node))
                 {
                     node.status = NodeStatus.Solved;
+                    if (node.parent != null)
+                    {
+                        UpdateSolvedDead(node.parent);
+                    }
+                    return;
                 }
                 else if (IsDead(node))
                 {
                     node.status = NodeStatus.Dead;
+                    if (node.parent != null)
+                    {
+                        UpdateSolvedDead(node.parent);
+                    }
+                    return;
                 }
             }
         }

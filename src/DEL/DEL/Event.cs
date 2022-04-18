@@ -36,6 +36,25 @@ namespace ImplicitCoordination.DEL
             Counter++;
         }
 
+        public Event(Formula pre, IDictionary<Proposition, bool> post)
+        {
+            if (post != null)
+            {
+                IDictionary<ushort, bool> dict = new Dictionary<ushort, bool>();
+                foreach (var entry in post)
+                {
+                    dict.Add(entry.Key.id, entry.Value);
+                }
+                this.post = dict;
+            }
+            else this.post = null;
+
+            this.pre = pre;
+            this.id = Counter;
+            Counter++;
+        }
+
+
         /// <summary>
         /// Sets the valuation of a proposition should have after applying the event
         /// </summary>
