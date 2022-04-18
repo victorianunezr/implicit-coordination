@@ -33,6 +33,8 @@ namespace ImplicitCoordination.Planning
             {
                 s = Graph.frontier.Dequeue();
 
+                Graph.LeafNodes.Add(s);
+
                 foreach (Action action in task.actions)
                 {
                     sJ = s.state.GetAssociatedLocal(action.owner);
@@ -40,6 +42,8 @@ namespace ImplicitCoordination.Planning
 
                     // Continue if action was not applicable or if s' already exists in AndNodes
                     if (sPrime == null || !Graph.AddAndNode(sPrime)) continue;
+
+                    Graph.LeafNodes.Add(sPrime);
 
                     foreach (State global in sPrime.state.Globals())
                     {
@@ -57,6 +61,7 @@ namespace ImplicitCoordination.Planning
                     }
                 }
                 Graph.UpdateSolvedDead(s);
+                Graph.UpdateLeafNodes();
 
                 if (Graph.root.status == NodeStatus.Solved)
                 {
@@ -93,5 +98,22 @@ namespace ImplicitCoordination.Planning
             }
         }
 
+        public void ExtractPolicy()
+        {
+
+        }
+
+        /// <summary>
+        /// Performs a bottom-up iterative traversal of the graph to assign costs to nodes, as defined by DEL-implementation paper.
+        /// </summary>
+        public void AssignCosts()
+        {
+            foreach (Node node in )
+            int i;
+            while (!node.IsRoot)
+            {
+
+            }
+        }
     }
 }

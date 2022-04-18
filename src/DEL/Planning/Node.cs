@@ -19,6 +19,7 @@ namespace ImplicitCoordination.Planning
         public Action actionFromParent;
         public HashSet<Node> children = new HashSet<Node>();
         public bool isRoot;
+        public ushort cost;
 
         public Node(State state, Node parent, NodeType type, Action actionFromParent=null)
         {

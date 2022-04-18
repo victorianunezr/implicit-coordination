@@ -30,6 +30,11 @@ namespace ImplicitCoordination.Planning
         public HashSet<Node> OrNodes = new HashSet<Node>();
 
         /// <summary>
+        /// Maintains a set of the leaf nodes in the graph. Dynamically updated during planning, after node expansion.
+        /// </summary>
+        public ICollection<Node> LeafNodes = new HashSet<Node>();
+
+        /// <summary>
         /// The goal formula
         /// </summary>
         private Formula goalFormula;
@@ -232,6 +237,17 @@ namespace ImplicitCoordination.Planning
             }
         }
 
+        public void UpdateLeafNodes()
+        {
+            foreach (Node node in LeafNodes)
+            {
+                if (node.children.Count != 0)
+                {
+                    LeafNodes.Remove(node);
+                }
+            }
+            if (LeafNodes.Count == 0) { throw new Exception("Set of leaf nodes cannot be empty. Something went wrong."); }
+        }
     }
 
     public class IncorrectNodeTypeException : Exception { }
