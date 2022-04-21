@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ImplicitCoordination.DEL;
 using ImplicitCoordination.utils;
 using Action = ImplicitCoordination.DEL.Action;
@@ -108,11 +109,50 @@ namespace ImplicitCoordination.Planning
         /// </summary>
         public void AssignCosts()
         {
-            foreach (Node node in )
-            int i;
-            while (!node.IsRoot)
-            {
 
+            foreach (Node node in this.Graph.LeafNodes)
+            {
+                node.cost = 0;
+            }
+
+            // This hashset contains the nodes that we assign the cost to in the i'th iteration
+            // Initially, it contain the leaf nodes. Then the nodes are iteratively replaced by their parents.
+            // If the parent of a node is null (root), the cost is updated and the node is removed from the set.
+            HashSet<Node> nodesToUpdate = new HashSet<Node>(Graph.LeafNodes);
+
+            ushort i = 1;
+
+            while (nodesToUpdate.Any())
+            {
+                // todo: update nodes to their parents. 
+                foreach (Node node in nodesToUpdate)
+                {
+                    if (node.cost == i - 1)
+                    {
+                        if (node.parent != null)
+                        {
+                            if (node.parent.type == NodeType.Or && node.parent.cost == ushort.MaxValue)
+                            {
+                                node.parent.cost = i;                            
+                            }
+
+                            if (node.parent.type == NodeType.And)
+                            {
+                                // If all children have defined costs, assign cost of child with max cost
+                                if (node.parent.children.All(x => x.cost != ushort.MaxValue))
+                                {
+                                    node.parent.cost = node.parent.children.MaxBy(x => x.cost).cost;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //todo
+                        }
+                    }
+                }
+
+                i++;
             }
         }
     }
