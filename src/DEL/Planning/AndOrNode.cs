@@ -11,11 +11,6 @@ namespace ImplicitCoordination.Planning
         private static ushort Counter = 0;
         private readonly ushort id;
 
-        /// <summary>
-        /// The depth of a node. An AND node and its associated globals have the same depth.
-        /// The root (AND node) and its associated globals (OR nodes) have depth 0.
-        /// </summary>
-        public int depth;
         public ushort Id => this.id;
         public State state;
         public NodeStatus status;
@@ -24,7 +19,7 @@ namespace ImplicitCoordination.Planning
         public Action actionFromParent;
         public HashSet<Node> children = new HashSet<Node>();
         public bool isRoot;
-        public ushort? cost;
+        public ushort cost = ushort.MaxValue;
 
         public Node(State state, Node parent, NodeType type, Action actionFromParent=null)
         {
@@ -33,35 +28,12 @@ namespace ImplicitCoordination.Planning
                 throw new Exception("Parent of AND node must be and OR node and vice versa.");
             }
             this.state = state;
-            if (parent != null)
-            {
-                this.parent = parent;
-                // If new node is OR, the depth is the same as its parent
-                if (parent.type == NodeType.And)
-                {
-                    this.depth = parent.depth;
-                }
-                else
-                {
-                    this.depth = parent.depth + 1;
-                }
-            }
-            else
-            {
-                this.depth = 0;
-            }
+            this.parent = parent;
             this.type = type;
             this.actionFromParent = actionFromParent;
             this.status = NodeStatus.Undetermined;
             this.id = Counter;
             Counter++;
-        }
-
-        public static Node RootNode(State state)
-        {
-            Node root = new Node(state, null, NodeType.And);
-            root.isRoot = true;
-            return root;
         }
 
         public bool Equals(Node other)

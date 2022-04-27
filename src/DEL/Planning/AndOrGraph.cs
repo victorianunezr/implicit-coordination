@@ -32,7 +32,7 @@ namespace ImplicitCoordination.Planning
         /// <summary>
         /// Maintains a set of the leaf nodes in the graph. Dynamically updated during planning, after node expansion.
         /// </summary>
-        public ICollection<Node> SolvedLeafNodes = new HashSet<Node>();
+        public ICollection<Node> LeafNodes = new HashSet<Node>();
 
         /// <summary>
         /// The goal formula
@@ -41,7 +41,8 @@ namespace ImplicitCoordination.Planning
 
         public Graph(PlanningTask task)
         {
-            this.root = Node.RootNode(task.initialState);
+            this.root = new Node(task.initialState, null, NodeType.And, null);
+            this.root.isRoot = true;
             this.goalFormula = task.goalFormula;
             AddAndNode(this.root);
         }
@@ -73,8 +74,7 @@ namespace ImplicitCoordination.Planning
             }
 
             // Add if equal node does not exist
-            bool add = AndNodes.Add(newNode);
-            
+            bool add = !this.AndNodes.Any(x => x.Equals(newNode));
             if (add)
             {
                 if (!newNode.isRoot)
@@ -89,6 +89,7 @@ namespace ImplicitCoordination.Planning
                     }
                     newNode.parent.children.Add(newNode);
                 }
+                AndNodes.Add(newNode);
                 //AddNode(newNode);
             }
             return add;
@@ -136,16 +137,14 @@ namespace ImplicitCoordination.Planning
                 throw new Exception("Parent of OR node must be an AND node.");
             }
 
-            // Disable state equality check
             // Add if equal node does not exist
-            bool add = OrNodes.Add(newNode);
+            bool add = !this.OrNodes.Any(x => x.Equals(newNode));
             if (add)
             {
-                //OrNodes.Add(newNode);
+                OrNodes.Add(newNode);
                 //AddNode(newNode);
                 newNode.parent.children.Add(newNode);
             }
-
             return add;
         }
 
@@ -240,14 +239,14 @@ namespace ImplicitCoordination.Planning
 
         public void UpdateLeafNodes()
         {
-            foreach (Node node in SolvedLeafNodes)
+            foreach (Node node in LeafNodes)
             {
-                if (node.children.Count != 0 && node.status == NodeStatus.Solved)
+                if (node.children.Count != 0)
                 {
-                    SolvedLeafNodes.Remove(node);
+                    LeafNodes.Remove(node);
                 }
             }
-            if (SolvedLeafNodes.Count == 0) { throw new Exception("Set of leaf nodes cannot be empty. Something went wrong."); }
+            if (LeafNodes.Count == 0) { throw new Exception("Set of leaf nodes cannot be empty. Something went wrong."); }
         }
     }
 
