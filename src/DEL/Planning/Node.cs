@@ -70,19 +70,6 @@ namespace ImplicitCoordination.Planning
         }
     }
 
-    public enum NodeStatus
-    {
-        Solved = 0,
-        Dead = 1,
-        Undetermined = 2
-    }
-
-    public enum NodeType
-    {
-        And = 0,
-        Or = 1,
-    }
-
     //todo: find out if there is a way to hash two bisimilar states into the same value
     //public class NodeComparator : IEqualityComparer<Node>
     //{

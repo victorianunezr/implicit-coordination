@@ -6,7 +6,7 @@ using Action = ImplicitCoordination.DEL.Action;
 
 namespace ImplicitCoordination.Planning
 {
-    public class Node
+    public class AndOrNode
     {
         private static ushort Counter = 0;
         private readonly ushort id;
@@ -15,13 +15,13 @@ namespace ImplicitCoordination.Planning
         public State state;
         public NodeStatus status;
         public NodeType type;
-        public Node parent;
+        public AndOrNode parent;
         public Action actionFromParent;
-        public HashSet<Node> children = new HashSet<Node>();
+        public HashSet<AndOrNode> children = new HashSet<AndOrNode>();
         public bool isRoot;
         public ushort cost = ushort.MaxValue;
 
-        public Node(State state, Node parent, NodeType type, Action actionFromParent=null)
+        public AndOrNode(State state, AndOrNode parent, NodeType type, Action actionFromParent=null)
         {
             if (parent != null && parent.type == type)
             {
@@ -36,7 +36,7 @@ namespace ImplicitCoordination.Planning
             Counter++;
         }
 
-        public bool Equals(Node other)
+        public bool Equals(AndOrNode other)
         {
             return this.type == other.type && this.state.Equals(other.state);
         }

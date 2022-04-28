@@ -250,6 +250,4 @@ namespace ImplicitCoordination.Planning
             if (SolvedLeafNodes.Count == 0) { throw new Exception("Set of leaf nodes cannot be empty. Something went wrong."); }
         }
     }
-
-    public class IncorrectNodeTypeException : Exception { }
 }

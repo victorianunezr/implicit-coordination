@@ -24,7 +24,7 @@ namespace Tests.Planning
         {
             // Arrange
             PlanningTask task = PlanningTaskInitializer.DiamondHeist();
-            Graph Graph = new Graph(task);
+            AndOrGraph Graph = new Graph(task);
 
             State global = task.initialState.GetSetOfGlobals().GetSingleElement();
             Node s1 = new Node(global, Graph.root, NodeType.Or);
@@ -41,7 +41,7 @@ namespace Tests.Planning
         {
             // Arrange
             PlanningTask task = PlanningTaskInitializer.DiamondHeist();
-            Graph Graph = new Graph(task);
+            AndOrGraph Graph = new Graph(task);
 
             State global = task.initialState.GetSetOfGlobals().GetSingleElement();
             Node s1 = new Node(global, Graph.root, NodeType.Or);
@@ -61,7 +61,7 @@ namespace Tests.Planning
         {
             // Arrange
             PlanningTask task = PlanningTaskInitializer.DiamondHeist();
-            Graph Graph = new Graph(task);
+            AndOrGraph Graph = new Graph(task);
 
             State global = task.initialState.GetSetOfGlobals().GetSingleElement();
             Node sOR = new Node(global, Graph.root, NodeType.Or);
@@ -81,7 +81,7 @@ namespace Tests.Planning
         {
             // Arrange - recreate initial state
             PlanningTask task = PlanningTaskInitializer.DiamondHeist();
-            Graph Graph = new Graph(task);
+            AndOrGraph Graph = new Graph(task);
 
             // Agents
             Agent.ResetIdCounter();
@@ -116,7 +116,7 @@ namespace Tests.Planning
         [Test]
         public void UpdateSolvedDead_Depth1()
         {
-            Graph G = new Graph(InitTask());
+            AndOrGraph G = new Graph(InitTask());
 
             var globals = G.root.state.GetSetOfGlobals();
             Assert.AreEqual(2, globals.Count());
