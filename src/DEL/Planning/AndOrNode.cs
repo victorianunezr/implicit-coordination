@@ -19,7 +19,7 @@ namespace ImplicitCoordination.Planning
         public Action actionFromParent;
         public HashSet<AndOrNode> children = new HashSet<AndOrNode>();
         public bool isRoot;
-        public ushort cost = ushort.MaxValue;
+        public ushort? cost;
 
         public AndOrNode(State state, AndOrNode parent, NodeType type, Action actionFromParent=null)
         {

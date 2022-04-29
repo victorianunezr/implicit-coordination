@@ -7,7 +7,7 @@ using Action = ImplicitCoordination.DEL.Action;
 
 namespace ImplicitCoordination.Planning
 {
-    public class Planner
+    public class BaselinePlanner
     {
         private AndOrGraph Graph;
 
@@ -16,7 +16,7 @@ namespace ImplicitCoordination.Planning
         /// </summary>
         private PlanningTask task;
 
-        public Planner(PlanningTask task)
+        public BaselinePlanner(PlanningTask task)
         {
             this.task = task;
         }
@@ -109,48 +109,49 @@ namespace ImplicitCoordination.Planning
         /// </summary>
         public void AssignCosts()
         {
+            HashSet<AndOrNode> nodesToUpdateNow = new HashSet<AndOrNode>();
 
             foreach (AndOrNode node in this.Graph.LeafNodes)
             {
                 node.cost = 0;
+                nodesToUpdateNow.Add(node.parent);
             }
+
+            HashSet<AndOrNode> nodesToUpdateNext = new HashSet<AndOrNode>();
 
             // This hashset contains the nodes that we assign the cost to in the i'th iteration
             // Initially, it contain the leaf nodes. Then the nodes are iteratively replaced by their parents.
             // If the parent of a node is null (root), the cost is updated and the node is removed from the set.
-            HashSet<AndOrNode> nodesToUpdate = new HashSet<AndOrNode>(Graph.LeafNodes);
 
             ushort i = 1;
 
-            while (nodesToUpdate.Any())
+            while (nodesToUpdateNow.Any())
             {
                 // todo: update nodes to their parents. 
-                foreach (AndOrNode node in nodesToUpdate)
+                foreach (AndOrNode node in nodesToUpdateNow)
                 {
-                    if (node.cost == i - 1)
+                    if (node.type == NodeType.Or && !node.cost.HasValue)
                     {
-                        if (node.parent != null)
-                        {
-                            if (node.parent.type == NodeType.Or && node.parent.cost == ushort.MaxValue)
-                            {
-                                node.parent.cost = i;                            
-                            }
+                        node.cost = i;
+                        nodesToUpdateNext.Add(node.parent);
+                    }
 
-                            if (node.parent.type == NodeType.And)
-                            {
-                                // If all children have defined costs, assign cost of child with max cost
-                                if (node.parent.children.All(x => x.cost != ushort.MaxValue))
-                                {
-                                    node.parent.cost = node.parent.children.MaxBy(x => x.cost).cost;
-                                }
-                            }
-                        }
-                        else
+                    if (node.type == NodeType.And)
+                    {
+                        // If all children have defined costs, assign cost of child with max cost
+                        if (node.children.All(x => x.cost.HasValue))
                         {
-                            //todo
+                            node.cost = (ushort?)(node.children.MaxBy(x => x.cost).cost + 1);
+
+                            if (node.parent != null)
+                            {
+                                nodesToUpdateNext.Add(node.parent);
+                            }
                         }
                     }
                 }
+                nodesToUpdateNow = new HashSet<AndOrNode>(nodesToUpdateNext);
+                nodesToUpdateNext.Clear();
 
                 i++;
             }
