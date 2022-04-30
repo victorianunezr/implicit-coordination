@@ -8,7 +8,7 @@ namespace ImplicitCoordination.DEL
         private readonly ushort id;
 
         public ushort Id => this.id;
-
+        public ushort? cost;
         public ulong TruePropositions => this.valuation.data;
 
         /// <summary>

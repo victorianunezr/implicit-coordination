@@ -9,40 +9,39 @@ namespace ImplicitCoordination.Planning
     /// <summary>
     /// Class handling graph structure. Generates new nodes while keeping track of parent/children relations and actions used.
     /// </summary>
-    public class Graph
+    public class AndOrGraph
     {
         //private static NodeComparator NodeComparator = new NodeComparator();
-        public Node root;
+        public AndOrNode root;
 
         /// <summary>
         /// Frontier containing OR nodes
         /// </summary>
-        public Queue<Node> frontier;
+        public Queue<AndOrNode> frontier;
 
         /// <summary>
         /// AND nodes are the states resulting from a perspective shift followed by a product update
         /// </summary>
-        public HashSet<Node> AndNodes = new HashSet<Node>();
+        public HashSet<AndOrNode> AndNodes = new HashSet<AndOrNode>();
 
         /// <summary>
         /// OR nodes are the global states resulting from an AND node
         /// </summary>
-        public HashSet<Node> OrNodes = new HashSet<Node>();
+        public HashSet<AndOrNode> OrNodes = new HashSet<AndOrNode>();
 
         /// <summary>
         /// Maintains a set of the leaf nodes in the graph. Dynamically updated during planning, after node expansion.
         /// </summary>
-        public ICollection<Node> LeafNodes = new HashSet<Node>();
+        public ICollection<AndOrNode> SolvedLeafNodes = new HashSet<AndOrNode>();
 
         /// <summary>
         /// The goal formula
         /// </summary>
         private Formula goalFormula;
 
-        public Graph(PlanningTask task)
+        public AndOrGraph(PlanningTask task)
         {
-            this.root = new Node(task.initialState, null, NodeType.And, null);
-            this.root.isRoot = true;
+            this.root = AndOrNode.RootNode(task.initialState);
             this.goalFormula = task.goalFormula;
             AddAndNode(this.root);
         }
@@ -53,9 +52,9 @@ namespace ImplicitCoordination.Planning
         /// <param name="state">New state generated from product update.</param>
         /// <param name="actionToParent">Action that lead to the new node being creted. Used to extract policy.</param>
         /// <param name="parent">Parent node is an OR node. The new node created will be added to the children of the parent.</param>
-        private Node CreateAndNode(State state, Action actionToParent, Node parent)
+        private AndOrNode CreateAndNode(State state, Action actionToParent, AndOrNode parent)
         {
-            Node node = new Node(state, parent, NodeType.And, actionToParent);
+            AndOrNode node = new AndOrNode(state, parent, NodeType.And, actionToParent);
             AndNodes.Add(node);
             parent.children.Add(node);
             //AddNode(node);
@@ -66,7 +65,7 @@ namespace ImplicitCoordination.Planning
         /// Adds a node to the set of AND nodes.
         /// </summary>
         /// <returns>True if the node was added, false otherwise.</returns>>
-        public bool AddAndNode(Node newNode)
+        public bool AddAndNode(AndOrNode newNode)
         {
             if (newNode.type != NodeType.And)
             {
@@ -74,7 +73,8 @@ namespace ImplicitCoordination.Planning
             }
 
             // Add if equal node does not exist
-            bool add = !this.AndNodes.Any(x => x.Equals(newNode));
+            bool add = AndNodes.Add(newNode);
+            
             if (add)
             {
                 if (!newNode.isRoot)
@@ -89,7 +89,6 @@ namespace ImplicitCoordination.Planning
                     }
                     newNode.parent.children.Add(newNode);
                 }
-                AndNodes.Add(newNode);
                 //AddNode(newNode);
             }
             return add;
@@ -100,14 +99,14 @@ namespace ImplicitCoordination.Planning
         /// </summary>
         /// <param name="state">New state generated from list of globals of parent.</param>
         /// <param name="parent">Parent node is an AND node. The new node created will be added to the children of the parent.</param>
-        private Node CreateOrNode(State state, Node parent)
+        private AndOrNode CreateOrNode(State state, AndOrNode parent)
         {
             if (state.designatedWorlds.Count != 1)
             {
                 throw new Exception("State is not a global state. Cannot create OR node.");
             }
 
-            Node node = new Node(state, parent, NodeType.Or, null);
+            AndOrNode node = new AndOrNode(state, parent, NodeType.Or, null);
             OrNodes.Add(node);
             parent.children.Add(node);
             //AddNode(node);
@@ -118,7 +117,7 @@ namespace ImplicitCoordination.Planning
         /// Adds a node to the set of OR nodes.
         /// </summary>
         /// <returns>True if the node was added, false otherwise.</returns>>
-        public bool AddOrNode(Node newNode)
+        public bool AddOrNode(AndOrNode newNode)
         {
             if (newNode.type != NodeType.Or)
             {
@@ -137,14 +136,16 @@ namespace ImplicitCoordination.Planning
                 throw new Exception("Parent of OR node must be an AND node.");
             }
 
+            // Disable state equality check
             // Add if equal node does not exist
-            bool add = !this.OrNodes.Any(x => x.Equals(newNode));
+            bool add = OrNodes.Add(newNode);
             if (add)
             {
-                OrNodes.Add(newNode);
+                //OrNodes.Add(newNode);
                 //AddNode(newNode);
                 newNode.parent.children.Add(newNode);
             }
+
             return add;
         }
 
@@ -170,7 +171,7 @@ namespace ImplicitCoordination.Planning
         //    }
         //}
 
-        public void UpdateSolvedDead(Node node)
+        public void UpdateSolvedDead(AndOrNode node)
         {
             if (node.status == NodeStatus.Undetermined)
             {
@@ -195,11 +196,11 @@ namespace ImplicitCoordination.Planning
             }
         }
 
-        public bool IsSolved(Node node)
+        public bool IsSolved(AndOrNode node)
         {
             if (node.type == NodeType.And)
             {
-                foreach (Node child in node.children)
+                foreach (AndOrNode child in node.children)
                 {
                     if (child.status != NodeStatus.Solved) return false;
                 }
@@ -209,7 +210,7 @@ namespace ImplicitCoordination.Planning
             {
                 if (goalFormula.Evaluate(node.state)) return true;
 
-                foreach (Node child in node.children)
+                foreach (AndOrNode child in node.children)
                 {
                     if (child.status == NodeStatus.Solved) return true;
                 }
@@ -217,11 +218,11 @@ namespace ImplicitCoordination.Planning
             }
         }
 
-        public bool IsDead(Node node)
+        public bool IsDead(AndOrNode node)
         {
             if (node.type == NodeType.And)
             {
-                foreach (Node child in node.children)
+                foreach (AndOrNode child in node.children)
                 {
                     if (child.status == NodeStatus.Dead) return true;
                 }
@@ -229,7 +230,7 @@ namespace ImplicitCoordination.Planning
             }
             else
             {
-                foreach (Node child in node.children)
+                foreach (AndOrNode child in node.children)
                 {
                     if (child.status != NodeStatus.Dead) return false;
                 }
@@ -239,14 +240,14 @@ namespace ImplicitCoordination.Planning
 
         public void UpdateLeafNodes()
         {
-            foreach (Node node in LeafNodes)
+            foreach (AndOrNode node in SolvedLeafNodes)
             {
-                if (node.children.Count != 0)
+                if (node.children.Count != 0 && node.status == NodeStatus.Solved)
                 {
-                    LeafNodes.Remove(node);
+                    SolvedLeafNodes.Remove(node);
                 }
             }
-            if (LeafNodes.Count == 0) { throw new Exception("Set of leaf nodes cannot be empty. Something went wrong."); }
+            if (SolvedLeafNodes.Count == 0) { throw new Exception("Set of leaf nodes cannot be empty. Something went wrong."); }
         }
     }
 

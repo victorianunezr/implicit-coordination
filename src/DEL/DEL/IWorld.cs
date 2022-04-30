@@ -9,5 +9,7 @@ namespace ImplicitCoordination.DEL
 
         public bool IsEqualTo(IWorld other);
 
+        public void somemethod() { }
+
     }
 }

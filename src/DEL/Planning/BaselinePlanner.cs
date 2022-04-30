@@ -7,16 +7,16 @@ using Action = ImplicitCoordination.DEL.Action;
 
 namespace ImplicitCoordination.Planning
 {
-    public class Planner
+    public class BaselinePlanner : IPlanner
     {
-        private Graph Graph;
+        private AndOrGraph Graph;
 
         /// <summary>
         /// The planning task to solve
         /// </summary>
         private PlanningTask task;
 
-        public Planner(PlanningTask task)
+        public BaselinePlanner(PlanningTask task)
         {
             this.task = task;
         }
@@ -25,33 +25,33 @@ namespace ImplicitCoordination.Planning
         {
             Init();
 
-            Node s;
+            AndOrNode s;
             State sJ;
-            Node sPrime;
-            Node newGlobal;
+            AndOrNode sPrime;
+            AndOrNode newGlobal;
 
             while (Graph.frontier.Count > 0)
             {
                 s = Graph.frontier.Dequeue();
 
-                Graph.LeafNodes.Add(s);
+                Graph.SolvedLeafNodes.Add(s);
 
                 foreach (Action action in task.actions)
                 {
                     sJ = s.state.GetAssociatedLocal(action.owner);
-                    sPrime = new Node(sJ.ProductUpdate(action), s, NodeType.And, action);                   
+                    sPrime = new AndOrNode(sJ.ProductUpdate(action), s, NodeType.And, action);                   
 
                     // Continue if action was not applicable or if s' already exists in AndNodes
                     if (sPrime == null || !Graph.AddAndNode(sPrime)) continue;
 
-                    Graph.LeafNodes.Add(sPrime);
+                    Graph.SolvedLeafNodes.Add(sPrime);
 
                     foreach (State global in sPrime.state.Globals())
                     {
-                        newGlobal = new Node(global, sPrime, NodeType.Or);
+                        newGlobal = new AndOrNode(global, sPrime, NodeType.Or);
                         if (!Graph.AddOrNode(newGlobal)) continue;
 
-                        if (task.goalFormula.Evaluate(sPrime.state))
+                        if (task.goalFormula.Evaluate(global))
                         {
                             Graph.UpdateSolvedDead(newGlobal);
                         }
@@ -78,13 +78,13 @@ namespace ImplicitCoordination.Planning
 
         public void Init()
         {
-            this.Graph = new Graph(task);
+            this.Graph = new AndOrGraph(task);
 
-            Node newNode;
+            AndOrNode newNode;
 
             foreach (State global in Graph.root.state.Globals())
             {
-                newNode = new Node(global, Graph.root, NodeType.Or);
+                newNode = new AndOrNode(global, Graph.root, NodeType.Or);
 
                 if (!Graph.AddOrNode(newNode)) continue;
 
@@ -101,7 +101,7 @@ namespace ImplicitCoordination.Planning
 
         public void ExtractPolicy()
         {
-
+            this.AssignCosts();
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace ImplicitCoordination.Planning
         public void AssignCosts()
         {
 
-            foreach (Node node in this.Graph.LeafNodes)
+            foreach (AndOrNode node in this.Graph.SolvedLeafNodes)
             {
                 node.cost = 0;
             }
@@ -118,30 +118,36 @@ namespace ImplicitCoordination.Planning
             // This hashset contains the nodes that we assign the cost to in the i'th iteration
             // Initially, it contain the leaf nodes. Then the nodes are iteratively replaced by their parents.
             // If the parent of a node is null (root), the cost is updated and the node is removed from the set.
-            HashSet<Node> nodesToUpdate = new HashSet<Node>(Graph.LeafNodes);
+            HashSet<AndOrNode> nodesToUpdate = new HashSet<AndOrNode>(Graph.SolvedLeafNodes);
+            HashSet<AndOrNode> nextIterationNodes = new HashSet<AndOrNode>();
 
             ushort i = 1;
 
             while (nodesToUpdate.Any())
             {
                 // todo: update nodes to their parents. 
-                foreach (Node node in nodesToUpdate)
+                foreach (AndOrNode node in nodesToUpdate)
                 {
                     if (node.cost == i - 1)
                     {
                         if (node.parent != null)
                         {
-                            if (node.parent.type == NodeType.Or && node.parent.cost == ushort.MaxValue)
+                            if (node.parent.type == NodeType.Or && !node.parent.cost.HasValue)
                             {
-                                node.parent.cost = i;                            
+                                node.parent.cost = i;
+                                nextIterationNodes.Add(node.parent);
                             }
 
                             if (node.parent.type == NodeType.And)
                             {
                                 // If all children have defined costs, assign cost of child with max cost
-                                if (node.parent.children.All(x => x.cost != ushort.MaxValue))
+                                if (node.parent.children.All(x => x.cost.HasValue))
                                 {
                                     node.parent.cost = node.parent.children.MaxBy(x => x.cost).cost;
+                                    if (node.parent.cost == i)
+                                    {
+                                        nextIterationNodes.Add(node.parent);
+                                    }
                                 }
                             }
                         }
@@ -149,6 +155,11 @@ namespace ImplicitCoordination.Planning
                         {
                             //todo
                         }
+                    }
+                    //todo: only for debugging. remove later
+                    else
+                    {
+                        throw new Exception($"Node should have cost {i - 1}, but it has cost {node.cost}");
                     }
                 }
 

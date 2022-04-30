@@ -1,10 +1,8 @@
-﻿using System;
-namespace ImplicitCoordination.Planning
+﻿namespace ImplicitCoordination.Planning
 {
-    public class Planner
+    public interface IPlanner
     {
-        public Planner()
-        {
-        }
+        void Plan() { }
+        void ComputeCosts() { }
     }
 }

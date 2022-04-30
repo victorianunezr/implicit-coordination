@@ -241,5 +241,29 @@ namespace DEL.Tests
             // Assert
             Assert.IsFalse(state.Equals(sP));
         }
+
+        [Test]
+        public void ApplicableAction()
+        {
+            // Assert
+            Assert.IsTrue(this.state.IsApplicable(applicableAction));
+        }
+
+        [Test]
+        public void NonApplicableAction()
+        {
+            // Arrange
+            IWorld g = new Event(Formula.Not(Formula.Atom(this.p)));
+            var newEvents = new HashSet<IWorld>() { this.e, this.e, g };
+            AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent>() { a, b }, newEvents);
+            R.AddEdge(a, (e, f));
+            R.AddEdge(b, (e, f));
+            R.AddEdge(b, (f, g));
+            Action nonApplicableAction = new Action(newEvents, new HashSet<IWorld>() { g }, R, "notApplicable", a);
+
+            // Assert
+            Assert.IsFalse(this.state.IsApplicable(nonApplicableAction));
+
+        }
     }
 }
