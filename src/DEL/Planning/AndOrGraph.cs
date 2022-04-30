@@ -15,7 +15,7 @@ namespace ImplicitCoordination.Planning
         public AndOrNode root;
 
         /// <summary>
-        /// Frontier containing OR nodes
+        /// Frontier containing OR AndOrNodes
         /// </summary>
         public Queue<AndOrNode> frontier;
 
@@ -150,7 +150,7 @@ namespace ImplicitCoordination.Planning
         }
 
 
-        //public void AddNode(Node node)
+        //public void AddNode(AndOrNode node)
         //{
         //    if (!nodes.ContainsKey(node.Id))
         //    {
@@ -158,9 +158,9 @@ namespace ImplicitCoordination.Planning
         //    }
         //}
 
-        //public Node GetNode(ushort nodeId)
+        //public AndOrNode GetNode(ushort nodeId)
         //{
-        //    Node node;
+        //    AndOrNode node;
         //    if (nodes.TryGetValue(nodeId, out node))
         //    {
         //        return node;

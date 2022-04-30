@@ -53,5 +53,4 @@ namespace ImplicitCoordination.Planning
         }
 
     }
-
 }
