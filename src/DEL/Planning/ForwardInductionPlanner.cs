@@ -92,15 +92,43 @@ namespace ImplicitCoordination.Planning
             int cutoffDepth = int.MaxValue;
 
             Node s;
-            State perspectiveShifted;
+            Node sPrimeNode;
 
-            while (Graph.frontier.Count > 0)
+            while (Graph.frontier.Any())
             {
+                if (Graph.frontier.Peek().depth >= cutoffDepth)
+                {
+                    // stop expanding if we passed the cutoff depth
+                    break;
+                }
+
                 s = Graph.frontier.Dequeue();
 
                 foreach (Action action in task.actions)
                 {
-                    
+                    if (s.state.IsApplicable(action))
+                    {
+                        foreach (State si in s.state.PerspectiveShift(action.owner))
+                        {
+                            State sPrime = si.ProductUpdate(action);
+                            sPrimeNode = new Node(sPrime, s, action);
+
+                            if (cutoffDepth == int.MaxValue)
+                            {
+                                if (sPrime.IsGoalState(this.task.goalFormula))
+                                {
+                                    cutoffDepth = sPrimeNode.depth;
+                                }
+                            }
+
+                            if (sPrimeNode.depth == cutoffDepth)
+                            {
+                                Graph.leafNodes.Add(sPrimeNode);
+                            }
+
+                            Graph.frontier.Enqueue(sPrimeNode);
+                        }
+                    }
                 }
             }
         }
@@ -134,7 +162,7 @@ namespace ImplicitCoordination.Planning
         }
 
         /// <summary>
-        /// Computes the world costs. Only to be applied on AND nodes
+        /// Computes the world costs.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="w"></param>
@@ -146,10 +174,9 @@ namespace ImplicitCoordination.Planning
             }
             else
             {
-                // If no applicable actions, assign infinity
+                // If no applicable actions, assign infinity (max value)
                 if (task.actions.Any(x => !s.IsApplicable(x)))
                 {
-                    w.
                 }
             }
         }
