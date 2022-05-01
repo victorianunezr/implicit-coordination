@@ -69,19 +69,81 @@ namespace ImplicitCoordination.Planning
             return new PlanningTask(initialState, actions, goalFormula);
         }
 
-        //public PlanningTask SymmetricLever()
-        //{
-        //    // Agents
-        //    Agent agent0 = new Agent();
-        //    Agent agent1 = new Agent();
-        //    HashSet<Agent> agents = new HashSet<Agent>() { agent0, agent1 };
+        public static PlanningTask SymmetricLever()
+        {
+            // Agents
+            Agent agentL = new Agent("L");
+            Agent agentR = new Agent("R");
+            HashSet<Agent> agents = new HashSet<Agent>() { agentL, agentR };
 
-        //    // Propositions
-        //    Proposition r = new Proposition("r");
-        //    Proposition l = new Proposition("l");
-        //    Proposition c = new Proposition("c");
-        //    Proposition h = new Proposition("h");
+            // Propositions
+            Proposition at1 = new Proposition("at1");
+            Proposition at2 = new Proposition("at2");
+            Proposition at3 = new Proposition("at3");
+            Proposition at4 = new Proposition("at4");
+            Proposition at5 = new Proposition("at5");
+            Proposition goalAt1 = new Proposition("goalAt1");
+            Proposition goalAt5 = new Proposition("goalAt5");
 
-        //}
+            // Initial State
+            World w1 = new World();
+            w1.AddProposition(at3);
+            w1.AddProposition(goalAt1);
+
+            World w2 = new World();
+            w2.AddProposition(at3);
+            w2.AddProposition(goalAt1);
+            w2.AddProposition(goalAt5);
+
+            World w3 = new World();
+            w3.AddProposition(at3);
+            w3.AddProposition(goalAt5);
+
+            AccessibilityRelation R = new AccessibilityRelation(agents, new HashSet<IWorld> { w1, w2, w3 });
+            R.AddEdge(agentL, (w1, w2));
+            R.AddEdge(agentR, (w2, w3));
+            State initialState = new State(new HashSet<IWorld> { w1, w2, w3 }, new HashSet<IWorld> { w2 }, R);
+
+            // Actions
+            Event right12 = new Event(Formula.And(Formula.Not(Formula.Atom(at5)), Formula.Atom(at1)), new Dictionary<Proposition, bool> { { at1, false }, { at2, true } });
+            AccessibilityRelation R12 = new AccessibilityRelation(agents, new HashSet<IWorld> { right12 });
+            Action moveRight12 = new Action(new HashSet<IWorld> { right12 }, new HashSet<IWorld> { right12 }, R12, "R12", agentR);
+
+            Event right23 = new Event(Formula.And(Formula.Not(Formula.Atom(at5)), Formula.Atom(at2)), new Dictionary<Proposition, bool> { { at2, false }, { at3, true } });
+            AccessibilityRelation R23 = new AccessibilityRelation(agents, new HashSet<IWorld> { right23 });
+            Action moveRight23 = new Action(new HashSet<IWorld> { right23 }, new HashSet<IWorld> { right23 }, R23, "R23", agentR);
+
+            Event right34 = new Event(Formula.And(Formula.Not(Formula.Atom(at5)), Formula.Atom(at3)), new Dictionary<Proposition, bool> { { at3, false }, { at4, true } });
+            AccessibilityRelation R34 = new AccessibilityRelation(agents, new HashSet<IWorld> { right34 });
+            Action moveRight34 = new Action(new HashSet<IWorld> { right34 }, new HashSet<IWorld> { right34 }, R34, "R34", agentR);
+
+            Event right45 = new Event(Formula.And(Formula.Not(Formula.Atom(at5)), Formula.Atom(at4)), new Dictionary<Proposition, bool> { { at4, false }, { at5, true } });
+            AccessibilityRelation R45 = new AccessibilityRelation(agents, new HashSet<IWorld> { right45 });
+            Action moveRight45 = new Action(new HashSet<IWorld> { right45 }, new HashSet<IWorld> { right45 }, R45, "R45", agentR);
+
+            Event left54 = new Event(Formula.And(Formula.Not(Formula.Atom(at1)), Formula.Atom(at5)), new Dictionary<Proposition, bool> { { at5, false }, { at4, true } });
+            AccessibilityRelation L54 = new AccessibilityRelation(agents, new HashSet<IWorld> { left54 });
+            Action moveLeft54 = new Action(new HashSet<IWorld> { left54 }, new HashSet<IWorld> { left54 }, L54, "L54", agentL);
+
+            Event left43 = new Event(Formula.And(Formula.Not(Formula.Atom(at1)), Formula.Atom(at4)), new Dictionary<Proposition, bool> { { at4, false }, { at3, true } });
+            AccessibilityRelation L43 = new AccessibilityRelation(agents, new HashSet<IWorld> { left43 });
+            Action moveLeft43 = new Action(new HashSet<IWorld> { left43 }, new HashSet<IWorld> { left43 }, L43, "L43", agentL);
+
+            Event left32 = new Event(Formula.And(Formula.Not(Formula.Atom(at1)), Formula.Atom(at3)), new Dictionary<Proposition, bool> { { at3, false }, { at2, true } });
+            AccessibilityRelation L32 = new AccessibilityRelation(agents, new HashSet<IWorld> { left32 });
+            Action moveLeft32 = new Action(new HashSet<IWorld> { left32 }, new HashSet<IWorld> { left32 }, L32, "L32", agentL);
+
+            Event left21 = new Event(Formula.And(Formula.Not(Formula.Atom(at1)), Formula.Atom(at2)), new Dictionary<Proposition, bool> { { at2, false }, { at1, true } });
+            AccessibilityRelation L21 = new AccessibilityRelation(agents, new HashSet<IWorld> { left21 });
+            Action moveLeft21 = new Action(new HashSet<IWorld> { left21 }, new HashSet<IWorld> { left21 }, L21, "L21", agentL);
+
+            HashSet<Action> actions = new HashSet<Action> { moveLeft21, moveLeft32, moveLeft43, moveLeft54, moveRight12, moveRight23, moveRight34, moveRight45 };
+
+            // Goal Formula
+            Formula gamma = Formula.Or(Formula.Atom(at1), Formula.Atom(at5));
+
+            // Planning Task
+            return new PlanningTask(initialState, actions, gamma);
+        }
     }
 }
