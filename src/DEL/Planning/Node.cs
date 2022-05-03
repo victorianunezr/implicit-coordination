@@ -39,6 +39,7 @@ namespace ImplicitCoordination.Planning
             this.status = NodeStatus.Undetermined;
             this.id = Counter;
             Counter++;
+            parent.children.Add(this);
         }
 
         // To be used only by root node

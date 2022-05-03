@@ -7,7 +7,7 @@ using ImplicitCoordination.utils;
 using NUnit.Framework;
 using Action = ImplicitCoordination.DEL.Action;
 
-namespace Tests.Planning
+namespace Planning.Tests
 {
     //todo: unit test depth of nodes and root creation
     public class GraphTests
@@ -172,8 +172,8 @@ namespace Tests.Planning
             World u = new World(0b11);
             World v = new World(0b110);
 
-            Agent a = new Agent();
-            Agent b = new Agent();
+            Agent a = new Agent("A");
+            Agent b = new Agent("B");
 
             ICollection<Agent> agents = new HashSet<Agent> { a, b };
             AccessibilityRelation R = new AccessibilityRelation(agents, new HashSet<IWorld> { w, u, v });
@@ -207,7 +207,9 @@ namespace Tests.Planning
             // Goal formula
             Formula gamma = Formula.Not(Formula.Atom(p));
 
-            PlanningTask task = new PlanningTask(s0, actions, gamma);
+            // Agents
+            Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { a.name, a }, { b.name, b } };
+            PlanningTask task = new PlanningTask(s0, actions, gamma, agentDict);
             return task;
 
         }

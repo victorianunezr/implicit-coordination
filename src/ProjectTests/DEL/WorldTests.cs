@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ImplicitCoordination.DEL;
 using NUnit.Framework;
+using Action = ImplicitCoordination.DEL.Action;
 
 namespace DEL.Tests
 {
@@ -28,6 +29,7 @@ namespace DEL.Tests
             Assert.IsTrue(w.IsTrue(r));
         }
 
+        [Test]
         public void AddProposition()
         {
             // Arrange
@@ -45,6 +47,7 @@ namespace DEL.Tests
             Assert.IsTrue(w.IsTrue(r));
         }
 
+        [Test]
         public void SetValuation()
         {
             // Arrange
@@ -62,7 +65,8 @@ namespace DEL.Tests
             Assert.IsTrue(w.IsTrue(r));
         }
 
-        public void SetValuation(ushort propId, bool value)
+        [Test]
+        public void SetValuation_WithPropId()
         {
             // Arrange
             Proposition p = new Proposition("p");
@@ -79,7 +83,7 @@ namespace DEL.Tests
             Assert.IsFalse(w.IsTrue(r));
         }
 
-
+        [Test]
         public void IsValid()
         {
             // Arrange
@@ -93,9 +97,9 @@ namespace DEL.Tests
 
             // Act - Assert
             Assert.IsTrue(w.IsValid(s, f));
-            Assert.IsFalse(w.IsValid(s, Formula.Knows(a, Formula.Atom(p))));
         }
 
+        [Test]
         public void Copy()
         {
             // Arrange
@@ -109,23 +113,34 @@ namespace DEL.Tests
             Assert.AreNotEqual(w.Id, wP.Id);
         }
 
+        [Test]
         public void CreateChild()
         {
             // Arrange
+            Agent a = new Agent();
             World w = new World(0b101);
             Event e = new Event(Formula.Atom(new Proposition("p")));
+            Event f = new Event(Formula.Atom(new Proposition("q")));
+
+            Action action = new Action(new HashSet<IWorld> { e, f }, new HashSet<IWorld> { e }, new HashSet<Agent> { a }, "action", a);
 
             // Act
-            World wP = w.CreateChild(e);
+            World wP = w.CreateChild(action, e);
+            World vP = w.CreateChild(action, f);
 
             // Assert
-            Assert.IsTrue(wP.parentEvent == e);
-            Assert.IsTrue(wP.parentWorld == w);
-            Assert.AreEqual(wP.valuation, w.valuation);
-            Assert.AreNotEqual(wP.Id, w.Id);
+            Assert.AreEqual(2, w.outgoingEdges.Count);
+            Assert.AreEqual(w, wP.incomingEdge.parentWorld);
+            Assert.AreEqual(w, vP.incomingEdge.parentWorld);
+            Assert.AreEqual(wP, wP.incomingEdge.childWorld);
+            Assert.AreEqual(vP, vP.incomingEdge.childWorld);
+            Assert.AreEqual(e, wP.incomingEdge.parentEvent);
+            Assert.AreEqual(f, vP.incomingEdge.parentEvent);
+
         }
 
-        public void Equals(World other)
+        [Test]
+        public void Equals()
         {
             // Arrange
             World w = new World(0b101);
@@ -134,6 +149,12 @@ namespace DEL.Tests
             // Act -  Assert
             Assert.AreEqual(w.valuation, v.valuation);
             Assert.AreNotEqual(w.Id, v.Id);
+        }
+
+        [Test]
+        public void HasAnyApplicableEvent()
+        {
+            // Arrange
         }
     }
 }

@@ -10,8 +10,8 @@ namespace ImplicitCoordination.Planning
         public static PlanningTask DiamondHeist()
         {
             // Agents
-            Agent agent0 = new Agent();
-            Agent agent1 = new Agent();
+            Agent agent0 = new Agent("a0");
+            Agent agent1 = new Agent("a1");
             HashSet<Agent> agents = new HashSet<Agent>() { agent0, agent1 };
 
             // Propositions
@@ -65,15 +65,18 @@ namespace ImplicitCoordination.Planning
             // Goal formula
             Formula goalFormula = Formula.Atom(h);
 
+            // Agents
+            Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agent0.name, agent0 }, { agent1.name, agent1 } };
+
             // Create planning task
-            return new PlanningTask(initialState, actions, goalFormula);
+            return new PlanningTask(initialState, actions, goalFormula, agentDict);
         }
 
         public static PlanningTask SymmetricLever()
         {
             // Agents
-            Agent agentL = new Agent("L");
-            Agent agentR = new Agent("R");
+            Agent agentL = new Agent("agentLeft");
+            Agent agentR = new Agent("agentRight");
             HashSet<Agent> agents = new HashSet<Agent>() { agentL, agentR };
 
             // Propositions
@@ -142,8 +145,11 @@ namespace ImplicitCoordination.Planning
             // Goal Formula
             Formula gamma = Formula.Or(Formula.Atom(at1), Formula.Atom(at5));
 
+            // Agents
+            Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agentL.name, agentL }, { agentR.name, agentR } };
+
             // Planning Task
-            return new PlanningTask(initialState, actions, gamma);
+            return new PlanningTask(initialState, actions, gamma, agentDict);
         }
     }
 }

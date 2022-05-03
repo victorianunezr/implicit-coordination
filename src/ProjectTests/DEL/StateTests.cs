@@ -265,5 +265,52 @@ namespace DEL.Tests
             Assert.IsFalse(this.state.IsApplicable(nonApplicableAction));
 
         }
+
+        [Test]
+        public void PerspectiveShift_SymmetricLever()
+        {
+            Proposition.ResetIdCounter();
+            Agent.ResetIdCounter();
+            World.ResetIdCounter();
+
+            // Arrange
+
+            // Agents
+            Agent agentL = new Agent("agentLeft");
+            Agent agentR = new Agent("agentRight");
+            HashSet<Agent> agents = new HashSet<Agent>() { agentL, agentR };
+
+            // Propositions
+            Proposition at1 = new Proposition("at1");
+            Proposition at2 = new Proposition("at2");
+            Proposition at3 = new Proposition("at3");
+            Proposition at4 = new Proposition("at4");
+            Proposition at5 = new Proposition("at5");
+            Proposition goalAt1 = new Proposition("goalAt1");
+            Proposition goalAt5 = new Proposition("goalAt5");
+
+            World w1 = new World();
+            w1.AddProposition(at3);
+            w1.AddProposition(goalAt1);
+
+            World w2 = new World();
+            w2.AddProposition(at3);
+            w2.AddProposition(goalAt1);
+            w2.AddProposition(goalAt5);
+
+            World w3 = new World();
+            w3.AddProposition(at3);
+            w3.AddProposition(goalAt5);
+
+            AccessibilityRelation R = new AccessibilityRelation(agents, new HashSet<IWorld> { w1, w2, w3 });
+            R.AddEdge(agentL, (w1, w2));
+            R.AddEdge(agentR, (w2, w3));
+            State initialState = new State(new HashSet<IWorld> { w1, w2, w3 }, new HashSet<IWorld> { w2 }, R);
+
+            // Act
+
+            var shifted = initialState.PerspectiveShift(agentL);
+
+        }
     }
 }

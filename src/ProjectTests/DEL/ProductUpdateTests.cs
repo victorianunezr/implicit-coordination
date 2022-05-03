@@ -113,12 +113,12 @@ namespace DEL.Tests
             // Cartesian product in this case includes all ordered pairs (w, e), not only those where precondition holds
             var childWorlds = new HashSet<IWorld>();
 
-            var we = w.CreateChild(e);
-            var wf = w.CreateChild(f);
-            var ue = u.CreateChild(e);
-            var uf = u.CreateChild(f);
-            var ve = v.CreateChild(e);
-            var vf = v.CreateChild(f);
+            var we = w.CreateChild(action, e);
+            var wf = w.CreateChild(action, f);
+            var ue = u.CreateChild(action, e);
+            var uf = u.CreateChild(action, f);
+            var ve = v.CreateChild(action, e);
+            var vf = v.CreateChild(action, f);
 
             childWorlds.Add(we);
             childWorlds.Add(wf);
@@ -199,30 +199,30 @@ namespace DEL.Tests
             Assert.AreEqual(sPrime.possibleWorlds.Count, 4);
             foreach (World childW in sPrime.possibleWorlds)
             {
-                if (childW.parentWorld == w && childW.parentEvent == e)
+                if (childW.incomingEdge.parentWorld == w && childW.incomingEdge.parentEvent == e)
                 {
                     Assert.IsTrue(childW.IsTrue(q));
                     Assert.IsFalse(childW.IsTrue(p));
                 }
-                else if (childW.parentWorld == w && childW.parentEvent == f)
+                else if (childW.incomingEdge.parentWorld == w && childW.incomingEdge.parentEvent == f)
                 {
                     Assert.IsTrue(childW.IsTrue(p));
                     Assert.IsFalse(childW.IsTrue(q));
                 }
-                else if (childW.parentWorld == u && childW.parentEvent == e)
+                else if (childW.incomingEdge.parentWorld == u && childW.incomingEdge.parentEvent == e)
                 {
                     Assert.IsFalse(childW.IsTrue(p));
                     Assert.IsFalse(childW.IsTrue(q));
                 }
-                else if (childW.parentWorld == u && childW.parentEvent == f)
+                else if (childW.incomingEdge.parentWorld == u && childW.incomingEdge.parentEvent == f)
                 {
                     Assert.Fail($"New state should not contain this world. Precondition of {nameof(f)} is not valid in {nameof(u)}");
                 }
-                else if (childW.parentWorld == v && childW.parentEvent == e)
+                else if (childW.incomingEdge.parentWorld == v && childW.incomingEdge.parentEvent == e)
                 {
                     Assert.Fail($"New state should not contain this world. Precondition of {nameof(e)} is not valid in {nameof(v)}");
                 }
-                else if (childW.parentWorld == v && childW.parentEvent == f)
+                else if (childW.incomingEdge.parentWorld == v && childW.incomingEdge.parentEvent == f)
                 {
                     Assert.IsTrue(childW.IsTrue(p));
                     Assert.IsFalse(childW.IsTrue(q));
@@ -237,7 +237,7 @@ namespace DEL.Tests
             Assert.IsTrue(sPrime.designatedWorlds.Count == 1);
             foreach (World world in sPrime.designatedWorlds)
             {
-                Assert.IsTrue(world.parentWorld == w && world.parentEvent == e);
+                Assert.IsTrue(world.incomingEdge.parentWorld == w && world.incomingEdge.parentEvent == e);
             }
 
             // Validate accessibility relations
@@ -301,14 +301,30 @@ namespace DEL.Tests
             Assert.IsNull(sPrime);
         }
 
+        [Test]
+        public void ProductUpdadte_LocalDesignatedWorlds()
+        {
+            // Arrange
+            var agents = new HashSet<Agent>() { a, b };
+
+            AccessibilityRelation actionAccessibility = new AccessibilityRelation(agents, events);
+            actionAccessibility.AddEdge(a, (e, f));
+            actionAccessibility.AddEdge(b, (e, f));
+
+            Action aa = new Action(events, new HashSet<IWorld>() { e, f }, actionAccessibility, "aa", a);
+
+            // Act - Assert
+            Assert.AreEqual(3, this.state.ProductUpdate(aa, new HashSet<IWorld> { w, v }).designatedWorlds.Count);
+
+        }
 
         public bool CorrectParentsForEdge((IWorld, IWorld) edge, World parentWorld1, World parentWorld2, Event parentEvent1, Event parentEvent2)
         {
             World u = (World)edge.Item1;
             World v = (World)edge.Item2;
 
-            return ((u.parentWorld == parentWorld1 && u.parentEvent == parentEvent1) && (v.parentWorld == parentWorld2 && v.parentEvent == parentEvent2)) ||
-            ((v.parentWorld == parentWorld1 && v.parentEvent == parentEvent1) && (u.parentWorld == parentWorld2 && u.parentEvent == parentEvent2));
+            return ((u.incomingEdge.parentWorld == parentWorld1 && u.incomingEdge.parentEvent == parentEvent1) && (v.incomingEdge.parentWorld == parentWorld2 && v.incomingEdge.parentEvent == parentEvent2)) ||
+            ((v.incomingEdge.parentWorld == parentWorld1 && v.incomingEdge.parentEvent == parentEvent1) && (u.incomingEdge.parentWorld == parentWorld2 && u.incomingEdge.parentEvent == parentEvent2));
         }
 
 

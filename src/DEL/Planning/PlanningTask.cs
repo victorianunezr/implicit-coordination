@@ -12,11 +12,17 @@ namespace ImplicitCoordination.Planning
         public readonly ICollection<Action> actions;
         public readonly Formula goalFormula;
 
-        public PlanningTask(State initialState, HashSet<Action> actions, Formula goalFormula)
+        /// <summary>
+        /// Dictionary mapping agent names to agents, used to access agent objects from the outside.
+        /// </summary>
+        public readonly IDictionary<string, Agent> agents;
+
+        public PlanningTask(State initialState, HashSet<Action> actions, Formula goalFormula, IDictionary<string, Agent> agents)
         {
             this.initialState = initialState;
             this.actions = actions;
             this.goalFormula = goalFormula;
+            this.agents = agents;
         }
     }
 }

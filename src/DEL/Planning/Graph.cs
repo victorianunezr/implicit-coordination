@@ -17,7 +17,7 @@ namespace ImplicitCoordination.Planning
         /// <summary>
         /// Frontier
         /// </summary>
-        public Queue<Node> frontier;
+        public Queue<Node> frontier = new Queue<Node>();
 
         /// <summary>
         /// Maintains a set of the leaf nodes in the graph. Dynamically updated during planning, after node expansion.

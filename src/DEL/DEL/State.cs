@@ -70,7 +70,7 @@ namespace ImplicitCoordination.DEL
                 {
                     newDesignatedWorlds = new HashSet<IWorld>();
 
-                    foreach (IWorld reachableWorld in this.accessibility.GenerateAccessibleWorlds(a, w))
+                    foreach (IWorld reachableWorld in this.accessibility.GetAccessibleWorlds(a, w))
                     {
                         seenDesignatedWorlds.Add(reachableWorld);
                         newDesignatedWorlds.Add(reachableWorld);
@@ -147,49 +147,44 @@ namespace ImplicitCoordination.DEL
         /// Generates the new state s' resulting from applying action a on state s
         /// </summary>
         /// <param name="action">Action to apply.</param>
+        /// <param name="localDesignatedWorlds">Designated worlds in the perspective shifted (local) state of an agent.
+        /// Designated worlds in the resulting state will be selected based on the set of designated worlds, if passed.
+        /// Otherwise the W_d from the original state are used.</param>
         /// <returns>New state after appliying an action on the source state.</returns>
-        public State ProductUpdate(Action action)
+        public State ProductUpdate(Action action, HashSet<IWorld> localDesignatedWorlds=null)
         {
             HashSet<IWorld> newPossibleWorlds = new HashSet<IWorld>();
             HashSet<IWorld> newDesignatedWorlds = new HashSet<IWorld>();
-
-            bool eventExistsForWorld = false;
+            // If we don't pass the local set of designated worlds, we use the ones from the parent state
+            HashSet<IWorld> designatedWorldsInOrigin = localDesignatedWorlds ?? this.designatedWorlds;
 
             foreach (World w in this.possibleWorlds)
             {
-                if (this.designatedWorlds.Contains(w))
-                {
-                    eventExistsForWorld = false;
-                }
-
                 foreach (Event e in action.possibleWorlds)
                 {
                     if (w.IsValid(this, e.pre))
                     {
                         // If precondition of e holds in w, create child world w'
-                        World wPrime = w.CreateChild(e);
+                        World wPrime = w.CreateChild(action, e);
 
                         // Update valuation of w' according to postcondition of e. Valuation only changes if e.post != null
                         UpdateValuation(wPrime, e.post);
 
                         newPossibleWorlds.Add(wPrime);
 
-                        if (this.designatedWorlds.Contains(w) && action.designatedWorlds.Contains(e))
+                        if (designatedWorldsInOrigin.Contains(w) && action.designatedWorlds.Contains(e))
                         {
                             newDesignatedWorlds.Add(wPrime);
-
-                            eventExistsForWorld = true;
                         }
                     }
                 }
+            }
 
-                if (!eventExistsForWorld)
-                {
-                    // If we get here, it means we didn't find a designated world w and designated event e such that w |= pre(e)
-                    // i.e. action is not applicable
-                    return null;
-                }
-
+            if (!newDesignatedWorlds.Any())
+            {
+                // If we get here, it means we didn't find a designated world w and designated event e such that w |= pre(e)
+                // i.e. action is not applicable
+                return null;
             }
 
             AccessibilityRelation newAccessibility = this.accessibility.CopyEmptyGraph(newPossibleWorlds);
@@ -236,8 +231,8 @@ namespace ImplicitCoordination.DEL
                     {
                         try
                         {
-                            if (this.accessibility.graph[a].ContainsEdge(w.parentWorld, v.parentWorld)
-                                && action.accessibility.graph[a].ContainsEdge(w.parentEvent, v.parentEvent))
+                            if (this.accessibility.graph[a].ContainsEdge(w.incomingEdge.parentWorld, v.incomingEdge.parentWorld)
+                                && action.accessibility.graph[a].ContainsEdge(w.incomingEdge.parentEvent, v.incomingEdge.parentEvent))
                             {
                                 if (!newAccessibility.graph[a].ContainsEdge(w, v))
                                 {

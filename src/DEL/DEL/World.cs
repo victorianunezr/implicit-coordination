@@ -1,4 +1,6 @@
-﻿using ImplicitCoordination.DEL.utils;
+﻿using System.Collections.Generic;
+using ImplicitCoordination.DEL.utils;
+using ImplicitCoordination.Planning;
 
 namespace ImplicitCoordination.DEL
 {
@@ -8,7 +10,7 @@ namespace ImplicitCoordination.DEL
         private readonly ushort id;
 
         public ushort Id => this.id;
-        public ushort? cost;
+
         public ulong TruePropositions => this.valuation.data;
 
         /// <summary>
@@ -17,10 +19,25 @@ namespace ImplicitCoordination.DEL
         /// </summary>
         public BitArray valuation;
 
-        // Parent world and event used to track source of new world generated during product update
-        public World parentWorld;
-        public Event parentEvent;
+        /// <summary>
+        /// Incoming edge keeps track of parent world and event from which this new world was generated.
+        /// </summary>
+        public WorldEdge incomingEdge;
 
+        /// <summary>
+        /// Keeps track of child worlds, i.e. worlds generated from 'this' during product update
+        /// </summary>
+        public ICollection<WorldEdge> outgoingEdges = new HashSet<WorldEdge>();
+
+        /// <summary>
+        /// cost(w)
+        /// </summary>
+        public Cost cost;
+
+        /// <summary>
+        /// cost(w,i)
+        /// </summary>
+        public IDictionary<Agent, Cost> worldAgentCost = new Dictionary<Agent, Cost>();
 
         /// <summary>
         /// Returns a world with automatically incremented id and BitArray with proposition valuations.
@@ -30,11 +47,9 @@ namespace ImplicitCoordination.DEL
         /// Least significant bit in valuation corresponds to proposition with id=0.
         /// Instantiating a World without passing a valuation results in a world with all values set to false.
         /// </remarks>
-        public World(ulong valuationData = 0, World parentWorld=null, Event parentEvent=null)
+        public World(ulong valuationData = 0)
         {
             this.valuation = new BitArray(valuationData);
-            this.parentWorld = parentWorld;
-            this.parentEvent = parentEvent;
             this.id = Counter;
             Counter++;
         }
@@ -77,9 +92,13 @@ namespace ImplicitCoordination.DEL
         /// <param name="w"></param>
         /// <param name="e"></param>
         /// <returns></returns>
-        public World CreateChild(Event e)
+        public World CreateChild(Action a, Event e)
         {
-            return new World(this.valuation.data, this, e);
+            World childWorld = new World(this.valuation.data);
+            WorldEdge edge = new WorldEdge(childWorld, this, e, a);
+            this.outgoingEdges.Add(edge);
+            childWorld.incomingEdge = edge;
+            return childWorld;
         }
 
         /// <summary>
@@ -95,6 +114,16 @@ namespace ImplicitCoordination.DEL
         public static void ResetIdCounter()
         {
             Counter = 0;
+        }
+
+        public bool HasAnyApplicableEvent(Action action, State s)
+        {
+            foreach (Event e in action.possibleWorlds)
+            {
+                if (e.pre.Evaluate(s, this)) return true;
+            }
+
+            return false;
         }
     }
 }
