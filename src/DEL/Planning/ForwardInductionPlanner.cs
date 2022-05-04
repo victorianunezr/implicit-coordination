@@ -20,8 +20,11 @@ namespace ImplicitCoordination.Planning
             this.task = task;
         }
 
-        public void Plan()
+        public Graph Plan()
         {
+            Graph graph = this.BuildTree(this.task.agents["agentLeft"]);
+            this.ComputeCosts(graph);
+            return graph;
         }
 
         ///// <summary>
@@ -111,7 +114,7 @@ namespace ImplicitCoordination.Planning
                     {
                         if (si.IsApplicable(action))
                         {
-                            State sPrime = si.ProductUpdate(action);
+                            State sPrime = s.state.ProductUpdate(action, si.designatedWorlds);
                             sPrimeNode = new Node(sPrime, s, action);
 
                             if (cutoffDepth == int.MaxValue)
@@ -159,8 +162,41 @@ namespace ImplicitCoordination.Planning
         //    }
         //}
 
-        public void ComputeCosts()
+        public void ComputeCosts(Graph graph)
         {
+            var nodesToUpdateNow = graph.leafNodes;
+
+            HashSet<Node> nodesToUpdateNext = new HashSet<Node>();
+
+            while (nodesToUpdateNow.Any())
+            {
+                foreach (Node node in nodesToUpdateNow)
+                {
+                    foreach (World world in node.state.possibleWorlds)
+                    {
+                        this.ComputeWorldCost(node, world);
+                        this.ComputeWorldAgentCosts(node, world);
+                        if (!node.isRoot)
+                        {
+                           this.ComputeEdgeCost(world);
+                        }
+                    }
+                    if (node.parent != null)
+                    {
+                        nodesToUpdateNext.Add(node.parent);
+                    }
+                }
+
+                nodesToUpdateNow = new HashSet<Node>(nodesToUpdateNext);
+                nodesToUpdateNext.Clear();
+            }
+
+            // check that all worlds have an assigned cost at root
+            HashSet<World> worldsInRoot = graph.root.state.possibleWorlds.Cast<World>().ToHashSet();
+            if (worldsInRoot.Any(w => !w.cost.value.HasValue))
+            {
+                throw new Exception("Some worlds in root have undefined value");
+            }
 
         }
 
@@ -227,21 +263,33 @@ namespace ImplicitCoordination.Planning
         /// <summary>
         /// After costs for all worlds in state have been computed, calculate the world cost for each agent, cost(w,i), for all worlds in a state.
         /// </summary>
-        public void ComputeWorldAgentCosts(State s)
+        public void ComputeWorldAgentCosts(Node node, World w)
         {
-            HashSet<IWorld> accessibleWorlds;
+            HashSet<World> accessibleWorlds;
+            Cost worldAgentCost;
 
-            foreach (World w in s.possibleWorlds)
+            if (!w.cost.value.HasValue)
             {
-                if (!w.cost.value.HasValue)
+                throw new Exception("All worlds must have a defined cost(w) before computing world-agent costs");
+            }
+            foreach (Agent agent in node.state.accessibility.graph.Keys)
+            {
+                accessibleWorlds = node.state.accessibility.GetAccessibleWorlds(agent, w).Cast<World>().ToHashSet();
+                var worldsWithRangeCosts = accessibleWorlds.Where(x => x.cost.isRange);
+
+                // cost(w,i) = max{v in v ~ w} cost(v)
+                // Range costs are always greater than fixed costs, so we try to find the max there first
+                if (worldsWithRangeCosts.Any())
                 {
-                    throw new Exception("All worlds must have a defined cost(w) before computing world-agent costs");
+                    worldAgentCost.value = worldsWithRangeCosts.MaxBy(x => x.cost.value).cost.value;
+                    worldAgentCost.isRange = true;
                 }
-                foreach (Agent a in s.accessibility.graph.Keys)
+                else
                 {
-                    accessibleWorlds = s.accessibility.GetAccessibleWorlds(a, w);
-                    var worldsWithRangeCosts = accessibleWorlds.Where(x => x.cost.isRange)
+                    worldAgentCost.value = accessibleWorlds.MaxBy(x => x.cost.value).cost.value;
+                    worldAgentCost.isRange = false;
                 }
+                w.worldAgentCost.Add(agent, worldAgentCost);
             }
         }
     }
