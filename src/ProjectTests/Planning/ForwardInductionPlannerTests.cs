@@ -9,13 +9,13 @@ namespace Planning.Tests
         // Not really unit tests, but used for debug-testing
 
         [Test]
-        public void BuildTree()
+        public void Plan()
         {
             PlanningTask leverTask = PlanningTaskInitializer.SymmetricLever();
 
             var planner = new ForwardInductionPlanner(leverTask);
 
-            Graph g = planner.BuildTree(leverTask.agents["agentLeft"]);
+            Graph g = planner.Plan(leverTask.agents["agentLeft"]);
         }
     }
 }

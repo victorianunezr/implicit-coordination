@@ -20,9 +20,9 @@ namespace ImplicitCoordination.Planning
             this.task = task;
         }
 
-        public Graph Plan()
+        public Graph Plan(Agent planningAgent)
         {
-            Graph graph = this.BuildTree(this.task.agents["agentLeft"]);
+            Graph graph = this.BuildTree(planningAgent);
             this.ComputeCosts(graph);
             return graph;
         }

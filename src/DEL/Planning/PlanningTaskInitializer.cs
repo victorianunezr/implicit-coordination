@@ -142,8 +142,17 @@ namespace ImplicitCoordination.Planning
 
             HashSet<Action> actions = new HashSet<Action> { moveLeft21, moveLeft32, moveLeft43, moveLeft54, moveRight12, moveRight23, moveRight34, moveRight45 };
 
+            // Atomic formulas
+            Formula fAt1 = Formula.Atom(at1);
+            Formula fAt5 = Formula.Atom(at5);
+            Formula fGoalAt1 = Formula.And(Formula.Atom(goalAt1), Formula.Not(Formula.Atom(goalAt5)));
+            Formula fGoalAt5 = Formula.And(Formula.Atom(goalAt5), Formula.Not(Formula.Atom(goalAt1)));
+            Formula fGoalAt1And5 = Formula.And(Formula.Atom(goalAt1), Formula.Atom(goalAt5));
+
             // Goal Formula
-            Formula gamma = Formula.Or(Formula.Atom(at1), Formula.Atom(at5));
+            Formula gamma = Formula.Or(Formula.And(Formula.And(fAt1, fGoalAt1), Formula.Not(fAt5)),
+                            Formula.Or(Formula.And(Formula.And(fAt5, fGoalAt5), Formula.Not(fAt1)),
+                                       Formula.And(Formula.Or(fAt1, fAt5), fGoalAt1And5)));
 
             // Agents
             Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agentL.name, agentL }, { agentR.name, agentR } };
