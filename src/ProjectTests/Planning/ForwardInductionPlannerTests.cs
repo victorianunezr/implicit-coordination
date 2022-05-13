@@ -6,7 +6,7 @@ namespace Planning.Tests
 {
     public class ForwardInductionPlannerTests
     {
-        // Not really unit tests, but used for debug-testing
+        // Not really unit tests, but used for debug-testing for now
 
         [Test]
         public void Plan()

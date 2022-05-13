@@ -11,6 +11,7 @@ namespace ImplicitCoordination.Planning
         public Event parentEvent;
         public Action action;
         public Cost cost;
+        public bool isPruned;
 
         public WorldEdge(World childWorld, World parentWorld, Event parentEvent, Action action)
         {

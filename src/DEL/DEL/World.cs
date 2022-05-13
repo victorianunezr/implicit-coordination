@@ -40,6 +40,11 @@ namespace ImplicitCoordination.DEL
         public IDictionary<Agent, Cost> worldAgentCost = new Dictionary<Agent, Cost>();
 
         /// <summary>
+        /// True if the world was pruned by forward induction.
+        /// </summary>
+        public bool isPruned;
+
+        /// <summary>
         /// Returns a world with automatically incremented id and BitArray with proposition valuations.
         /// </summary>
         /// <param name="valuation"></param>

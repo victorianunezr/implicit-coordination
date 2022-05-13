@@ -22,76 +22,38 @@ namespace ImplicitCoordination.Planning
 
         public Graph Plan(Agent planningAgent)
         {
-            Graph graph = this.BuildTree(planningAgent);
-            this.ComputeCosts(graph);
-            return graph;
-        }
-
-        ///// <summary>
-        ///// Builds the tree up to a cutoff depth.
-        ///// The cutoff depth is where we first find a goal state. We iterate on the depth until we have finite costs on the root's designated worlds.
-        ///// </summary>
-        //public void BuildTree()
-        //{
-        //    Init();
-
-        //    AndOrNode s;
-        //    State sJ;
-        //    AndOrNode sPrime;
-        //    AndOrNode newGlobal;
-
-        //    int cutoffDepth = int.MaxValue;
-
-        //    while (Graph.frontier.Count > 0)
-        //    {
-        //        if (Graph.frontier.Peek().depth >= cutoffDepth)
-        //        {
-        //            // stop expanding if we passed the cutoff depth
-        //            break;
-        //        }
-
-        //        s = Graph.frontier.Dequeue();
-
-        //        Graph.SolvedLeafNodes.Add(s);
-
-        //        foreach (Action action in task.actions)
-        //        {
-        //            sJ = s.state.GetAssociatedLocal(action.owner);
-        //            sPrime = new AndOrNode(sJ.ProductUpdate(action), s, NodeType.And, action);
-
-        //            // Continue if action was not applicable or if s' already exists in AndNodes
-        //            if (sPrime == null || !Graph.AddAndNode(sPrime)) continue;
-
-        //            foreach (State global in sPrime.state.Globals())
-        //            {
-        //                newGlobal = new AndOrNode(global, sPrime, NodeType.Or);
-        //                if (!Graph.AddOrNode(newGlobal)) continue;
-
-        //                if (task.goalFormula.Evaluate(global))
-        //                {
-        //                    // set cutoff depth where we find a goal state
-        //                    cutoffDepth = newGlobal.depth;
-        //                }
-        //                else
-        //                {
-        //                    Graph.frontier.Enqueue(newGlobal);
-        //                }
-        //            }
-        //        }
-        //        Graph.UpdateLeafNodes();
-
-        //    }
-        //}
-
-        // This one is without AND-OR, though we still do perspective shifts before product update
-        public Graph BuildTree(Agent planningAgent)
-        {
             // init
             this.Graph = new Graph(task);
             State s0i = task.initialState.GetAssociatedLocal(planningAgent);
             Graph.root = Node.CreateRootNode(s0i);
             Graph.frontier.Enqueue(Graph.root);
 
+            this.BuildTree();
+            this.ComputeCosts();
+            this.Prune();
+
+            // if root worlds don't have fixed costs, iterate on depth
+            HashSet<World> worldsInRoot = Graph.root.state.possibleWorlds.Cast<World>().ToHashSet();
+            while (worldsInRoot.Any(w => w.cost.value.HasValue && w.cost.isRange))
+            {
+                // Enqueue leaf nodes and expand tree
+                foreach (Node leaf in Graph.leafNodes)
+                {
+                    Graph.frontier.Enqueue(leaf);
+                }
+                Graph.leafNodes.Clear();
+
+                this.BuildTree();
+                this.ComputeCosts();
+                this.Prune();
+            }
+            return Graph;
+        }
+
+
+        // This one is without AND-OR, though we still do perspective shifts before product update
+        public Graph BuildTree()
+        {
             int cutoffDepth = int.MaxValue;
 
             Node s;
@@ -139,32 +101,12 @@ namespace ImplicitCoordination.Planning
             return Graph;
         }
 
-        //public void Init()
-        //{
-        //    this.Graph = new AndOrGraph(task);
 
-        //    AndOrNode newNode;
-
-        //    foreach (State global in Graph.root.state.Globals())
-        //    {
-        //        newNode = new AndOrNode(global, Graph.root, NodeType.Or);
-
-        //        if (!Graph.AddOrNode(newNode)) continue;
-
-        //        if (task.goalFormula.Evaluate(Graph.root.state))
-        //        {
-        //            Graph.UpdateSolvedDead(newNode);
-        //        }
-        //        else
-        //        {
-        //            Graph.frontier.Enqueue(newNode);
-        //        }
-        //    }
-        //}
-
-        public void ComputeCosts(Graph graph)
+        //todo: Instead of using two hashset to keep track of nodes to update, use a queue.
+        public void ComputeCosts()
         {
-            var nodesToUpdateNow = graph.leafNodes;
+            // Bottom-up traversal. Starting from leaves
+            var nodesToUpdateNow = Graph.leafNodes;
 
             HashSet<Node> nodesToUpdateNext = new HashSet<Node>();
 
@@ -175,7 +117,6 @@ namespace ImplicitCoordination.Planning
                     foreach (World world in node.state.possibleWorlds)
                     {
                         this.ComputeWorldCost(node, world);
-                        this.ComputeWorldAgentCosts(node, world);
                         if (!node.isRoot)
                         {
                            this.ComputeEdgeCost(world);
@@ -192,13 +133,13 @@ namespace ImplicitCoordination.Planning
             }
 
             // check that all worlds have an assigned cost at root
-            HashSet<World> worldsInRoot = graph.root.state.possibleWorlds.Cast<World>().ToHashSet();
+            HashSet<World> worldsInRoot = Graph.root.state.possibleWorlds.Cast<World>().ToHashSet();
             if (worldsInRoot.Any(w => !w.cost.value.HasValue))
             {
                 throw new Exception("Some worlds in root have undefined value");
             }
-
         }
+
 
         /// <summary>
         /// Computes the world costs.
@@ -238,13 +179,21 @@ namespace ImplicitCoordination.Planning
                     // The minimum cost must be a fixed cost edge. If there are none, range costs are considered.
                     if (fixedCostEdges.Any())
                     {
-                        w.cost.value = fixedCostEdges.MinBy(x => x.cost.value).cost.value;
-                        w.cost.isRange = false;
+                        // update only if range cost or no cost
+                        if (!w.cost.value.HasValue || w.cost.isRange)
+                        {
+                            w.cost.value = fixedCostEdges.MinBy(x => x.cost.value).cost.value;
+                            w.cost.isRange = false;
+                        }
                     }
                     else
                     {
-                        w.cost.value = w.outgoingEdges.MinBy(x => x.cost.value).cost.value;
-                        w.cost.isRange = true;
+                        // update only if range cost or no cost
+                        if (!w.cost.value.HasValue || w.cost.isRange)
+                        {
+                            w.cost.value = w.outgoingEdges.MinBy(x => x.cost.value).cost.value;
+                            w.cost.isRange = true;
+                        }
                     }
                 }
             }
@@ -253,11 +202,71 @@ namespace ImplicitCoordination.Planning
         /// <summary>
         /// Computes the cost on the incoming edge of a world, after the world cost has been computed.
         /// </summary>
-        /// <param name=""></param>
         public void ComputeEdgeCost(World w)
         {
-            w.incomingEdge.cost.value = (ushort?)(w.cost.value + 1);
-            w.incomingEdge.cost.isRange = w.cost.isRange;
+            // update only if cost is undefined or is range cost
+            if (!w.incomingEdge.cost.value.HasValue || w.incomingEdge.cost.isRange)
+            {
+                if (w.cost.value == ushort.MaxValue)
+                {
+                    w.incomingEdge.cost.value = ushort.MaxValue;
+                }
+                else
+                {
+                    w.incomingEdge.cost.value = (ushort?)(w.cost.value + 1);
+                }
+                w.incomingEdge.cost.isRange = w.cost.isRange;
+            }
+        }
+
+        public void Prune()
+        {
+            // Top-down traversal (BFS). Starting from root.
+            Queue<Node> Q = new Queue<Node>();
+            Q.Enqueue(Graph.root);
+            Node node;
+            Agent agent;
+
+            while (Q.Any())
+            {
+                node = Q.Dequeue();
+
+                if (node.depth > 0)
+                {
+                    foreach (World world in node.state.possibleWorlds)
+                    {
+                        if (world.incomingEdge.isPruned)
+                        {
+                            // Prune world and all its outgoing edges
+                            world.isPruned = true;
+                            foreach (WorldEdge edge in world.outgoingEdges)
+                            {
+                                edge.isPruned = true;
+                            }
+                        }
+                    }
+                }
+
+                foreach (World world in node.state.possibleWorlds)
+                {
+                    this.ComputeWorldAgentCosts(node, world);
+                    foreach (WorldEdge edge in world.outgoingEdges)
+                    {
+                        // Prune outgoing edges with cost(w, i:a) > cost(w, i)
+                        agent = edge.action.owner;
+                        if (world.worldAgentCost[agent].value < edge.cost.value)
+                        {
+                            edge.isPruned = true;
+                        }
+                    }
+                }
+
+                //  Enqueue children
+                foreach (Node child in node.children)
+                {
+                    Q.Enqueue(child);
+                }
+            }
         }
 
         /// <summary>
