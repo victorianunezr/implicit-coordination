@@ -201,5 +201,46 @@ namespace DEL.Tests
             Assert.IsTrue(Formula.And(atomP, atomQ).Evaluate(s));
             Assert.IsFalse(Formula.And(atomR, atomQ).Evaluate(s));
         }
+
+        [Test]
+        public void DisjunctionOfGoalFormulas()
+        {
+            // Arrange
+            Agent a = new Agent();
+            Agent b = new Agent();
+
+            AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent> { a, b }, new HashSet<IWorld> { w, u, v });
+            R.AddEdge(a, (w, u));
+            R.AddEdge(b, (u, v));
+
+
+            // Propositions
+            Proposition pg1 = new Proposition("g1");
+            Proposition pg2 = new Proposition("g2");
+            Proposition pg3 = new Proposition("g3");
+
+            w.AddProposition(pg1);
+            u.AddProposition(pg2);
+            v.AddProposition(pg3);
+
+            State s = new State(new HashSet<IWorld> { w, u, v }, new HashSet<IWorld> { w, u }, R);
+
+            Formula g1 = Formula.Atom(pg1);
+            Formula g2 = Formula.Atom(pg2);
+            Formula g3 = Formula.Atom(pg3);
+
+            // Goal formulas
+            Formula f1 = Formula.And(g1, Formula.Not(atomP)); // not true in w
+            Formula f2 = Formula.And(g2, Formula.And(atomP, atomQ)); // true in u
+            Formula f3 = Formula.And(g3, atomP); // not true in v
+
+            // Disjunction (goal formula)
+            Formula gamma = Formula.Disjunction(new List<Formula> { f1, f2, f3 });
+
+            // Assert
+            Assert.IsTrue(gamma.Evaluate(s, u));
+            Assert.IsFalse(gamma.Evaluate(s, w));
+            Assert.IsFalse(gamma.Evaluate(s, v));
+        }
     }
 }

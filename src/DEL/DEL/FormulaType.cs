@@ -8,6 +8,8 @@
         Not,
         And,
         Or,
+        Implies,
+        Disjunction,
         Knows,
         CommonKnow
     }

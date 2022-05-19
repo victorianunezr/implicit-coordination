@@ -13,6 +13,11 @@ namespace ImplicitCoordination.Planning
         public readonly Formula goalFormula;
 
         /// <summary>
+        /// List of goal formulas is used in goal recognition tasks, where there is uncertainty about the real goal.
+        /// </summary>
+        public readonly IList<Formula> listGoalFormulas;
+
+        /// <summary>
         /// Dictionary mapping agent names to agents, used to access agent objects from the outside.
         /// </summary>
         public readonly IDictionary<string, Agent> agents;
@@ -22,7 +27,19 @@ namespace ImplicitCoordination.Planning
             this.initialState = initialState;
             this.actions = actions;
             this.goalFormula = goalFormula;
+            this.listGoalFormulas = null;
             this.agents = agents;
         }
+
+        public PlanningTask(State initialState, HashSet<Action> actions, IList<Formula> listGoalFormulas, IDictionary<string, Agent> agents)
+        {
+            this.initialState = initialState;
+            this.actions = actions;
+            this.listGoalFormulas = listGoalFormulas;
+            this.agents = agents;
+
+
+        }
+
     }
 }

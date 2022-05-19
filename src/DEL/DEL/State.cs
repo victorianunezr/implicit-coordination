@@ -30,12 +30,16 @@ namespace ImplicitCoordination.DEL
 
 
         /// <summary>
-        /// Returns true if the state is in the set of goal states defined for the problem
+        /// Returns true if at least one world satisfies the goal formula
         /// </summary>
         /// <returns></returns>
-        public bool IsGoalState(Formula goalFormula)
+        public bool HasGoalWorld(Formula goalFormula)
         {
-            return goalFormula.Evaluate(this);
+            foreach (IWorld world in this.possibleWorlds)
+            {
+                if (goalFormula.Evaluate(this, (World)world)) { return true; }
+            }
+            return false;
         }
 
         /// <summary>

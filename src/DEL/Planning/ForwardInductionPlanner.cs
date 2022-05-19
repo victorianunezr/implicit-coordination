@@ -81,7 +81,7 @@ namespace ImplicitCoordination.Planning
 
                             if (cutoffDepth == int.MaxValue)
                             {
-                                if (sPrime.IsGoalState(this.task.goalFormula))
+                                if (sPrime.HasGoalWorld(this.task.goalFormula))
                                 {
                                     cutoffDepth = sPrimeNode.depth;
                                 }

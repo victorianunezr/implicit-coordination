@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ImplicitCoordination.DEL
 {
@@ -9,6 +10,7 @@ namespace ImplicitCoordination.DEL
         private Formula leftChild;
         private Formula rightChild;
         private Proposition proposition;
+        private ICollection<Formula> Disjuncts;
         private Agent agent;
 
         /// <summary>
@@ -38,6 +40,16 @@ namespace ImplicitCoordination.DEL
 
                 case FormulaType.Or:
                     return leftChild.Evaluate(s, w) || rightChild.Evaluate(s, w);
+
+                case FormulaType.Implies:
+                    return !leftChild.Evaluate(s, w) || rightChild.Evaluate(s, w);
+
+                case FormulaType.Disjunction:
+                    foreach (Formula f in Disjuncts)
+                    {
+                        if (f.Evaluate(s, w)) { return true; }
+                    }
+                    return false;
 
                 case FormulaType.Knows:
 
@@ -99,6 +111,16 @@ namespace ImplicitCoordination.DEL
         public static Formula Or(Formula f1, Formula f2)
         {
             return new Formula { type = FormulaType.Or, leftChild = f1, rightChild = f2 };
+        }
+
+        public static Formula Implies(Formula f1, Formula f2)
+        {
+            return new Formula { type = FormulaType.Implies, leftChild = f1, rightChild = f2 };
+        }
+
+        public static Formula Disjunction(ICollection<Formula> disjuncts)
+        {
+            return new Formula { type = FormulaType.Disjunction, Disjuncts = disjuncts };
         }
 
         public static Formula Knows(Agent a, Formula f)

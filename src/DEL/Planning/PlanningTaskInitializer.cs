@@ -85,22 +85,22 @@ namespace ImplicitCoordination.Planning
             Proposition at3 = new Proposition("at3");
             Proposition at4 = new Proposition("at4");
             Proposition at5 = new Proposition("at5");
-            Proposition goalAt1 = new Proposition("goalAt1");
-            Proposition goalAt5 = new Proposition("goalAt5");
+            Proposition g1 = new Proposition("goalAt1");
+            Proposition g5 = new Proposition("goalAt5");
+            Proposition g15 = new Proposition("goalAt1And5");
 
             // Initial State
             World w1 = new World();
             w1.AddProposition(at3);
-            w1.AddProposition(goalAt1);
+            w1.AddProposition(g1);
 
             World w2 = new World();
             w2.AddProposition(at3);
-            w2.AddProposition(goalAt1);
-            w2.AddProposition(goalAt5);
+            w2.AddProposition(g15);
 
             World w3 = new World();
             w3.AddProposition(at3);
-            w3.AddProposition(goalAt5);
+            w3.AddProposition(g5);
 
             AccessibilityRelation R = new AccessibilityRelation(agents, new HashSet<IWorld> { w1, w2, w3 });
             R.AddEdge(agentL, (w1, w2));
@@ -145,14 +145,23 @@ namespace ImplicitCoordination.Planning
             // Atomic formulas
             Formula fAt1 = Formula.Atom(at1);
             Formula fAt5 = Formula.Atom(at5);
-            Formula fGoalAt1 = Formula.And(Formula.Atom(goalAt1), Formula.Not(Formula.Atom(goalAt5)));
-            Formula fGoalAt5 = Formula.And(Formula.Atom(goalAt5), Formula.Not(Formula.Atom(goalAt1)));
-            Formula fGoalAt1And5 = Formula.And(Formula.Atom(goalAt1), Formula.Atom(goalAt5));
+
+            Formula goalAt1 = Formula.Atom(g1);
+            Formula goalAt5 = Formula.Atom(g5);
+            Formula goalAt1And5 = Formula.Atom(g15);
+
+            //Formula fGoalAt1 = Formula.And(Formula.Atom(g1), Formula.Not(Formula.Atom(g5)));
+            //Formula fGoalAt5 = Formula.And(Formula.Atom(g5), Formula.Not(Formula.Atom(g1)));
+            //Formula fGoalAt1And5 = Formula.And(Formula.Atom(g1), Formula.Atom(g5));
 
             // Goal Formula
-            Formula gamma = Formula.Or(Formula.And(Formula.And(fAt1, fGoalAt1), Formula.Not(fAt5)),
-                            Formula.Or(Formula.And(Formula.And(fAt5, fGoalAt5), Formula.Not(fAt1)),
-                                       Formula.And(Formula.Or(fAt1, fAt5), fGoalAt1And5)));
+            //Formula gamma = Formula.Or(Formula.And(Formula.And(fAt1, fGoalAt1), Formula.Not(fAt5)),
+            //                Formula.Or(Formula.And(Formula.And(fAt5, fGoalAt5), Formula.Not(fAt1)),
+            //                           Formula.And(Formula.Or(fAt1, fAt5), fGoalAt1And5)));
+
+            Formula gamma = Formula.Disjunction(new List<Formula> { Formula.And(goalAt1, fAt1),
+                                                                    Formula.And(goalAt1And5, Formula.Or(fAt1, fAt5)),
+                                                                    Formula.And(goalAt5, fAt5) });
 
             // Agents
             Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agentL.name, agentL }, { agentR.name, agentR } };
