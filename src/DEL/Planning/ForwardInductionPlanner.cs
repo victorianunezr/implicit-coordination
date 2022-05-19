@@ -30,7 +30,6 @@ namespace ImplicitCoordination.Planning
 
             this.BuildTree();
             this.ComputeCosts();
-            this.Prune();
 
             // if root worlds don't have fixed costs, iterate on depth
             HashSet<World> worldsInRoot = Graph.root.state.possibleWorlds.Cast<World>().ToHashSet();
@@ -45,8 +44,8 @@ namespace ImplicitCoordination.Planning
 
                 this.BuildTree();
                 this.ComputeCosts();
-                this.Prune();
             }
+            this.Prune();
             return Graph;
         }
 

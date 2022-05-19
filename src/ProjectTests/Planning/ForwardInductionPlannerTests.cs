@@ -11,7 +11,7 @@ namespace Planning.Tests
         [Test]
         public void Plan()
         {
-            PlanningTask leverTask = PlanningTaskInitializer.SymmetricLever();
+            PlanningTask leverTask = PlanningTaskInitializer.AsymmetricLever();
 
             var planner = new ForwardInductionPlanner(leverTask);
 
