@@ -187,7 +187,7 @@ namespace ImplicitCoordination.Planning
 
             Proposition g1 = new Proposition("goalAt1");
             Proposition g6 = new Proposition("goalAt6");
-            Proposition g16 = new Proposition("goalAt1And5");
+            Proposition g16 = new Proposition("goalAt1And6");
 
             // Initial State
             World w1 = new World();
@@ -248,7 +248,7 @@ namespace ImplicitCoordination.Planning
             AccessibilityRelation L21 = new AccessibilityRelation(agents, new HashSet<IWorld> { left21 });
             Action moveLeft21 = new Action(new HashSet<IWorld> { left21 }, new HashSet<IWorld> { left21 }, L21, "L21", agentL);
 
-            HashSet<Action> actions = new HashSet<Action> { moveLeft21, moveLeft32, moveLeft43, moveLeft54, moveRight12, moveRight23, moveRight34, moveRight45 };
+            HashSet<Action> actions = new HashSet<Action> { moveLeft21, moveLeft32, moveLeft43, moveLeft54, moveLeft65, moveRight12, moveRight23, moveRight34, moveRight45, moveRight56 };
 
             // Atomic formulas
             Formula fAt1 = Formula.Atom(at1);

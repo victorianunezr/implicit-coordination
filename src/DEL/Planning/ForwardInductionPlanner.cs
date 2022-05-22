@@ -35,11 +35,6 @@ namespace ImplicitCoordination.Planning
             HashSet<World> worldsInRoot = Graph.root.state.possibleWorlds.Cast<World>().ToHashSet();
             while (worldsInRoot.Any(w => w.cost.value.HasValue && w.cost.isRange))
             {
-                // Enqueue leaf nodes and expand tree
-                foreach (Node leaf in Graph.leafNodes)
-                {
-                    Graph.frontier.Enqueue(leaf);
-                }
                 Graph.leafNodes.Clear();
 
                 this.BuildTree();
@@ -71,11 +66,13 @@ namespace ImplicitCoordination.Planning
 
                 foreach (Action action in task.actions)
                 {
-                    foreach (State si in s.state.PerspectiveShift(action.owner))
-                    {
-                        if (si.IsApplicable(action))
+                    //foreach (State si in s.state.PerspectiveShift(action.owner))
+                    //{
+                        if (s.state.IsApplicable(action))
+                        //if (si.IsApplicable(action))
                         {
-                            State sPrime = s.state.ProductUpdate(action, si.designatedWorlds);
+                            //State sPrime = s.state.ProductUpdate(action, si.designatedWorlds);
+                            State sPrime = s.state.ProductUpdate(action);
                             sPrimeNode = new Node(sPrime, s, action);
 
                             if (cutoffDepth == int.MaxValue)
@@ -86,14 +83,17 @@ namespace ImplicitCoordination.Planning
                                 }
                             }
 
-                            if (sPrimeNode.depth == cutoffDepth)
-                            {
-                                Graph.leafNodes.Add(sPrimeNode);
-                            }
-
                             Graph.frontier.Enqueue(sPrimeNode);
                         }
-                    }
+                    //}
+                }
+            }
+
+            foreach (Node node in Graph.frontier)
+            {
+                if (node.depth == cutoffDepth)
+                {
+                    Graph.leafNodes.Add(node);
                 }
             }
 
