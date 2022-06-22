@@ -150,18 +150,9 @@ namespace ImplicitCoordination.Planning
             Formula goalAt5 = Formula.Atom(g5);
             Formula goalAt1And5 = Formula.Atom(g15);
 
-            //Formula fGoalAt1 = Formula.And(Formula.Atom(g1), Formula.Not(Formula.Atom(g5)));
-            //Formula fGoalAt5 = Formula.And(Formula.Atom(g5), Formula.Not(Formula.Atom(g1)));
-            //Formula fGoalAt1And5 = Formula.And(Formula.Atom(g1), Formula.Atom(g5));
-
-            // Goal Formula
-            //Formula gamma = Formula.Or(Formula.And(Formula.And(fAt1, fGoalAt1), Formula.Not(fAt5)),
-            //                Formula.Or(Formula.And(Formula.And(fAt5, fGoalAt5), Formula.Not(fAt1)),
-            //                           Formula.And(Formula.Or(fAt1, fAt5), fGoalAt1And5)));
-
-            Formula gamma = Formula.Disjunction(new List<Formula> { Formula.And(goalAt1, fAt1),
-                                                                    Formula.And(goalAt1And5, Formula.Or(fAt1, fAt5)),
-                                                                    Formula.And(goalAt5, fAt5) });
+            Formula gamma = Formula.Conjunction(new List<Formula> { Formula.Implies(goalAt1, fAt1),
+                                                                    Formula.Implies(goalAt1And5, Formula.Or(fAt1, fAt5)),
+                                                                    Formula.Implies(goalAt5, fAt5) });
 
             // Agents
             Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agentL.name, agentL }, { agentR.name, agentR } };
@@ -258,18 +249,9 @@ namespace ImplicitCoordination.Planning
             Formula goalAt6 = Formula.Atom(g6);
             Formula goalAt1And6 = Formula.Atom(g16);
 
-            //Formula fGoalAt1 = Formula.And(Formula.Atom(g1), Formula.Not(Formula.Atom(g5)));
-            //Formula fGoalAt5 = Formula.And(Formula.Atom(g5), Formula.Not(Formula.Atom(g1)));
-            //Formula fGoalAt1And5 = Formula.And(Formula.Atom(g1), Formula.Atom(g5));
-
-            // Goal Formula
-            //Formula gamma = Formula.Or(Formula.And(Formula.And(fAt1, fGoalAt1), Formula.Not(fAt5)),
-            //                Formula.Or(Formula.And(Formula.And(fAt5, fGoalAt5), Formula.Not(fAt1)),
-            //                           Formula.And(Formula.Or(fAt1, fAt5), fGoalAt1And5)));
-
-            Formula gamma = Formula.Disjunction(new List<Formula> { Formula.And(goalAt1, fAt1),
-                                                                    Formula.And(goalAt1And6, Formula.Or(fAt1, fAt6)),
-                                                                    Formula.And(goalAt6, fAt6) });
+            Formula gamma = Formula.Conjunction(new List<Formula> { Formula.Implies(goalAt1, fAt1),
+                                                                    Formula.Implies(goalAt1And6, Formula.Or(fAt1, fAt6)),
+                                                                    Formula.Implies(goalAt6, fAt6) });
 
             // Agents
             Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agentL.name, agentL }, { agentR.name, agentR } };

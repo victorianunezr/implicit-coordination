@@ -242,5 +242,33 @@ namespace DEL.Tests
             Assert.IsFalse(gamma.Evaluate(s, w));
             Assert.IsFalse(gamma.Evaluate(s, v));
         }
+
+        [Test]
+        public void DoesHelperKnowsThatActorKnows()
+        {
+            // Arrange
+            Agent a = new Agent();
+            Agent h = new Agent();
+
+            World w1 = new World();
+            World w2 = new World();
+            Proposition pp = new Proposition("p");
+
+            w1.AddProposition(pp);
+            AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent> { a, h }, new HashSet<IWorld> { w1, w2 });
+            R.AddEdge(h, (w1, w2));
+
+            State s = new State(new HashSet<IWorld> { w1, w2 }, new HashSet<IWorld> { w2 }, R);
+
+            Formula pf = Formula.Atom(pp);
+            Formula hKnowsP = Formula.Or(Formula.Knows(h, pf), Formula.Knows(h, Formula.Not(pf)));
+            Formula aKnowsP = Formula.Or(Formula.Knows(a, pf), Formula.Knows(a, Formula.Not(pf)));
+
+            // Assert
+            Assert.IsFalse(hKnowsP.Evaluate(s));
+            Assert.IsTrue(aKnowsP.Evaluate(s));
+            Assert.IsTrue(Formula.Knows(h, aKnowsP).Evaluate(s));
+
+        }
     }
 }

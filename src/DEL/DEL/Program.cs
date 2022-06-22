@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using ImplicitCoordination.DEL;
 using ImplicitCoordination.DEL.utils;
+using ImplicitCoordination.Planning;
 
 namespace ImplicitCoordination
 {
@@ -10,21 +11,11 @@ namespace ImplicitCoordination
     {
         static void Main(string[] args)
         {
-            // Testing accessibility relation graph
-            var graph = new HashSet<(World, World)>();
+            PlanningTask leverTask = PlanningTaskInitializer.AsymmetricLever();
 
-            var w = new World();
-            var v = new World();
-            graph.Add((w, v));
-            var edge = (w, v);
-            graph.Add(edge);
+            var planner = new ForwardInductionPlanner(leverTask);
 
-            graph.Remove(edge);
-
-            graph.Remove(edge);
-            // Assert
-            //Assert.IsTrue(w.valuation[1]);
-            Console.WriteLine("hello");
+            Graph g = planner.Plan(leverTask.agents["agentLeft"]);
         }
     }
 }

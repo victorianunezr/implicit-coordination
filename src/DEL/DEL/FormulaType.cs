@@ -10,6 +10,7 @@
         Or,
         Implies,
         Disjunction,
+        Conjunction,
         Knows,
         CommonKnow
     }

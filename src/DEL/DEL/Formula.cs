@@ -10,7 +10,7 @@ namespace ImplicitCoordination.DEL
         private Formula leftChild;
         private Formula rightChild;
         private Proposition proposition;
-        private ICollection<Formula> Disjuncts;
+        private ICollection<Formula> operands;
         private Agent agent;
 
         /// <summary>
@@ -45,11 +45,18 @@ namespace ImplicitCoordination.DEL
                     return !leftChild.Evaluate(s, w) || rightChild.Evaluate(s, w);
 
                 case FormulaType.Disjunction:
-                    foreach (Formula f in Disjuncts)
+                    foreach (Formula f in operands)
                     {
                         if (f.Evaluate(s, w)) { return true; }
                     }
                     return false;
+
+                case FormulaType.Conjunction:
+                    foreach (Formula f in operands)
+                    {
+                        if (!f.Evaluate(s, w)) { return false; }
+                    }
+                    return true;
 
                 case FormulaType.Knows:
 
@@ -120,7 +127,12 @@ namespace ImplicitCoordination.DEL
 
         public static Formula Disjunction(ICollection<Formula> disjuncts)
         {
-            return new Formula { type = FormulaType.Disjunction, Disjuncts = disjuncts };
+            return new Formula { type = FormulaType.Disjunction, operands = disjuncts };
+        }
+
+        public static Formula Conjunction(ICollection<Formula> conjuncts)
+        {
+            return new Formula { type = FormulaType.Conjunction, operands = conjuncts };
         }
 
         public static Formula Knows(Agent a, Formula f)
