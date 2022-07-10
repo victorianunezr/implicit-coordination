@@ -8,10 +8,8 @@ namespace ImplicitCoordination.DEL
     {
         private static ushort Counter = 0;
         private readonly ushort id;
-
         public ushort Id => this.id;
-
-        public ulong TruePropositions => this.valuation.data;
+        public HashSet<Proposition> TruePropositions = new HashSet<Proposition>();
 
         /// <summary>
         /// valuation[i] gives truth value for atomic proposition with id i. BitArray currently only allows 64 propositions per world.

@@ -17,10 +17,10 @@ namespace ImplicitCoordination.DEL
             this.name = name;
             this.id = Counter;
             Counter++;
-            if (Counter >= 64)
-            {
-                throw new PropositionIdxOutOfRangeException("No more space for new propositions.");
-            }
+            // if (Counter >= 64)
+            // {
+            //     throw new PropositionIdxOutOfRangeException("No more space for new propositions.");
+            // }
         }
 
         public static void ResetIdCounter()
