@@ -17,7 +17,7 @@ namespace ImplicitCoordination.Planning
         /// <summary>
         /// Frontier containing OR AndOrNodes
         /// </summary>
-        public Queue<AndOrNode> frontier;
+        public Queue<AndOrNode> frontier = new Queue<AndOrNode>();
 
         /// <summary>
         /// AND nodes are the states resulting from a perspective shift followed by a product update
@@ -238,17 +238,17 @@ namespace ImplicitCoordination.Planning
             }
         }
 
-        public void UpdateLeafNodes()
-        {
-            foreach (AndOrNode node in SolvedLeafNodes)
-            {
-                if (node.children.Count != 0 && node.status == NodeStatus.Solved)
-                {
-                    SolvedLeafNodes.Remove(node);
-                }
-            }
-            if (SolvedLeafNodes.Count == 0) { throw new Exception("Set of leaf nodes cannot be empty. Something went wrong."); }
-        }
+        // public void UpdateLeafNodes()
+        // {
+        //     foreach (AndOrNode node in SolvedLeafNodes)
+        //     {
+        //         if (node.children.Count != 0 || node.status != NodeStatus.Solved)
+        //         {
+        //             SolvedLeafNodes.Remove(node);
+        //         }
+        //     }
+        //     if (SolvedLeafNodes.Count == 0) { throw new Exception("Set of leaf nodes cannot be empty. Something went wrong."); }
+        // }
     }
 
     public class IncorrectNodeTypeException : Exception { }

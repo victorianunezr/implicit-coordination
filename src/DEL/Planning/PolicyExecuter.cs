@@ -9,6 +9,8 @@ namespace ImplicitCoordination.Planning
     public static class PolicyExecuter
     {
         private static readonly Random random = new Random();
+        private static readonly Random randBaseline = new Random();
+
 
         /// <summary>
         /// Given the graph that results from the planning algorithm, we extract a policy by following the remaining
@@ -20,42 +22,104 @@ namespace ImplicitCoordination.Planning
         /// Since in the lever example all agents compute the same policy, we assume there is only one policy in the profile.
         /// The executer currently disregards designated worlds, as it doesn't make a difference in the lever example
         /// <remarks>
-        public static void ExecutePolicy(Graph policy)
+        public static void ExecutePolicy(Graph policy, PlanningTask task)
         {
             Node node = policy.root;
+            ICollection<Node> children;
+
+            // Define empty list that will serve as the sequence of actions resulting from the execution
+            List<Action> execution = new List<Action>();
+
+            // Collect outgoing edges remaining at a state
+            Dictionary<int, WorldEdge> actionsInState = new Dictionary<int, WorldEdge>();
 
             while (NodeHasOutgoingEdges(node))
             {
-                Action actionToExecute;
-                // Define empty list that will serve as the sequence of actions resulting from the execution
-                List<Action> execution = new List<Action>();
-                // Collect actions remaining at a state
-                Dictionary<int, Action> actionsInState = new Dictionary<int, Action>();
+                WorldEdge edgeToFollow;
+                actionsInState.Clear();
 
-                foreach (World w in node.state.possibleWorlds)
+                foreach (World w in node.state.designatedWorlds)
                 {
                     foreach (WorldEdge outgoingEdge in w.outgoingEdges)
                     {
                         if (!outgoingEdge.isPruned)
                         {
-                            actionsInState.Add(actionsInState.Count, outgoingEdge.action);
+                            actionsInState.Add(actionsInState.Count, outgoingEdge);
                         }
                     }
                 }
 
                 // Select action to execute randomly
                 // This is equivalent to all acting agents trying to act asynchronously
-                actionToExecute = actionsInState[random.Next(actionsInState.Count)];
-                execution.Add(actionToExecute);
+                edgeToFollow = actionsInState[random.Next(actionsInState.Count)];
+                execution.Add(edgeToFollow.action);
+                Console.WriteLine(edgeToFollow.action.name);
 
+                children = node.children;
+                node = null;
                 // Get the successor state from applying the action
-                // Let's try to follow the outgoing edge from the one of the designated world
-                // !! problem: if we follow edge to world, we cannot get the whole state from the world.
-                // We might then need to add edges at the state/action level and not only wolrd/event.
-                node = 
+                // we look at the chilren of the current node and select the one that results from the selected action
+                foreach (Node child in children)
+                {
+                    if (child.actionFromParent == edgeToFollow.action)
+                    {
+                        node = child;
+                        break;
+                    }
+                }
+                if (node == null)
+                {
+                    throw new Exception("no child node was selected");
+                }
+            }
+            // Check that the state reached satisfies the goal formula
+            if (task.goalFormula.Evaluate(node.state))
+            {
+                Console.WriteLine("Successful Execution!");
+
+            }
+            else
+            {
+                 Console.WriteLine("Execution did not reach a goal state.");                               
+            }
+        }
+
+        public static void ExecuteBaselinePolicy(AndOrGraph policy, PlanningTask task)
+        {
+            AndOrNode node = policy.root;
+
+            // Define empty list that will serve as the sequence of actions resulting from the execution
+            List<Action> execution = new List<Action>();
+
+            while (node.children.Count > 0)
+            {
+                
+                if (node.type == NodeType.And)
+                {
+                    // at AND nodes we must visit all children for extracting the policy.
+                    // Since we are executing the policy, we follow just one path down the root
+                    // for now let's say we pick the first child in the set as the next node to expand
+                    // I can just remove the perspective shift to the acting agent such that there is only one children per AND node
+                }
+                // At OR nodes, we choose child node at random, just as in other policy executer
+                else
+                {
+                    node = node.children.ElementAt(randBaseline.Next(node.children.Count));
+                    execution.Add(node.actionFromParent);
+                    Console.WriteLine(node.actionFromParent.name);
+                }
             }
 
             // Check that the state reached satisfies the goal formula
+            if (task.goalFormula.Evaluate(node.state))
+            {
+                Console.WriteLine("Successful Execution!");
+
+            }
+            else
+            {
+                Console.WriteLine("Execution did not reach a goal state.");                               
+            }
 
         }
 

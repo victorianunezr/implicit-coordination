@@ -21,7 +21,7 @@ namespace ImplicitCoordination.Planning
             this.task = task;
         }
 
-        public void Plan()
+        public AndOrGraph Plan()
         {
             Init();
 
@@ -33,18 +33,21 @@ namespace ImplicitCoordination.Planning
             while (Graph.frontier.Count > 0)
             {
                 s = Graph.frontier.Dequeue();
-
-                Graph.SolvedLeafNodes.Add(s);
+                // Graph.SolvedLeafNodes.Add(s);
 
                 foreach (Action action in task.actions)
                 {
-                    sJ = s.state.GetAssociatedLocal(action.owner);
+                    // sJ = s.state.GetAssociatedLocal(action.owner);
+                    sJ = s.state;
+                    if (!sJ.IsApplicable(action)) continue;
+                    // Doing product update on global state (not taking associated local of acting agent)
+                    // As such, we only have one designated world and thus only one AND node per OR node
                     sPrime = new AndOrNode(sJ.ProductUpdate(action), s, NodeType.And, action);                   
 
                     // Continue if action was not applicable or if s' already exists in AndNodes
-                    if (sPrime == null || !Graph.AddAndNode(sPrime)) continue;
+                    if (sPrime.state == null || !Graph.AddAndNode(sPrime)) continue;
 
-                    Graph.SolvedLeafNodes.Add(sPrime);
+                    // Graph.SolvedLeafNodes.Add(sPrime);
 
                     foreach (State global in sPrime.state.Globals())
                     {
@@ -54,6 +57,8 @@ namespace ImplicitCoordination.Planning
                         if (task.goalFormula.Evaluate(global))
                         {
                             Graph.UpdateSolvedDead(newGlobal);
+                            // Solved leaf nodes are OR nodes that satisfy the goal formula
+                            Graph.SolvedLeafNodes.Add(newGlobal);
                         }
                         else
                         {
@@ -62,11 +67,13 @@ namespace ImplicitCoordination.Planning
                     }
                 }
                 Graph.UpdateSolvedDead(s);
-                Graph.UpdateLeafNodes();
+                // Graph.UpdateLeafNodes();
 
                 if (Graph.root.status == NodeStatus.Solved)
                 {
-                    // extract policy
+                    // assign costs
+                    this.AssignCosts();
+                    return Graph;
                 }
                 if (Graph.root.status == NodeStatus.Dead)
                 {
@@ -150,10 +157,10 @@ namespace ImplicitCoordination.Planning
                         }
                     }
                     //todo: only for debugging. remove later
-                    else
-                    {
-                        throw new Exception($"Node should have cost {i - 1}, but it has cost {node.cost}");
-                    }
+                    // else
+                    // {
+                    //     throw new Exception($"Node should have cost {i - 1}, but it has cost {node.cost}");
+                    // }
                 }
                 nodesToUpdateNow = new HashSet<AndOrNode>(nodesToUpdateNext);
                 nodesToUpdateNext.Clear();
