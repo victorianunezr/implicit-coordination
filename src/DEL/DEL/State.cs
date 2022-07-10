@@ -250,11 +250,11 @@ namespace ImplicitCoordination.DEL
             }
         }
 
-        public bool Equals(State other)
-        {
-            if (!this.designatedWorlds.ContainsSameWorlds(other.designatedWorlds)) return false;
-            if (!this.possibleWorlds.ContainsSameWorlds(other.possibleWorlds)) return false;
-            return this.accessibilityHash.SequenceEqual(other.accessibilityHash);
-        }
+        // public bool Equals(State other)
+        // {
+        //     if (!this.designatedWorlds.ContainsSameWorlds(other.designatedWorlds)) return false;
+        //     if (!this.possibleWorlds.ContainsSameWorlds(other.possibleWorlds)) return false;
+        //     return this.accessibilityHash.SequenceEqual(other.accessibilityHash);
+        // }
     }
 }

@@ -229,18 +229,18 @@ namespace ImplicitCoordination.DEL
 
 
         //todo: this casting workaround is terrible
-        public bool AreEdgesEqual(HashSet<(IWorld, IWorld)> set1, HashSet<(IWorld, IWorld)> set2)
-        {
-            if (set1.Count != set2.Count) return false;
+        // public bool AreEdgesEqual(HashSet<(IWorld, IWorld)> set1, HashSet<(IWorld, IWorld)> set2)
+        // {
+        //     if (set1.Count != set2.Count) return false;
 
-            foreach (var (w, u) in set1)
-            {
-                if (!set2.Any(x =>
-                       x.Item1.IsEqualTo((World)w) && x.Item2.IsEqualTo((World)u) ||
-                       x.Item1.IsEqualTo((World)u) && x.Item2.IsEqualTo((World)w))) return false;
-            }
-            return true;
-        }
+        //     foreach (var (w, u) in set1)
+        //     {
+        //         if (!set2.Any(x =>
+        //                x.Item1.IsEqualTo((World)w) && x.Item2.IsEqualTo((World)u) ||
+        //                x.Item1.IsEqualTo((World)u) && x.Item2.IsEqualTo((World)w))) return false;
+        //     }
+        //     return true;
+        // }
     }
     public class AgentNotFoundException : Exception
     {
@@ -249,21 +249,21 @@ namespace ImplicitCoordination.DEL
     }
 
     //todo: terrible terrible implementation. Not good having to cast IWorlds to Worlds. Temporary workaround
-    public class EdgeComparator : IEqualityComparer<(IWorld, IWorld)>
-    {
-        public bool Equals((IWorld, IWorld) x, (IWorld, IWorld) y)
-        {
-            World w1 = (World)x.Item1;
-            World w2 = (World)x.Item2;
-            World u1 = (World)x.Item1;
-            World u2 = (World)x.Item2;
+    // public class EdgeComparator : IEqualityComparer<(IWorld, IWorld)>
+    // {
+    //     public bool Equals((IWorld, IWorld) x, (IWorld, IWorld) y)
+    //     {
+    //         World w1 = (World)x.Item1;
+    //         World w2 = (World)x.Item2;
+    //         World u1 = (World)x.Item1;
+    //         World u2 = (World)x.Item2;
 
-            return w1.valuation.data == u1.valuation.data && w2.valuation.data == u2.valuation.data;
-        }
+    //         return w1.valuation.data == u1.valuation.data && w2.valuation.data == u2.valuation.data;
+    //     }
 
-        public int GetHashCode([DisallowNull] (IWorld, IWorld) obj)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //     public int GetHashCode([DisallowNull] (IWorld, IWorld) obj)
+    //     {
+    //         throw new NotImplementedException();
+    //     }
+    // }
 }
