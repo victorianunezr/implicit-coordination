@@ -22,6 +22,8 @@ namespace DEL.Tests
             Proposition q = new Proposition("q");
             Proposition r = new Proposition("r");
             World w = new World(0b101);
+            w.AddProposition(p);
+            w.AddProposition(r);
 
             // Act - Assert
             Assert.IsTrue(w.IsTrue(p));
@@ -37,6 +39,8 @@ namespace DEL.Tests
             Proposition q = new Proposition("q");
             Proposition r = new Proposition("r");
             World w = new World(0b101); // q is originally false
+            w.AddProposition(p);
+            w.AddProposition(r);
 
             // Act
             w.AddProposition(q);
@@ -55,6 +59,8 @@ namespace DEL.Tests
             Proposition q = new Proposition("q");
             Proposition r = new Proposition("r");
             World w = new World(0b101);
+            w.AddProposition(p);
+            w.AddProposition(r);
 
             // Act
             w.SetValuation(p, false);
@@ -73,6 +79,8 @@ namespace DEL.Tests
             Proposition q = new Proposition("q");
             Proposition r = new Proposition("r");
             World w = new World(0b101);
+            w.AddProposition(p);
+            w.AddProposition(r);
 
             // Act
             w.SetValuation(r, false);
@@ -91,6 +99,9 @@ namespace DEL.Tests
             Proposition q = new Proposition("q");
             Proposition r = new Proposition("r");
             World w = new World(0b101);
+            w.AddProposition(p);
+            w.AddProposition(r);
+
             Agent a = new Agent();
             State s = new State(new HashSet<IWorld> { w }, new HashSet<IWorld> { w }, new HashSet<Agent> { a });
             Formula f = Formula.And(Formula.Atom(p), Formula.Atom(r));
@@ -103,13 +114,19 @@ namespace DEL.Tests
         public void Copy()
         {
             // Arrange
+            Proposition p = new Proposition("p");
+            Proposition q = new Proposition("q");
+            Proposition r = new Proposition("r");
+
             World w = new World(0b101);
+            w.AddProposition(p);
+            w.AddProposition(r);
 
             // Act
             World wP = w.Copy();
 
             // Assert
-            Assert.AreEqual(w.valuation, wP.valuation);
+            Assert.IsTrue(w.IsEqualTo(wP));
             Assert.AreNotEqual(w.Id, wP.Id);
         }
 
@@ -117,8 +134,15 @@ namespace DEL.Tests
         public void CreateChild()
         {
             // Arrange
+            Proposition p = new Proposition("p");
+            Proposition q = new Proposition("q");
+            Proposition r = new Proposition("r");
+
             Agent a = new Agent();
             World w = new World(0b101);
+            w.AddProposition(p);
+            w.AddProposition(r);
+
             Event e = new Event(Formula.Atom(new Proposition("p")));
             Event f = new Event(Formula.Atom(new Proposition("q")));
 
@@ -142,12 +166,22 @@ namespace DEL.Tests
         [Test]
         public void Equals()
         {
+            Proposition p = new Proposition("p");
+            Proposition q = new Proposition("q");
+            Proposition r = new Proposition("r");
+
             // Arrange
             World w = new World(0b101);
+            w.AddProposition(p);
+            w.AddProposition(r);
+
             World v = new World(0b101);
+            v.AddProposition(p);
+            v.AddProposition(r);
+
 
             // Act -  Assert
-            Assert.AreEqual(w.valuation, v.valuation);
+            Assert.IsTrue(w.IsEqualTo(v));
             Assert.AreNotEqual(w.Id, v.Id);
         }
 

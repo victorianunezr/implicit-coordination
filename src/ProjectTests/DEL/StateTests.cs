@@ -46,8 +46,15 @@ namespace DEL.Tests
             this.q = new Proposition("q");
 
             this.w = new World(0b11); // p, q
+            w.AddProposition(p);
+            w.AddProposition(q);
+
             this.u = new World(0b01); // p, ~q
+            u.AddProposition(p);
+
             this.v = new World(0b10); // ~p, q
+            v.AddProposition(q);
+
             this.t = new World(0b00); // ~p, ~q
 
             this.worlds = new HashSet<IWorld> { w, u, v, t };

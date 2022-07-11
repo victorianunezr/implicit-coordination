@@ -96,7 +96,7 @@ namespace ImplicitCoordination.DEL
         public World Copy()
         {
             World w = new World(this.valuation.data);
-            w.TruePropositions = this.TruePropositions;
+            w.TruePropositions = new HashSet<Proposition>(this.TruePropositions);
             return w;
         }
 
