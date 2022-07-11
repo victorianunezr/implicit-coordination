@@ -59,23 +59,33 @@ namespace ImplicitCoordination.DEL
 
         public bool IsTrue(Proposition p)
         {
-            return this.valuation.GetValue(p.id);
+            //return this.valuation.GetValue(p.id);
+            return this.TruePropositions.Contains(p);
         }
 
         public void AddProposition(Proposition p)
         {
-            this.SetValuation(p.id, true);
+            //this.SetValuation(p.id, true);
+            this.TruePropositions.Add(p);
         }
 
         public void SetValuation(Proposition p, bool value)
         {
-            this.SetValuation(p.id, value);
+            //this.SetValuation(p.id, value);
+            if (value)
+            {
+                this.TruePropositions.Add(p);
+            }
+            else
+            {
+                this.TruePropositions.Remove(p);
+            }
         }
 
-        public void SetValuation(ushort propId, bool value)
-        {
-            this.valuation.SetValue(propId, value);
-        }
+        //public void SetValuation(ushort propId, bool value)
+        //{
+        //    this.valuation.SetValue(propId, value);
+        //}
 
 
         public bool IsValid(State s, Formula f)
@@ -85,7 +95,9 @@ namespace ImplicitCoordination.DEL
 
         public World Copy()
         {
-            return new World(this.valuation.data);
+            World w = new World(this.valuation.data);
+            w.TruePropositions = this.TruePropositions;
+            return w;
         }
 
         /// <summary>
@@ -97,7 +109,7 @@ namespace ImplicitCoordination.DEL
         /// <returns></returns>
         public World CreateChild(Action a, Event e)
         {
-            World childWorld = new World(this.valuation.data);
+            World childWorld = this.Copy();
             WorldEdge edge = new WorldEdge(childWorld, this, e, a);
             this.outgoingEdges.Add(edge);
             childWorld.incomingEdge = edge;
@@ -109,9 +121,9 @@ namespace ImplicitCoordination.DEL
         /// </summary>
         /// <param name="other"></param>
         /// <returns>True if worlds valuations are equal</returns>
-        public bool IsEqualTo(IWorld other)
+        public bool IsEqualTo(World other)
         {
-            return this.TruePropositions == other.TruePropositions;
+            return this.TruePropositions.SetEquals(other.TruePropositions);
         }
 
         public static void ResetIdCounter()

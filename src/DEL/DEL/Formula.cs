@@ -30,7 +30,7 @@ namespace ImplicitCoordination.DEL
                     return false;
 
                 case FormulaType.Atom:
-                    return w.valuation.GetValue(proposition.id);
+                    return w.IsTrue(proposition);
 
                 case FormulaType.Not:
                     return !child.Evaluate(s, w);

@@ -65,10 +65,10 @@ namespace ImplicitCoordination.Planning
             State initialState = new State(new HashSet<IWorld> { w1, w2, w3 }, new HashSet<IWorld> { w2 }, R);
 
             Func<World, PropositionRepository, Formula> precondDelegateRight = (w,p) => PreconditionDelegateMoveRight(w, p);
-            Func<World, PropositionRepository, IDictionary<ushort, bool>?> postcondDelegateRight = (w, p) => PostconditionDelegateMoveRight(w, p);
+            Func<World, PropositionRepository, IDictionary<Proposition, bool>?> postcondDelegateRight = (w, p) => PostconditionDelegateMoveRight(w, p);
 
             Func<World, PropositionRepository, Formula> precondDelegateLeft = (w, p) => PreconditionDelegateMoveLeft(w, p);
-            Func<World, PropositionRepository, IDictionary<ushort, bool>?> postcondDelegateLeft = (w, p) => PostconditionDelegateMoveLeft(w, p);
+            Func<World, PropositionRepository, IDictionary<Proposition, bool>?> postcondDelegateLeft = (w, p) => PostconditionDelegateMoveLeft(w, p);
 
             // Actions
             Event pullRightEvent = new Event(precondDelegateRight, postcondDelegateRight);
@@ -118,24 +118,24 @@ namespace ImplicitCoordination.Planning
             return Formula.And(Formula.Not(Formula.Atom(propositions.Get("atn"))), Formula.Atom(CurrentLeverPosition(w)));
         }
 
-        public static IDictionary<ushort, bool>? PostconditionDelegateMoveRight(World w, PropositionRepository propositions)
+        public static IDictionary<Proposition, bool>? PostconditionDelegateMoveRight(World w, PropositionRepository propositions)
         {
             Proposition currentPositionProposition = CurrentLeverPosition(w);
             int currentPos = int.Parse(currentPositionProposition.name.Substring(2));
             Proposition delta = propositions.Get("at" + (currentPos + 1).ToString());
-            return new Dictionary<ushort, bool> { { currentPositionProposition.id, false }, { delta.id, true } };
+            return new Dictionary<Proposition, bool> { { currentPositionProposition, false }, { delta, true } };
         }
         public static Formula PreconditionDelegateMoveLeft(World w, PropositionRepository propositions)
         {
             return Formula.And(Formula.Not(Formula.Atom(propositions.Get("at1"))), Formula.Atom(CurrentLeverPosition(w)));
         }
 
-        public static IDictionary<ushort, bool>? PostconditionDelegateMoveLeft(World w, PropositionRepository propositions)
+        public static IDictionary<Proposition, bool>? PostconditionDelegateMoveLeft(World w, PropositionRepository propositions)
         {
             Proposition currentPositionProposition = CurrentLeverPosition(w);
             int currentPos = int.Parse(currentPositionProposition.name.Substring(2));
             Proposition delta = propositions.Get("at" + (currentPos - 1).ToString());
-            return new Dictionary<ushort, bool> { { currentPositionProposition.id, false }, { delta.id, true } };
+            return new Dictionary<Proposition, bool> { { currentPositionProposition, false }, { delta, true } };
         }
     }
 }

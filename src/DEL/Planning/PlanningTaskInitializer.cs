@@ -34,7 +34,7 @@ namespace ImplicitCoordination.Planning
             State initialState = new State(new HashSet<IWorld>() { w1, w2 }, new HashSet<IWorld>() { w1 }, R);
 
             // Actions
-            Event cutRedE1 = new Event(Formula.Atom(r), new Dictionary<ushort, bool>() { { l.id, false } });
+            Event cutRedE1 = new Event(Formula.Atom(r), new Dictionary<Proposition, bool>() { { l, false } });
             Event cutRedE2 = new Event(Formula.Not(Formula.Atom(r)));
 
             Action cutRed = new Action(new HashSet<IWorld>() { cutRedE1, cutRedE2},
@@ -42,7 +42,7 @@ namespace ImplicitCoordination.Planning
                                        agents, "cutRed", agent0);
             cutRed.accessibility.AddEdge(agent1, (cutRedE1, cutRedE2));
 
-            Event cutBlueE1 = new Event(Formula.Not(Formula.Atom(r)), new Dictionary<ushort, bool>() { { l.id, false } });
+            Event cutBlueE1 = new Event(Formula.Not(Formula.Atom(r)), new Dictionary<Proposition, bool>() { { l, false } });
             Event cutBlueE2 = new Event(Formula.Atom(r));
 
             Action cutBlue = new Action(new HashSet<IWorld>() { cutBlueE1, cutBlueE2 },
@@ -50,8 +50,8 @@ namespace ImplicitCoordination.Planning
                                         agents, "cutBlue", agent0);
             cutBlue.accessibility.AddEdge(agent1, (cutBlueE1, cutBlueE2));
 
-            Event takeE1 = new Event(Formula.Not(Formula.Atom(l)), new Dictionary<ushort, bool> { { h.id, true } });
-            Event takeE2 = new Event(Formula.Atom(l), new Dictionary<ushort, bool> { { c.id, true } });
+            Event takeE1 = new Event(Formula.Not(Formula.Atom(l)), new Dictionary<Proposition, bool> { { h, true } });
+            Event takeE2 = new Event(Formula.Atom(l), new Dictionary<Proposition, bool> { { c, true } });
 
             Action take = new Action(new HashSet<IWorld> { takeE1, takeE2 },
                                      new HashSet<IWorld> { takeE1, takeE2 },

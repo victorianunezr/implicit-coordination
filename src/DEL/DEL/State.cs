@@ -211,7 +211,7 @@ namespace ImplicitCoordination.DEL
         /// The valuation of w is initalized as a copy of the parent world's valuation.
         /// This means that the new valuation of p will remain the same if it is not set to a value in the postcondition of e.
         /// </remarks>
-        public static void UpdateValuation(World w, IDictionary<ushort, bool> postcondition)
+        public static void UpdateValuation(World w, IDictionary<Proposition, bool> postcondition)
         {
             if (postcondition != null)
             {

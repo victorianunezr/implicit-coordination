@@ -75,7 +75,7 @@ namespace DEL.Tests
             World w = new World(0b101);
 
             // Act
-            w.SetValuation(2, false);
+            w.SetValuation(r, false);
 
             // Assert
             Assert.IsTrue(w.IsTrue(p));

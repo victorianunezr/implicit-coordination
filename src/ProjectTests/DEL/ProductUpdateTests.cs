@@ -35,12 +35,16 @@ namespace DEL.Tests
             this.q = new Proposition("q");
 
             this.w = new World(0b11); // p, q
+            w.AddProposition(p);
+            w.AddProposition(q);
             this.u = new World(0b01); // p, ~q
+            u.AddProposition(p);
             this.v = new World(0b10); // ~p, q
+            v.AddProposition(q);
             this.worlds = new HashSet<IWorld> { w, u, v };
 
-            this.e = new Event(Formula.Atom(p), new Dictionary<ushort, bool> { { 0, false } }); // pre: p, post: ~p (q not set)
-            this.f = new Event(Formula.Atom(q), new Dictionary<ushort, bool> { { 0, true }, { 1, false } }); // pre: q, post: p, ~q
+            this.e = new Event(Formula.Atom(p), new Dictionary<Proposition, bool> { { p, false } }); // pre: p, post: ~p (q not set)
+            this.f = new Event(Formula.Atom(q), new Dictionary<Proposition, bool> { { p, true }, { q, false } }); // pre: q, post: p, ~q
             this.events = new HashSet<IWorld> { e, f };
 
             AccessibilityRelation stateAccessibility = new AccessibilityRelation(agents, worlds);

@@ -25,7 +25,7 @@ namespace ImplicitCoordination.DEL
         /// <summary>
         /// Delegate for finding the precondition of an event dynamically, depending of what holds true at the current world being updated
         /// </summary>
-        public Func<World, PropositionRepository, IDictionary<ushort, bool>?> postconditionDelegate;
+        public Func<World, PropositionRepository, IDictionary<Proposition, bool>?> postconditionDelegate;
 
         /// <summary>
         /// Precondition Formula that is evaluated in each world when applying the product update.
@@ -41,9 +41,17 @@ namespace ImplicitCoordination.DEL
         /// If a postcondition is a negated proposition ~p, set post[p.id] to false.
         /// If dictionary is null, valuation remains the same as in the source state.
         /// </remarks>
-        public IDictionary<ushort, bool>? post;
+        public IDictionary<Proposition, bool>? post;
 
-        public Event(Formula pre, IDictionary<ushort, bool> post=null)
+        //public Event(Formula pre, IDictionary<ushort, bool> post=null)
+        //{
+        //    this.pre = pre;
+        //    this.post = post;
+        //    this.id = Counter;
+        //    Counter++;
+        //}
+
+        public Event(Formula pre, IDictionary<Proposition, bool> post=null)
         {
             this.pre = pre;
             this.post = post;
@@ -51,25 +59,7 @@ namespace ImplicitCoordination.DEL
             Counter++;
         }
 
-        public Event(Formula pre, IDictionary<Proposition, bool> post)
-        {
-            if (post != null)
-            {
-                IDictionary<ushort, bool> dict = new Dictionary<ushort, bool>();
-                foreach (var entry in post)
-                {
-                    dict.Add(entry.Key.id, entry.Value);
-                }
-                this.post = dict;
-            }
-            else this.post = null;
-
-            this.pre = pre;
-            this.id = Counter;
-            Counter++;
-        }
-
-        public Event(Func<World, PropositionRepository, Formula> preconditionDelegate, Func<World, PropositionRepository, IDictionary<ushort, bool>> postconditionDelegate)
+        public Event(Func<World, PropositionRepository, Formula> preconditionDelegate, Func<World, PropositionRepository, IDictionary<Proposition, bool>> postconditionDelegate)
         {
             this.preconditionDelegate = preconditionDelegate;
             this.postconditionDelegate = postconditionDelegate;
@@ -85,30 +75,30 @@ namespace ImplicitCoordination.DEL
         }
 
 
-        /// <summary>
-        /// Sets the valuation of a proposition should have after applying the event
-        /// </summary>
-        /// <param name="proposition">The proposition to set.</param>
-        /// <param name="value">Boolean value that the proposition is set to after event e is applied. Null means it will keep its previous value</param>
-        public void SetPostcondition(Proposition prop, bool value)
-        {
-            this.SetPostcondition(prop.id, value);
-        }
+        ///// <summary>
+        ///// Sets the valuation of a proposition should have after applying the event
+        ///// </summary>
+        ///// <param name="proposition">The proposition to set.</param>
+        ///// <param name="value">Boolean value that the proposition is set to after event e is applied. Null means it will keep its previous value</param>
+        //public void SetPostcondition(Proposition prop, bool value)
+        //{
+        //    this.SetPostcondition(prop.id, value);
+        //}
 
         /// <summary>
         /// Sets the valuation of a proposition should have after applying the event
         /// </summary>
-        /// <param name="propositionId">The id of the proposition.</param>
+        /// <param name="p">The proposition.</param>
         /// <param name="value">Boolean value that the proposition is set to after event e is applied. Null means it will keep its previous value</param>
-        public void SetPostcondition(ushort propositionId, bool value)
+        public void SetPostcondition(Proposition p, bool value)
         {
             try
             {
-                this.post[propositionId] = value;
+                this.post[p] = value;
             }
             catch (KeyNotFoundException)
             {
-                this.post.Add(propositionId, value);
+                this.post.Add(p, value);
             }
         }
 

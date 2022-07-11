@@ -27,8 +27,17 @@ namespace DEL.Tests
             this.atomQ = Formula.Atom(q);
             this.atomR = Formula.Atom(r);
             this.w = new World(0b111);
+            w.AddProposition(p);
+            w.AddProposition(q);
+            w.AddProposition(r);
+
             this.u = new World(0b011);
+            u.AddProposition(p);
+            u.AddProposition(q);
+
             this.v = new World(0b110);
+            v.AddProposition(q);
+            v.AddProposition(r);
         }
 
         [Test]
@@ -114,6 +123,7 @@ namespace DEL.Tests
             // w = 111, u = 011, v = 110, t = 001
 
             var t = new World(0b100);
+            t.AddProposition(this.r);
             Agent a = new Agent();
             Agent b = new Agent();
 
@@ -158,6 +168,7 @@ namespace DEL.Tests
 
             // Arrange
             var t = new World(0b100);
+            t.AddProposition(this.r);
             Agent a = new Agent();
             Agent b = new Agent();
 
