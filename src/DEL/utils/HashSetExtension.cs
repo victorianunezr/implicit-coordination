@@ -18,10 +18,10 @@ namespace ImplicitCoordination.utils
             return set.Contains((w, v)) || set.Contains((v, w));
         }
 
-        public static bool ContainsSameWorlds(this HashSet<IWorld> thisSet, HashSet<IWorld> other)
+        public static bool ContainsSameWorlds(this HashSet<World> thisSet, HashSet<World> other)
         {
             if (thisSet.Count != other.Count) return false;
-            foreach (IWorld w in thisSet)
+            foreach (World w in thisSet)
             {
                 if (!other.Any(x => x.IsEqualTo(w))) return false;
             }

@@ -20,10 +20,10 @@ namespace DEL.Utils.Tests
             World s = new World(2);
             World t = new World(3);
 
-            HashSet<IWorld> set1 = new HashSet<IWorld> { w, u, v };
-            HashSet<IWorld> set2 = new HashSet<IWorld> { q, s, t };
-            HashSet<IWorld> set3 = new HashSet<IWorld> { w, s, v };
-            HashSet<IWorld> set4 = new HashSet<IWorld> { q, t };
+            HashSet<World> set1 = new HashSet<World> { w, u, v };
+            HashSet<World> set2 = new HashSet<World> { q, s, t };
+            HashSet<World> set3 = new HashSet<World> { w, s, v };
+            HashSet<World> set4 = new HashSet<World> { q, t };
 
             // Assert
             Assert.IsTrue(set1.ContainsSameWorlds(set2));

@@ -72,7 +72,7 @@ namespace ImplicitCoordination.Planning
                         //if (si.IsApplicable(action))
                         {
                             //State sPrime = s.state.ProductUpdate(action, si.designatedWorlds);
-                            State sPrime = s.state.ProductUpdate(action);
+                            State sPrime = s.state.ProductUpdate(action, null, this.task.propositions);
                             sPrimeNode = new Node(sPrime, s, action);
 
                             if (cutoffDepth == int.MaxValue)

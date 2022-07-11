@@ -19,13 +19,13 @@ namespace ImplicitCoordination.DEL
             State globalState=null)
             : base(possibleWorlds, designatedWorlds, accessibility)
         {
-            this.accessibilityHash = HashingHelper.HashAccessibilityRelation(this.accessibility);
+            //this.accessibilityHash = HashingHelper.HashAccessibilityRelation(this.accessibility);
         }
 
         public State(HashSet<IWorld> possibleWorlds, HashSet<IWorld> designatedWorlds, ICollection<Agent> agents)
             : base(possibleWorlds, designatedWorlds, agents)
         {
-            this.accessibilityHash = HashingHelper.HashAccessibilityRelation(this.accessibility);
+            //this.accessibilityHash = HashingHelper.HashAccessibilityRelation(this.accessibility);
         }
 
 
@@ -155,7 +155,7 @@ namespace ImplicitCoordination.DEL
         /// Designated worlds in the resulting state will be selected based on the set of designated worlds, if passed.
         /// Otherwise the W_d from the original state are used.</param>
         /// <returns>New state after appliying an action on the source state.</returns>
-        public State ProductUpdate(Action action, HashSet<IWorld> localDesignatedWorlds=null)
+        public State ProductUpdate(Action action, HashSet<IWorld> localDesignatedWorlds=null, PropositionRepository propositions = null)
         {
             HashSet<IWorld> newPossibleWorlds = new HashSet<IWorld>();
             HashSet<IWorld> newDesignatedWorlds = new HashSet<IWorld>();
@@ -166,6 +166,10 @@ namespace ImplicitCoordination.DEL
             {
                 foreach (Event e in action.possibleWorlds)
                 {
+                    if (e.dynamicEvaluation)
+                    {
+                        e.EvaluateDynamicPreAndPost(w, propositions);
+                    }
                     if (w.IsValid(this, e.pre))
                     {
                         // If precondition of e holds in w, create child world w'

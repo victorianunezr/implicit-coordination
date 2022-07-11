@@ -13,6 +13,21 @@ namespace ImplicitCoordination.DEL
         // public ulong TruePropositions => throw new NotImplementedException();
 
         /// <summary>
+        /// Indicates whether a pre- and post condition are to be found dynamically, depending on what holds true at the current world being updated
+        /// </summary>
+        public bool dynamicEvaluation;
+
+        /// <summary>
+        /// Delegate for finding the precondition of an event dynamically, depending of what holds true at the current world being updated
+        /// </summary>
+        public Func<World, PropositionRepository, Formula> preconditionDelegate;
+
+        /// <summary>
+        /// Delegate for finding the precondition of an event dynamically, depending of what holds true at the current world being updated
+        /// </summary>
+        public Func<World, PropositionRepository, IDictionary<ushort, bool>?> postconditionDelegate;
+
+        /// <summary>
         /// Precondition Formula that is evaluated in each world when applying the product update.
         /// </summary>
         public Formula pre { get; set; }
@@ -52,6 +67,21 @@ namespace ImplicitCoordination.DEL
             this.pre = pre;
             this.id = Counter;
             Counter++;
+        }
+
+        public Event(Func<World, PropositionRepository, Formula> preconditionDelegate, Func<World, PropositionRepository, IDictionary<ushort, bool>> postconditionDelegate)
+        {
+            this.preconditionDelegate = preconditionDelegate;
+            this.postconditionDelegate = postconditionDelegate;
+            this.dynamicEvaluation = true;
+            this.id = Counter;
+            Counter++;
+        }
+
+        public void EvaluateDynamicPreAndPost(World w, PropositionRepository propositions)
+        {
+            this.pre = preconditionDelegate(w, propositions);
+            this.post = postconditionDelegate(w, propositions);
         }
 
 

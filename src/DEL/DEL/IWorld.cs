@@ -9,7 +9,7 @@ namespace ImplicitCoordination.DEL
 
         // public HashSet<Proposition> TruePropositions { get; }
 
-        public bool IsEqualTo(IWorld other);
+        //public bool IsEqualTo(IWorld other);
 
     }
 }

@@ -77,42 +77,42 @@ namespace Planning.Tests
 
         }
 
-        [Test]
-        public void AddAndNode_NodeEqualsRoot_NodeNotAdded()
-        {
-            // Arrange - recreate initial state
-            PlanningTask task = PlanningTaskInitializer.DiamondHeist();
-            AndOrGraph Graph = new AndOrGraph(task);
+        //[Test]
+        //public void AddAndNode_NodeEqualsRoot_NodeNotAdded()
+        //{
+        //    // Arrange - recreate initial state
+        //    PlanningTask task = PlanningTaskInitializer.DiamondHeist();
+        //    AndOrGraph Graph = new AndOrGraph(task);
 
-            // Agents
-            Agent.ResetIdCounter();
-            Proposition.ResetIdCounter();
-            World.ResetIdCounter();
+        //    // Agents
+        //    Agent.ResetIdCounter();
+        //    Proposition.ResetIdCounter();
+        //    World.ResetIdCounter();
 
-            Agent agent1 = new Agent();
-            Agent agent2 = new Agent();
+        //    Agent agent1 = new Agent();
+        //    Agent agent2 = new Agent();
 
-            // Propositions
-            Proposition r = new Proposition("r");
-            Proposition l = new Proposition("l");
+        //    // Propositions
+        //    Proposition r = new Proposition("r");
+        //    Proposition l = new Proposition("l");
 
-            World w1 = new World();
-            w1.AddProposition(r);
-            w1.AddProposition(l);
+        //    World w1 = new World();
+        //    w1.AddProposition(r);
+        //    w1.AddProposition(l);
 
-            World w2 = new World();
-            w2.AddProposition(l);
+        //    World w2 = new World();
+        //    w2.AddProposition(l);
 
-            AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent>() { agent1, agent2 }, new HashSet<IWorld>() { w1, w2 });
-            R.AddEdge(agent2, (w1, w2));
+        //    AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent>() { agent1, agent2 }, new HashSet<IWorld>() { w1, w2 });
+        //    R.AddEdge(agent2, (w1, w2));
 
-            State initialState = new State(new HashSet<IWorld>() { w1, w2 }, new HashSet<IWorld>() { w1 }, R);
-            State global = Graph.root.state.GetSetOfGlobals().GetSingleElement();
-            AndOrNode s0 = new AndOrNode(initialState, new AndOrNode(global, Graph.root, NodeType.Or), NodeType.And);
+        //    State initialState = new State(new HashSet<IWorld>() { w1, w2 }, new HashSet<IWorld>() { w1 }, R);
+        //    State global = Graph.root.state.GetSetOfGlobals().GetSingleElement();
+        //    AndOrNode s0 = new AndOrNode(initialState, new AndOrNode(global, Graph.root, NodeType.Or), NodeType.And);
 
-            // Assert
-            Assert.IsTrue(Graph.root.state.Equals(s0.state));
-        }
+        //    // Assert
+        //    Assert.IsTrue(Graph.root.state.Equals(s0.state));
+        //}
 
         [Test]
         public void UpdateSolvedDead_Depth1()

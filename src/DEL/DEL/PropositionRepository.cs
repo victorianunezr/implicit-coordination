@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace ImplicitCoordination.DEL
 {
-    public static class PropositionRepository
+    public class PropositionRepository
     {
-        public static Dictionary<string, Proposition> Propositions;
+        public Dictionary<string, Proposition> Propositions;
         
-        public static void Add(Proposition p)
+        public void Add(Proposition p)
         {
             Propositions.Add(p.name, p);
         }
 
-        public static Proposition Get(string name)
+        public Proposition Get(string name)
         {
             Proposition p;
             if (Propositions.TryGetValue(name, out p))

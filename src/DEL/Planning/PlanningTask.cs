@@ -22,6 +22,11 @@ namespace ImplicitCoordination.Planning
         /// </summary>
         public readonly IDictionary<string, Agent> agents;
 
+        public PropositionRepository propositions;
+
+        public int numberOfLeverPositions;
+        public int startingLeverPosition;
+
         public PlanningTask(State initialState, HashSet<Action> actions, Formula goalFormula, IDictionary<string, Agent> agents)
         {
             this.initialState = initialState;
@@ -37,8 +42,6 @@ namespace ImplicitCoordination.Planning
             this.actions = actions;
             this.listGoalFormulas = listGoalFormulas;
             this.agents = agents;
-
-
         }
 
     }
