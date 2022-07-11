@@ -11,15 +11,15 @@ namespace ImplicitCoordination
     {
         static void Main(string[] args)
         {
-            PlanningTask leverTask = PlanningTaskInitializer.SymmetricLever();
+            PlanningTask leverTask = LeverTaskInnitializer.LeverTask(10, 5);
 
             var planner = new ForwardInductionPlanner(leverTask);
-            var baseline = new BaselinePlanner(leverTask);
+            //var baseline = new BaselinePlanner(leverTask);
 
-            AndOrGraph baselinePolicy = baseline.Plan();
-            // Graph policy = planner.Plan(leverTask.agents["agentLeft"]);
+            //AndOrGraph baselinePolicy = baseline.Plan();
+            Graph policy = planner.Plan(leverTask.agents["agentLeft"]);
 
-            // PolicyExecuter.ExecutePolicy(policy, leverTask);
+            PolicyExecuter.ExecutePolicy(policy, leverTask);
         }
     }
 }

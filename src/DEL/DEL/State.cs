@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using ImplicitCoordination.Planning;
 using ImplicitCoordination.utils;
 
 namespace ImplicitCoordination.DEL
@@ -120,7 +121,7 @@ namespace ImplicitCoordination.DEL
         /// </summary>
         /// <param name="action"></param>
         /// <returns>Returns true if for all designated worlds there exists a designated events where precond holds.</returns>
-        public bool IsApplicable(Action action)
+        public bool IsApplicable(Action action, PlanningTask task=null)
         {
             bool eventExistsForWorld;
 
@@ -130,6 +131,10 @@ namespace ImplicitCoordination.DEL
 
                 foreach (Event e in action.designatedWorlds)
                 {
+                    if (e.dynamicEvaluation)
+                    {
+                        e.EvaluateDynamicPreAndPost(w, task);
+                    }
                     if (w.IsValid(this, e.pre))
                     {
                         eventExistsForWorld = true;
@@ -155,7 +160,7 @@ namespace ImplicitCoordination.DEL
         /// Designated worlds in the resulting state will be selected based on the set of designated worlds, if passed.
         /// Otherwise the W_d from the original state are used.</param>
         /// <returns>New state after appliying an action on the source state.</returns>
-        public State ProductUpdate(Action action, HashSet<IWorld> localDesignatedWorlds=null, PropositionRepository propositions = null)
+        public State ProductUpdate(Action action, HashSet<IWorld> localDesignatedWorlds=null, PlanningTask task = null)
         {
             HashSet<IWorld> newPossibleWorlds = new HashSet<IWorld>();
             HashSet<IWorld> newDesignatedWorlds = new HashSet<IWorld>();
@@ -168,7 +173,7 @@ namespace ImplicitCoordination.DEL
                 {
                     if (e.dynamicEvaluation)
                     {
-                        e.EvaluateDynamicPreAndPost(w, propositions);
+                        e.EvaluateDynamicPreAndPost(w, task);
                     }
                     if (w.IsValid(this, e.pre))
                     {

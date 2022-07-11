@@ -8,7 +8,7 @@ namespace ImplicitCoordination.DEL
 {
     public class PropositionRepository
     {
-        public Dictionary<string, Proposition> Propositions;
+        public Dictionary<string, Proposition> Propositions = new Dictionary<string, Proposition>();
         
         public void Add(Proposition p)
         {

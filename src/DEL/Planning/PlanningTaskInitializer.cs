@@ -20,6 +20,12 @@ namespace ImplicitCoordination.Planning
             Proposition c = new Proposition("c");
             Proposition h = new Proposition("h");
 
+            PropositionRepository propositions = new PropositionRepository();
+            propositions.Add(r);
+            propositions.Add(l);
+            propositions.Add(c);
+            propositions.Add(h);
+
             // Initial state
             World w1 = new World();
             w1.AddProposition(r);
@@ -69,7 +75,7 @@ namespace ImplicitCoordination.Planning
             Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agent0.name, agent0 }, { agent1.name, agent1 } };
 
             // Create planning task
-            return new PlanningTask(initialState, actions, goalFormula, agentDict);
+            return new PlanningTask(initialState, actions, goalFormula, agentDict, propositions);
         }
 
         public static PlanningTask SymmetricLever()
@@ -158,7 +164,7 @@ namespace ImplicitCoordination.Planning
             Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agentL.name, agentL }, { agentR.name, agentR } };
 
             // Planning Task
-            return new PlanningTask(initialState, actions, gamma, agentDict);
+            return new PlanningTask(initialState, actions, gamma, agentDict, null);
         }
 
         public static PlanningTask AsymmetricLever()
@@ -257,7 +263,7 @@ namespace ImplicitCoordination.Planning
             Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agentL.name, agentL }, { agentR.name, agentR } };
 
             // Planning Task
-            return new PlanningTask(initialState, actions, gamma, agentDict);
+            return new PlanningTask(initialState, actions, gamma, agentDict, null);
         }
     }
 

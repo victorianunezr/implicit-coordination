@@ -1,4 +1,5 @@
 ﻿using ImplicitCoordination.DEL.utils;
+using ImplicitCoordination.Planning;
 using System;
 using System.Collections.Generic;
 
@@ -20,12 +21,12 @@ namespace ImplicitCoordination.DEL
         /// <summary>
         /// Delegate for finding the precondition of an event dynamically, depending of what holds true at the current world being updated
         /// </summary>
-        public Func<World, PropositionRepository, Formula> preconditionDelegate;
+        public Func<World, PlanningTask, Formula> preconditionDelegate;
 
         /// <summary>
         /// Delegate for finding the precondition of an event dynamically, depending of what holds true at the current world being updated
         /// </summary>
-        public Func<World, PropositionRepository, IDictionary<Proposition, bool>?> postconditionDelegate;
+        public Func<World, PlanningTask, IDictionary<Proposition, bool>?> postconditionDelegate;
 
         /// <summary>
         /// Precondition Formula that is evaluated in each world when applying the product update.
@@ -59,7 +60,7 @@ namespace ImplicitCoordination.DEL
             Counter++;
         }
 
-        public Event(Func<World, PropositionRepository, Formula> preconditionDelegate, Func<World, PropositionRepository, IDictionary<Proposition, bool>> postconditionDelegate)
+        public Event(Func<World, PlanningTask, Formula> preconditionDelegate, Func<World, PlanningTask, IDictionary<Proposition, bool>> postconditionDelegate)
         {
             this.preconditionDelegate = preconditionDelegate;
             this.postconditionDelegate = postconditionDelegate;
@@ -68,10 +69,10 @@ namespace ImplicitCoordination.DEL
             Counter++;
         }
 
-        public void EvaluateDynamicPreAndPost(World w, PropositionRepository propositions)
+        public void EvaluateDynamicPreAndPost(World w, PlanningTask task)
         {
-            this.pre = preconditionDelegate(w, propositions);
-            this.post = postconditionDelegate(w, propositions);
+            this.pre = preconditionDelegate(w, task);
+            this.post = postconditionDelegate(w, task);
         }
 
 

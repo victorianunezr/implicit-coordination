@@ -131,13 +131,19 @@ namespace ImplicitCoordination.DEL
             Counter = 0;
         }
 
-        public bool HasAnyApplicableEvent(Action action, State s)
+        public bool HasAnyApplicableEvent(PlanningTask task, State s)
         {
-            foreach (Event e in action.possibleWorlds)
+            foreach (Action a in task.actions)
             {
-                if (e.pre.Evaluate(s, this)) return true;
+                foreach (Event e in a.possibleWorlds)
+                {
+                    if (e.dynamicEvaluation)
+                    {
+                        e.EvaluateDynamicPreAndPost(this, task);
+                    }
+                    if (e.pre.Evaluate(s, this)) return true;
+                }
             }
-
             return false;
         }
     }

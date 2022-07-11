@@ -28,18 +28,23 @@ namespace ImplicitCoordination.Planning
 
             // Init propositions for lever position
             PropositionRepository propositionRepository = new PropositionRepository();
-            for (int i = 1; i<=n; i++)
+            for (int i = 1; i<n; i++)
             {
                 propositionRepository.Add(new Proposition("at" + i.ToString()));
             }
+            propositionRepository.Add(new Proposition("atn"));
 
             // Propositions for goal configuration
             // Goal at the leftmost position
             Proposition l = new Proposition("l");
+            propositionRepository.Add(l);
             // Goal at the rightmost position
             Proposition r = new Proposition("r");
+            propositionRepository.Add(r);
             // Goal at both ends of the lever
             Proposition lr = new Proposition("lr");
+            propositionRepository.Add(lr);
+
 
             // Get start and end positions from proposition repo
             Proposition at1 = propositionRepository.Get("at1");
@@ -64,11 +69,11 @@ namespace ImplicitCoordination.Planning
             R.AddEdge(agentR, (w2, w3));
             State initialState = new State(new HashSet<IWorld> { w1, w2, w3 }, new HashSet<IWorld> { w2 }, R);
 
-            Func<World, PropositionRepository, Formula> precondDelegateRight = (w,p) => PreconditionDelegateMoveRight(w, p);
-            Func<World, PropositionRepository, IDictionary<Proposition, bool>?> postcondDelegateRight = (w, p) => PostconditionDelegateMoveRight(w, p);
+            Func<World, PlanningTask, Formula> precondDelegateRight = (w,t) => PreconditionDelegateMoveRight(w, t);
+            Func<World, PlanningTask, IDictionary<Proposition, bool>?> postcondDelegateRight = (w, t) => PostconditionDelegateMoveRight(w, t);
 
-            Func<World, PropositionRepository, Formula> precondDelegateLeft = (w, p) => PreconditionDelegateMoveLeft(w, p);
-            Func<World, PropositionRepository, IDictionary<Proposition, bool>?> postcondDelegateLeft = (w, p) => PostconditionDelegateMoveLeft(w, p);
+            Func<World, PlanningTask, Formula> precondDelegateLeft = (w, t) => PreconditionDelegateMoveLeft(w, t);
+            Func<World, PlanningTask, IDictionary<Proposition, bool>?> postcondDelegateLeft = (w, t) => PostconditionDelegateMoveLeft(w, t);
 
             // Actions
             Event pullRightEvent = new Event(precondDelegateRight, postcondDelegateRight);
@@ -79,7 +84,7 @@ namespace ImplicitCoordination.Planning
             AccessibilityRelation moveLeftRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { pullLeftEvent });
             Action pullLeft = new Action(new HashSet<IWorld> { pullLeftEvent }, new HashSet<IWorld> { pullLeftEvent }, moveLeftRelation, "Left", agentL);
 
-            HashSet<Action> actions = new HashSet<Action> { pullRight, pullLeft };
+            HashSet<Action> actions = new HashSet<Action> { pullLeft, pullRight };
 
             // Atomic formulas
             Formula fAt1 = Formula.Atom(at1);
@@ -97,7 +102,7 @@ namespace ImplicitCoordination.Planning
             Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agentL.name, agentL }, { agentR.name, agentR } };
 
             // Planning Task
-            PlanningTask task = new PlanningTask(initialState, actions, gamma, agentDict);
+            PlanningTask task = new PlanningTask(initialState, actions, gamma, agentDict, propositionRepository);
             task.startingLeverPosition = start;
             task.numberOfLeverPositions = n;
             return task;
@@ -113,28 +118,52 @@ namespace ImplicitCoordination.Planning
             return w.TruePropositions.First(p => p.name.StartsWith("at"));
         }
 
-        public static Formula PreconditionDelegateMoveRight(World w, PropositionRepository propositions)
+        public static Formula PreconditionDelegateMoveRight(World w, PlanningTask task)
         {
-            return Formula.And(Formula.Not(Formula.Atom(propositions.Get("atn"))), Formula.Atom(CurrentLeverPosition(w)));
+            return Formula.And(Formula.Not(Formula.Atom(task.propositions.Get("atn"))), Formula.Atom(CurrentLeverPosition(w)));
         }
 
-        public static IDictionary<Proposition, bool>? PostconditionDelegateMoveRight(World w, PropositionRepository propositions)
+        public static IDictionary<Proposition, bool>? PostconditionDelegateMoveRight(World w, PlanningTask task)
         {
             Proposition currentPositionProposition = CurrentLeverPosition(w);
+            if (currentPositionProposition.name.Equals("atn"))
+            {
+                return null;
+            }
             int currentPos = int.Parse(currentPositionProposition.name.Substring(2));
-            Proposition delta = propositions.Get("at" + (currentPos + 1).ToString());
+            Proposition delta;
+            if (currentPos == task.numberOfLeverPositions - 1)
+            {
+                delta = task.propositions.Get("atn");
+            }
+            else
+            {
+                delta = task.propositions.Get("at" + (currentPos + 1).ToString());
+            }
             return new Dictionary<Proposition, bool> { { currentPositionProposition, false }, { delta, true } };
         }
-        public static Formula PreconditionDelegateMoveLeft(World w, PropositionRepository propositions)
+        public static Formula PreconditionDelegateMoveLeft(World w, PlanningTask task)
         {
-            return Formula.And(Formula.Not(Formula.Atom(propositions.Get("at1"))), Formula.Atom(CurrentLeverPosition(w)));
+            return Formula.And(Formula.Not(Formula.Atom(task.propositions.Get("at1"))), Formula.Atom(CurrentLeverPosition(w)));
         }
 
-        public static IDictionary<Proposition, bool>? PostconditionDelegateMoveLeft(World w, PropositionRepository propositions)
+        public static IDictionary<Proposition, bool>? PostconditionDelegateMoveLeft(World w, PlanningTask task)
         {
             Proposition currentPositionProposition = CurrentLeverPosition(w);
-            int currentPos = int.Parse(currentPositionProposition.name.Substring(2));
-            Proposition delta = propositions.Get("at" + (currentPos - 1).ToString());
+            int currentPos;
+            if (currentPositionProposition.name.Equals("atn"))
+            {
+                currentPos = task.numberOfLeverPositions;
+            }
+            else
+            {
+                currentPos = int.Parse(currentPositionProposition.name.Substring(2));
+            }
+            if (currentPos == 1)
+            {
+                return null;
+            }
+            Proposition delta = task.propositions.Get("at" + (currentPos - 1).ToString());
             return new Dictionary<Proposition, bool> { { currentPositionProposition, false }, { delta, true } };
         }
     }

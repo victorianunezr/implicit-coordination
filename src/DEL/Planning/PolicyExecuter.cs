@@ -73,6 +73,8 @@ namespace ImplicitCoordination.Planning
                 }
             }
             // Check that the state reached satisfies the goal formula
+            // We only consider the unpruned designated worlds, so we remove pruned worlds
+            RemovePrunedDesignatedWorlds(node.state);
             if (task.goalFormula.Evaluate(node.state))
             {
                 Console.WriteLine("Successful Execution!");
@@ -81,6 +83,18 @@ namespace ImplicitCoordination.Planning
             else
             {
                  Console.WriteLine("Execution did not reach a goal state.");                               
+            }
+        }
+
+        // If the formula is true in all remaining designated worlds after pruning
+        public static void RemovePrunedDesignatedWorlds(State s)
+        {
+            foreach (World w in s.designatedWorlds)
+            {
+                if (w.isPruned)
+                {
+                    s.designatedWorlds.Remove(w);
+                }
             }
         }
 
@@ -125,7 +139,8 @@ namespace ImplicitCoordination.Planning
 
         public static bool NodeHasOutgoingEdges(Node node)
         {
-            return node.state.possibleWorlds.Cast<World>().Any(w => w.outgoingEdges.Count > 0);
+            // Returns true if a node has any unpruned outgoing edgess
+            return node.state.possibleWorlds.Cast<World>().Any(w => !w.isPruned && (w.outgoingEdges.Where(e => !e.isPruned).Count() > 0));
         }
     }
 }

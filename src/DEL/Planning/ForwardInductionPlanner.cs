@@ -68,11 +68,11 @@ namespace ImplicitCoordination.Planning
                 {
                     //foreach (State si in s.state.PerspectiveShift(action.owner))
                     //{
-                        if (s.state.IsApplicable(action))
+                        if (s.state.IsApplicable(action, this.task))
                         //if (si.IsApplicable(action))
                         {
                             //State sPrime = s.state.ProductUpdate(action, si.designatedWorlds);
-                            State sPrime = s.state.ProductUpdate(action, null, this.task.propositions);
+                            State sPrime = s.state.ProductUpdate(action, null, this.task);
                             sPrimeNode = new Node(sPrime, s, action);
 
                             if (cutoffDepth == int.MaxValue)
@@ -154,7 +154,7 @@ namespace ImplicitCoordination.Planning
             else
             {
                 // If no applicable events on the world, assign infinity (max value)
-                if (!task.actions.Any(x => w.HasAnyApplicableEvent(x, node.state)))
+                if (!w.HasAnyApplicableEvent(this.task, node.state))
                 {
                     w.cost.value = ushort.MaxValue;
                     w.cost.isRange = true;
@@ -248,6 +248,8 @@ namespace ImplicitCoordination.Planning
 
                 foreach (World world in node.state.possibleWorlds)
                 {
+                    if (world.isPruned) { continue; }
+
                     this.ComputeWorldAgentCosts(node, world);
                     foreach (WorldEdge edge in world.outgoingEdges)
                     {
@@ -273,7 +275,7 @@ namespace ImplicitCoordination.Planning
         /// </summary>
         public void ComputeWorldAgentCosts(Node node, World w)
         {
-            HashSet<World> accessibleWorlds;
+            HashSet<World> accessibleUnprunedWorlds;
             Cost worldAgentCost;
 
             if (!w.cost.value.HasValue)
@@ -282,8 +284,8 @@ namespace ImplicitCoordination.Planning
             }
             foreach (Agent agent in node.state.accessibility.graph.Keys)
             {
-                accessibleWorlds = node.state.accessibility.GetAccessibleWorlds(agent, w).Cast<World>().ToHashSet();
-                var worldsWithRangeCosts = accessibleWorlds.Where(x => x.cost.isRange);
+                accessibleUnprunedWorlds = node.state.accessibility.GetAccessibleWorlds(agent, w).Cast<World>().Where(w => !w.isPruned).ToHashSet();
+                var worldsWithRangeCosts = accessibleUnprunedWorlds.Where(x => x.cost.isRange);
 
                 // cost(w,i) = max{v in v ~ w} cost(v)
                 // Range costs are always greater than fixed costs, so we try to find the max there first
@@ -294,7 +296,7 @@ namespace ImplicitCoordination.Planning
                 }
                 else
                 {
-                    worldAgentCost.value = accessibleWorlds.MaxBy(x => x.cost.value).cost.value;
+                    worldAgentCost.value = accessibleUnprunedWorlds.MaxBy(x => x.cost.value).cost.value;
                     worldAgentCost.isRange = false;
                 }
                 w.worldAgentCost.Add(agent, worldAgentCost);
