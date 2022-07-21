@@ -13,8 +13,9 @@ namespace ImplicitCoordination.Planning
         /// </summary>
         /// <param name="n">Number of positions of the lever</param>
         /// <param name="start">Number of the start position of the lever</param>
+        /// <param name="baseline">True if the task is for the baseline planner, which requires formulas to be common knowledge</param>
         /// <returns></returns>
-        public static PlanningTask LeverTask(int n, int start)
+        public static PlanningTask LeverTask(int n, int start, bool baseline)
         {
             if (start >= n)
             {
@@ -44,7 +45,6 @@ namespace ImplicitCoordination.Planning
             // Goal at both ends of the lever
             Proposition lr = new Proposition("lr");
             propositionRepository.Add(lr);
-
 
             // Get start and end positions from proposition repo
             Proposition at1 = propositionRepository.Get("at1");
@@ -78,13 +78,28 @@ namespace ImplicitCoordination.Planning
             // Actions
             Event pullRightEvent = new Event(precondDelegateRight, postcondDelegateRight);
             AccessibilityRelation moveRightRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { pullRightEvent });
-            Action pullRight = new Action(new HashSet<IWorld> { pullRightEvent }, new HashSet<IWorld> { pullRightEvent }, moveRightRelation, "Right", agentR);
+            Action pullRight = new Action(new HashSet<IWorld> { pullRightEvent }, new HashSet<IWorld> { pullRightEvent }, moveRightRelation, "Bob:Right", agentR);
 
             Event pullLeftEvent = new Event(precondDelegateLeft, postcondDelegateLeft);
             AccessibilityRelation moveLeftRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { pullLeftEvent });
-            Action pullLeft = new Action(new HashSet<IWorld> { pullLeftEvent }, new HashSet<IWorld> { pullLeftEvent }, moveLeftRelation, "Left", agentL);
+            Action pullLeft = new Action(new HashSet<IWorld> { pullLeftEvent }, new HashSet<IWorld> { pullLeftEvent }, moveLeftRelation, "Alice:Left", agentL);
 
             HashSet<Action> actions = new HashSet<Action> { pullLeft, pullRight };
+
+            // Public announcements that goal has been reached, for baseline planner
+            if (baseline)
+            {
+                Event announceLeftEvent = new Event(Formula.Top(), new Dictionary<Proposition, bool> { {l, true}, {at1, true}});
+                AccessibilityRelation announceLeftRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { announceLeftEvent });
+                Action announceLeftGoal = new Action(new HashSet<IWorld> { announceLeftEvent }, new HashSet<IWorld> { announceLeftEvent }, announceLeftRelation, "Alice:AnnounceGoalAtLeft", agentL);
+
+                Event announceRightEvent = new Event(Formula.Top(), new Dictionary<Proposition, bool> { {r, true}, {atn, true}});
+                AccessibilityRelation announceRightRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { announceRightEvent });
+                Action announceRightGoal = new Action(new HashSet<IWorld> { announceRightEvent }, new HashSet<IWorld> { announceRightEvent }, announceRightRelation, "Bob:AnnounceGoalAtRight", agentR);
+            
+                actions.Add(announceLeftGoal);
+                actions.Add(announceRightGoal);
+            }
 
             // Atomic formulas
             Formula fAt1 = Formula.Atom(at1);
@@ -94,10 +109,24 @@ namespace ImplicitCoordination.Planning
             Formula goalAtRight = Formula.Atom(r);
             Formula goalLeftAndRight = Formula.Atom(lr);
 
-            Formula gamma = Formula.Conjunction(new List<Formula> { Formula.Implies(goalAtLeft, fAt1),
-                                                                    Formula.Implies(goalLeftAndRight, Formula.Or(fAt1, fAtn)),
-                                                                    Formula.Implies(goalAtRight, fAtn) });
+            Formula gamma;
+            if (!baseline)
+            {
+                // not baseline planner. Gamma is not a common knowledge formula
+                gamma = Formula.Conjunction(new List<Formula> { Formula.Implies(goalAtLeft, fAt1),
+                                                                        Formula.Implies(goalLeftAndRight, Formula.Or(fAt1, fAtn)),
+                                                                        Formula.Implies(goalAtRight, fAtn) });
+            }
+            else
+            {
+                // common knowledge not directly implemented. Modelling common knowledge as 3rd degree knowledge, since there are 3 worlds in this task
+                Formula formula = Formula.Conjunction(new List<Formula> { Formula.Implies(goalAtLeft, fAt1),
+                                                                        Formula.Implies(goalLeftAndRight, Formula.Or(fAt1, fAtn)),
+                                                                        Formula.Implies(goalAtRight, fAtn) });
 
+                gamma = Formula.And(Formula.Knows(agentL, Formula.Knows(agentR, Formula.Knows(agentL, formula))),
+                                    Formula.Knows(agentR, Formula.Knows(agentL, Formula.Knows(agentR, formula))));
+            }
             // Agents
             Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agentL.name, agentL }, { agentR.name, agentR } };
 
