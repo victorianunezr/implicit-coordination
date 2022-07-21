@@ -89,16 +89,22 @@ namespace ImplicitCoordination.Planning
             // Public announcements that goal has been reached, for baseline planner
             if (baseline)
             {
-                Event announceLeftEvent = new Event(Formula.Top(), new Dictionary<Proposition, bool> { {l, true}, {at1, true}});
+                // To announce success at leftmost position, lever should be at1
+                Event announceLeftEvent = new Event(Formula.And(Formula.Atom(at1),Formula.Knows(agentL, Formula.Or(Formula.Atom(l), Formula.Atom(lr)))), 
+                                                    new Dictionary<Proposition, bool> { {l, true}, {r, false}});
                 AccessibilityRelation announceLeftRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { announceLeftEvent });
                 Action announceLeftGoal = new Action(new HashSet<IWorld> { announceLeftEvent }, new HashSet<IWorld> { announceLeftEvent }, announceLeftRelation, "Alice:AnnounceGoalAtLeft", agentL);
 
-                Event announceRightEvent = new Event(Formula.Top(), new Dictionary<Proposition, bool> { {r, true}, {atn, true}});
+                Event announceRightEvent = new Event(Formula.And(Formula.Atom(atn),Formula.Knows(agentR, Formula.Or(Formula.Atom(r), Formula.Atom(lr)))), 
+                                                    new Dictionary<Proposition, bool> { {r, true}, {l, false}});
                 AccessibilityRelation announceRightRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { announceRightEvent });
                 Action announceRightGoal = new Action(new HashSet<IWorld> { announceRightEvent }, new HashSet<IWorld> { announceRightEvent }, announceRightRelation, "Bob:AnnounceGoalAtRight", agentR);
             
                 actions.Add(announceLeftGoal);
                 actions.Add(announceRightGoal);
+
+                initialState.designatedWorlds.Add(w1);
+                initialState.designatedWorlds.Add(w3);
             }
 
             // Atomic formulas

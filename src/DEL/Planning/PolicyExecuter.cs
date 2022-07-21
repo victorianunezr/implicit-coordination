@@ -101,26 +101,76 @@ namespace ImplicitCoordination.Planning
         public static void ExecuteBaselinePolicy(AndOrGraph policy, PlanningTask task)
         {
             AndOrNode node = policy.root;
-
+            Proposition currentPos;
             // Define empty list that will serve as the sequence of actions resulting from the execution
             List<Action> execution = new List<Action>();
-
+            HashSet<AndOrNode> childAndNodes = new HashSet<AndOrNode>();
+            IEnumerable<AndOrNode> solvedAndNodes = policy.AndNodes.Where(n => n.status == NodeStatus.Solved);
+            int currentPosition = task.startingLeverPosition;
+            List<AndOrNode> solvedAndNodesList = policy.AndNodes.ToList();
+ 
             while (node.children.Count > 0)
-            {
-                
-                if (node.type == NodeType.And)
+            {                
+                // at AND nodes we must visit all children for extracting the policy.
+                // Since we are executing the policy, we follow just one path down the root
+                // For all children of the AND node, we select the AND nodes that are solved in the next depth
+                // therefore we only visit solved nodes
+                foreach (AndOrNode orNode in node.children)
                 {
-                    // at AND nodes we must visit all children for extracting the policy.
-                    // Since we are executing the policy, we follow just one path down the root
-                    // for now let's say we pick the first child in the set as the next node to expand
-                    // I can just remove the perspective shift to the acting agent such that there is only one children per AND node
+                    foreach (AndOrNode andNode in orNode.children)
+                    {
+                        childAndNodes.Add(andNode);
+                    }
                 }
-                // At OR nodes, we choose child node at random, just as in other policy executer
+                if (childAndNodes.Count == 0)
+                {
+                    break;
+                }
+                // Now we choose a solved and node at random and save the action executed to reach that node
+                // This corresponds to agents trying to act asynchronously
+                node = childAndNodes.ElementAt(randBaseline.Next(childAndNodes.Count));
+                execution.Add(node.actionFromParent);
+                Console.WriteLine(node.actionFromParent.name);
+
+                if (node.actionFromParent.name.Equals("Alice:AnnounceGoalAtLeft") || node.actionFromParent.name.Equals("Bob:AnnounceGoalAtRight"))
+                {
+                    break;
+                }
+                // The next node is randomly selected from the set of solved nodes, which satisfies the satify the same set of formulas
+                if (node.actionFromParent.name.Equals("Alice:Left"))
+                {
+                    currentPosition--;
+                }
+                else if (node.actionFromParent.name.Equals("Bob:Right"))
+                {
+                    currentPosition++;
+                }
+
+                if (currentPosition == task.numberOfLeverPositions)
+                {
+                    currentPos = task.propositions.Get("atn");
+                }
                 else
                 {
-                    node = node.children.ElementAt(randBaseline.Next(node.children.Count));
-                    execution.Add(node.actionFromParent);
-                    Console.WriteLine(node.actionFromParent.name);
+                  currentPos = task.propositions.Get("at" + currentPosition.ToString());
+                }
+                solvedAndNodesList.Shuffle();
+                node = null;
+                childAndNodes.Clear();
+
+                foreach (AndOrNode potentialNextNode in solvedAndNodesList)
+                {
+                    // we find a state where the current position proposition holds
+                    if (Formula.Atom(currentPos).Evaluate(potentialNextNode.state) && NodeHasGrandchildren(potentialNextNode))
+                    {
+                        node = potentialNextNode;
+                        break;
+                    }
+                }
+                
+                if (node == null)
+                {
+                    throw new Exception("Node should not be null");
                 }
             }
 
@@ -141,6 +191,15 @@ namespace ImplicitCoordination.Planning
         {
             // Returns true if a node has any unpruned outgoing edgess
             return node.state.possibleWorlds.Cast<World>().Any(w => !w.isPruned && (w.outgoingEdges.Where(e => !e.isPruned).Count() > 0));
+        }
+
+        public static bool NodeHasGrandchildren(AndOrNode node)
+        {
+            foreach (AndOrNode child in node.children)
+            {
+                if (child.children.Any()) {return true;}
+            }
+            return false;
         }
     }
 }

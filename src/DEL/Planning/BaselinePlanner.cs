@@ -29,13 +29,17 @@ namespace ImplicitCoordination.Planning
             State sJ;
             AndOrNode sPrime;
             AndOrNode newGlobal;
+            List<Action> actionList = task.actions.ToList();
+    
 
             while (Graph.frontier.Count > 0)
             {
                 s = Graph.frontier.Dequeue();
                 // Graph.SolvedLeafNodes.Add(s);
+                // We put actions in a list to shuffle their order and randomize executions
 
-                foreach (Action action in task.actions)
+                actionList.Shuffle();
+                foreach (Action action in actionList)
                 {
                     sJ = s.state.GetAssociatedLocal(action.owner);
                     //sJ = s.state;
@@ -169,4 +173,21 @@ namespace ImplicitCoordination.Planning
             }
         }
     }
+
+    static class ListExtension
+  {
+        private static Random rng = new Random();  
+
+        public static void Shuffle<T>(this IList<T> list)  
+        {  
+            int n = list.Count;  
+            while (n > 1) {  
+                n--;  
+                int k = rng.Next(n + 1);  
+                T value = list[k];  
+                list[k] = list[n];  
+                list[n] = value;  
+            }  
+        }
+  }
 }

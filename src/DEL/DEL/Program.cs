@@ -11,7 +11,7 @@ namespace ImplicitCoordination
     {
         static void Main(string[] args)
         {
-            PlanningTask leverTask = LeverTaskInnitializer.LeverTask(3, 2, true);
+            PlanningTask leverTask = LeverTaskInnitializer.LeverTask(7, 4, true);
 
             //var planner = new ForwardInductionPlanner(leverTask);
             var baseline = new BaselinePlanner(leverTask);
