@@ -54,7 +54,10 @@ namespace ImplicitCoordination.DEL
                 case FormulaType.Conjunction:
                     foreach (Formula f in operands)
                     {
-                        if (!f.Evaluate(s, w)) { return false; }
+                        if (!f.Evaluate(s, w)) 
+                        { 
+                            return false; 
+                        }
                     }
                     return true;
 
@@ -67,6 +70,7 @@ namespace ImplicitCoordination.DEL
                     return true;
 
                 case FormulaType.CommonKnow:
+                    // not implemented
                     return false;
 
                 default:
@@ -84,7 +88,10 @@ namespace ImplicitCoordination.DEL
         {
             foreach (World w in s.designatedWorlds)
             {
-                if (!Evaluate(s, w)) return false;
+                if (!Evaluate(s, w))
+                {
+                    return false;
+                }
             }
 
             return true;
