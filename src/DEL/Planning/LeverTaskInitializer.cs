@@ -103,8 +103,8 @@ namespace ImplicitCoordination.Planning
                 actions.Add(announceLeftGoal);
                 actions.Add(announceRightGoal);
 
-                initialState.designatedWorlds.Add(w1);
-                initialState.designatedWorlds.Add(w3);
+                // initialState.designatedWorlds.Add(w1);
+                // initialState.designatedWorlds.Add(w3);
             }
 
             // Atomic formulas

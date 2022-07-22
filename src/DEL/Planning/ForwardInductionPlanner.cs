@@ -20,15 +20,18 @@ namespace ImplicitCoordination.Planning
             this.task = task;
         }
 
-        public Graph Plan(Agent planningAgent)
+        public Graph Plan()
         {
             // init
             this.Graph = new Graph(task);
-            State s0i = task.initialState.GetAssociatedLocal(planningAgent);
-            Graph.root = Node.CreateRootNode(s0i);
+            // State s0i = task.initialState.GetAssociatedLocal(planningAgent);
+            Graph.root = Node.CreateRootNode(task.initialState);
             Graph.frontier.Enqueue(Graph.root);
 
+            Console.WriteLine("Building search tree");
             this.BuildTree();
+
+            Console.WriteLine("Computing costs");
             this.ComputeCosts();
 
             // if root worlds don't have fixed costs, iterate on depth
@@ -37,9 +40,16 @@ namespace ImplicitCoordination.Planning
             {
                 Graph.leafNodes.Clear();
 
+                Console.WriteLine("Iterating on cutoff depth. Expanding tree further.");
+
                 this.BuildTree();
+
+                Console.WriteLine("Reomputing costs");
                 this.ComputeCosts();
             }
+            
+            Console.WriteLine("Pruning tree");
+
             this.Prune();
             return Graph;
         }

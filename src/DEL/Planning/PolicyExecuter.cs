@@ -22,7 +22,7 @@ namespace ImplicitCoordination.Planning
         /// Since in the lever example all agents compute the same policy, we assume there is only one policy in the profile.
         /// The executer currently disregards designated worlds, as it doesn't make a difference in the lever example
         /// <remarks>
-        public static void ExecutePolicy(Graph policy, PlanningTask task)
+        public static List<Action> ExecutePolicy(Graph policy, PlanningTask task)
         {
             Node node = policy.root;
             ICollection<Node> children;
@@ -82,8 +82,10 @@ namespace ImplicitCoordination.Planning
             }
             else
             {
-                 Console.WriteLine("Execution did not reach a goal state.");                               
+                Console.WriteLine("Execution did not reach a goal state.");
+                throw new ExecutionFailedException();                                             
             }
+            return execution;
         }
 
         // If the formula is true in all remaining designated worlds after pruning
@@ -98,7 +100,7 @@ namespace ImplicitCoordination.Planning
             }
         }
 
-        public static void ExecuteBaselinePolicy(AndOrGraph policy, PlanningTask task)
+        public static List<Action> ExecuteBaselinePolicy(AndOrGraph policy, PlanningTask task)
         {
             AndOrNode node = policy.root;
             Proposition currentPos;
@@ -170,10 +172,14 @@ namespace ImplicitCoordination.Planning
                 
                 if (node == null)
                 {
-                    throw new Exception("Node should not be null");
+                    break;
                 }
             }
-
+            if (node == null)
+            {
+                Console.WriteLine("Execution did not reach a goal state.");
+                throw new ExecutionFailedException();                     
+            }
             // Check that the state reached satisfies the goal formula
             if (task.goalFormula.Evaluate(node.state))
             {
@@ -182,9 +188,10 @@ namespace ImplicitCoordination.Planning
             }
             else
             {
-                Console.WriteLine("Execution did not reach a goal state.");                               
+                Console.WriteLine("Execution did not reach a goal state.");
+                throw new ExecutionFailedException();                     
             }
-
+            return execution;
         }
 
         public static bool NodeHasOutgoingEdges(Node node)
@@ -201,5 +208,8 @@ namespace ImplicitCoordination.Planning
             }
             return false;
         }
+
+        public class NodeNotFoundException:Exception{} 
+        public class ExecutionFailedException:Exception{} 
     }
 }

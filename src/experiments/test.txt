@@ -1,0 +1,9 @@
+Building AND-OR tree
+Current depth: 0
+Current depth: 1
+Current depth: 2
+Alice:Left
+Alice:Left
+Alice:AnnounceGoalAtLeft
+Successful Execution!
+essful Execution!

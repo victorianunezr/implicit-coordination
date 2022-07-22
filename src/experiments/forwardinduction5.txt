@@ -1,0 +1,55 @@
+Building search tree
+Computing costs
+Pruning tree
+
+Exepriment run 0
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 1
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 2
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 3
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 4
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 5
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 6
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 7
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 8
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 9
+Bob:Right
+Bob:Right
+Successful Execution!
+Number of succesful executions: 10
+Average execution length: 2
