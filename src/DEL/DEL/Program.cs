@@ -28,11 +28,11 @@ namespace ImplicitCoordination
 
 
             string plannerName = baseline ? "baseline" : "forwardinduction";
-            string filename = plannerName + numberOfPosition.ToString() + $"_{numberOfRuns}runs"+ $"_start{startingPosition}";
+            string filename = plannerName + numberOfPosition.ToString() + $"_{numberOfRuns}runs";
  
             try
             {
-                ostrm = new FileStream($"../experiments/asymmetric_lever/{filename}.txt", FileMode.OpenOrCreate, FileAccess.Write);
+                ostrm = new FileStream($"../experiments/symmetric_lever/{filename}.txt", FileMode.OpenOrCreate, FileAccess.Write);
                 writer = new StreamWriter (ostrm);
             }
                 catch (Exception e)
