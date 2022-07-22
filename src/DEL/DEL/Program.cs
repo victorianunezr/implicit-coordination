@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
-using ImplicitCoordination.DEL;
-using ImplicitCoordination.DEL.utils;
 using ImplicitCoordination.Planning;
 using static ImplicitCoordination.Planning.PolicyExecuter;
 using Action = ImplicitCoordination.DEL.Action;
@@ -17,9 +14,10 @@ namespace ImplicitCoordination
         {
             int n = int.Parse(args[0]);
             int s = int.Parse(args[1]);
-            bool baseline = bool.Parse(args[2]);
+            int runs = int.Parse(args[2]);
+            bool baseline = bool.Parse(args[3]);
 
-            RunExperiments(n, s, 10, baseline);
+            RunExperiments(n, s, runs, baseline);
         }
 
         public static void RunExperiments(int numberOfPosition, int startingPosition, int numberOfRuns, bool baseline)
@@ -28,12 +26,13 @@ namespace ImplicitCoordination
             StreamWriter writer;
             TextWriter oldOut = Console.Out;
 
-            string plannerName = baseline ? "baseline" : "forwardinduction";
-            string filename = plannerName + numberOfPosition.ToString();
 
+            string plannerName = baseline ? "baseline" : "forwardinduction";
+            string filename = plannerName + numberOfPosition.ToString() + $"_{numberOfRuns}runs"+ $"_start{startingPosition}";
+ 
             try
             {
-                ostrm = new FileStream($"../experiments/{filename}.txt", FileMode.OpenOrCreate, FileAccess.Write);
+                ostrm = new FileStream($"../experiments/asymmetric_lever/{filename}.txt", FileMode.OpenOrCreate, FileAccess.Write);
                 writer = new StreamWriter (ostrm);
             }
                 catch (Exception e)
@@ -42,6 +41,8 @@ namespace ImplicitCoordination
                 Console.WriteLine (e.Message);
                 return;
             }
+            Console.WriteLine($"Number of positions: {numberOfPosition}. Starting position: {startingPosition}. \n");
+            
             Console.SetOut(writer);
             Graph policy = null;
             AndOrGraph baselinePolicy = null;
@@ -87,12 +88,13 @@ namespace ImplicitCoordination
                 executionLengths.Add(execution.Count);
             }
             Console.WriteLine($"Number of succesful executions: {executionLengths.Count}");
-            Console.WriteLine($"Average execution length: {executionLengths.Sum()/executionLengths.Count}");
+            Console.WriteLine($"Average execution length: {((float)executionLengths.Sum()/(float)executionLengths.Count):F2}");
 
             Console.SetOut (oldOut);
             writer.Close();
             ostrm.Close();
             Console.WriteLine ("Done");
+            Console.WriteLine($"Average execution length: {((float)executionLengths.Sum()/(float)executionLengths.Count):F2}");
         }
     }
 }

@@ -1,0 +1,380 @@
+Building search tree
+Computing costs
+Iterating on cutoff depth. Expanding tree further.
+Reomputing costs
+Pruning tree
+
+Exepriment run 0
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 1
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 2
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 3
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 4
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 5
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 6
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 7
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 8
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 9
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 10
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 11
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 12
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 13
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 14
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 15
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 16
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 17
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 18
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 19
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 20
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 21
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 22
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 23
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 24
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 25
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 26
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 27
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 28
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 29
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 30
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 31
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 32
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 33
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 34
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 35
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 36
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 37
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 38
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 39
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 40
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 41
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 42
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 43
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 44
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 45
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Bob:Right
+Successful Execution!
+
+Exepriment run 46
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 47
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 48
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+
+Exepriment run 49
+Alice:Left
+Alice:Left
+Alice:Left
+Alice:Left
+Successful Execution!
+Number of succesful executions: 50
+Average execution length: 4.46
