@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.810.19
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "ProjectTests\Tests.csproj", "{CA063E39-6CCB-41E6-BAE4-F6B6D643B04F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "tests\Tests.csproj", "{CA063E39-6CCB-41E6-BAE4-F6B6D643B04F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImplicitCoordination", "DEL\ImplicitCoordination.csproj", "{AE1730C9-C05A-4299-8C82-25CAE432C1B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImplicitCoordination", "src/ImplicitCoordination.csproj", "{AE1730C9-C05A-4299-8C82-25CAE432C1B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

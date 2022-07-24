@@ -15,7 +15,7 @@ namespace Planning.Tests
 
             var planner = new ForwardInductionPlanner(leverTask);
 
-            Graph g = planner.Plan(leverTask.agents["agentLeft"]);
+            Graph g = planner.Plan();
         }
     }
 }

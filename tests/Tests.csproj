@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DEL\ImplicitCoordination.csproj" />
+    <ProjectReference Include="..\src\ImplicitCoordination.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="utils\" />
