@@ -48,16 +48,11 @@ namespace ImplicitCoordination.Planning
                 foreach (Action action in actionList)
                 {
                     sJ = s.state.GetAssociatedLocal(action.owner);
-                    //sJ = s.state;
                     if (!sJ.IsApplicable(action,this.task)) continue;
-                    // Doing product update on global state (not taking associated local of acting agent)
-                    // As such, we only have one designated world and thus only one AND node per OR node
                     sPrime = new AndOrNode(s.state.ProductUpdate(action, null, this.task), s, NodeType.And, action);                   
 
                     // Continue if action was not applicable or if s' already exists in AndNodes
                     if (sPrime.state == null || !Graph.AddAndNode(sPrime)) continue;
-
-                    // Graph.SolvedLeafNodes.Add(sPrime);
 
                     foreach (State global in sPrime.state.Globals())
                     {
@@ -166,11 +161,6 @@ namespace ImplicitCoordination.Planning
                             }
                         }
                     }
-                    //todo: only for debugging. remove later
-                    // else
-                    // {
-                    //     throw new Exception($"Node should have cost {i - 1}, but it has cost {node.cost}");
-                    // }
                 }
                 nodesToUpdateNow = new HashSet<AndOrNode>(nodesToUpdateNext);
                 nodesToUpdateNext.Clear();
