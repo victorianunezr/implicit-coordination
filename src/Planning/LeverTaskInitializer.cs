@@ -84,7 +84,15 @@ namespace ImplicitCoordination.Planning
             AccessibilityRelation moveLeftRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { pullLeftEvent });
             Action pullLeft = new Action(new HashSet<IWorld> { pullLeftEvent }, new HashSet<IWorld> { pullLeftEvent }, moveLeftRelation, "Alice:Left", agentL);
 
-            HashSet<Action> actions = new HashSet<Action> { pullLeft, pullRight };
+            Event skipEventAlice = new Event(Formula.Top(), null);
+            AccessibilityRelation skipRAlice = new AccessibilityRelation(agents, new HashSet<IWorld> { skipEventAlice });
+            Action skipAlice = new Action(new HashSet<IWorld> { skipEventAlice }, new HashSet<IWorld> { skipEventAlice }, skipRAlice, "Alice:Skip", agentL);
+
+            Event skipEventBob = new Event(Formula.Top(), null);
+            AccessibilityRelation skipRBob = new AccessibilityRelation(agents, new HashSet<IWorld> { skipEventAlice });
+            Action skipBob = new Action(new HashSet<IWorld> { skipEventAlice }, new HashSet<IWorld> { skipEventAlice }, skipRAlice, "Bob:Skip", agentR);
+
+            HashSet<Action> actions = new HashSet<Action> { pullLeft, pullRight, skipAlice, skipBob };
 
             // Public announcements that goal has been reached, for baseline planner
             if (baseline)

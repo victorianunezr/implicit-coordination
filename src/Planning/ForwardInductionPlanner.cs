@@ -44,7 +44,7 @@ namespace ImplicitCoordination.Planning
 
                 this.BuildTree();
 
-                Console.WriteLine("Reomputing costs");
+                Console.WriteLine("Recomputing costs");
                 this.ComputeCosts();
             }
             

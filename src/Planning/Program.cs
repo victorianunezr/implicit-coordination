@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using ImplicitCoordination.Planning;
+using ImplicitCoordination.DEL;
 using static ImplicitCoordination.Planning.PolicyExecuter;
 using Action = ImplicitCoordination.DEL.Action;
 using System.Linq;
+using System.Diagnostics;
 
 namespace ImplicitCoordination
 {
@@ -12,38 +14,56 @@ namespace ImplicitCoordination
     {
         static void Main(string[] args)
         {
+            TestABM();
+        }
+
+        public static void SetupAndRunExperiments(string[] args)
+        {
             int n = int.Parse(args[0]);
             int s = int.Parse(args[1]);
             int runs = int.Parse(args[2]);
             bool baseline = bool.Parse(args[3]);
+            bool writeToFile = bool.Parse(args[3]);
 
-            RunExperiments(n, s, runs, baseline);
-        }
-
-        public static void RunExperiments(int numberOfPosition, int startingPosition, int numberOfRuns, bool baseline)
-        {
-            FileStream ostrm;
-            StreamWriter writer;
+            FileStream ostrm = null;
+            StreamWriter writer = null;
             TextWriter oldOut = Console.Out;
 
 
             string plannerName = baseline ? "baseline" : "forwardinduction";
-            string filename = plannerName + numberOfPosition.ToString() + $"_{numberOfRuns}runs";
+            string filename = plannerName + n.ToString() + $"_{runs}runs";
  
-            try
+            if (writeToFile)
             {
-                ostrm = new FileStream($"../experiments/symmetric_lever/{filename}.txt", FileMode.OpenOrCreate, FileAccess.Write);
-                writer = new StreamWriter (ostrm);
+                try
+                {
+                    ostrm = new FileStream($"../experiments/symmetric_lever/{filename}.txt", FileMode.OpenOrCreate, FileAccess.Write);
+                    writer = new StreamWriter (ostrm);
+                }
+                    catch (Exception e)
+                {
+                    Console.WriteLine ($"Cannot open {filename}.txt for writing");
+                    Console.WriteLine (e.Message);
+                    return;
+                }
+            Console.SetOut(writer);
             }
-                catch (Exception e)
+
+            RunExperiments(n, s, runs, baseline);
+
+            if (writer != null && ostrm != null)
             {
-                Console.WriteLine ($"Cannot open {filename}.txt for writing");
-                Console.WriteLine (e.Message);
-                return;
+                Console.SetOut (oldOut);
+                writer.Close();
+                ostrm.Close();
             }
+            Console.WriteLine ("Done");
+        }
+
+        public static void RunExperiments(int numberOfPosition, int startingPosition, int numberOfRuns, bool baseline)
+        {
             Console.WriteLine($"Number of positions: {numberOfPosition}. Starting position: {startingPosition}. \n");
             
-            Console.SetOut(writer);
             Graph policy = null;
             AndOrGraph baselinePolicy = null;
 
@@ -90,11 +110,105 @@ namespace ImplicitCoordination
             Console.WriteLine($"Number of succesful executions: {executionLengths.Count}");
             Console.WriteLine($"Average execution length: {((float)executionLengths.Sum()/(float)executionLengths.Count):F2}");
 
-            Console.SetOut (oldOut);
-            writer.Close();
-            ostrm.Close();
-            Console.WriteLine ("Done");
-            Console.WriteLine($"Average execution length: {((float)executionLengths.Sum()/(float)executionLengths.Count):F2}");
+            // Console.WriteLine($"Average execution length: {((float)executionLengths.Sum()/(float)executionLengths.Count):F2}");
         }
+
+            public static void TestABM()
+            {
+                FileStream ostrm = null;
+                StreamWriter writer = null;
+                TextWriter oldOut = Console.Out;
+    
+                bool writeToFile = false;
+
+                if (writeToFile)
+                {
+                    DateTime stamp = DateTime.Now;
+                    string filename = "ABMtest" + stamp.ToString();
+                    try
+                    {
+                        ostrm = new FileStream($"../experiments/ABM/{filename}.txt", FileMode.OpenOrCreate, FileAccess.Write);
+                        writer = new StreamWriter (ostrm);
+                    }
+                        catch (Exception e)
+                    {
+                        Console.WriteLine ($"Cannot open {filename}.txt for writing");
+                        Console.WriteLine (e.Message);
+                        return;
+                    }
+                    Console.SetOut(writer);
+                }
+
+                Agent a = new Agent("a");
+                HashSet<Agent> agents = new HashSet<Agent>() { a };
+
+                World w = new World();
+                // Init propositions for lever position
+                PropositionRepository propositionRepository = new PropositionRepository();
+                for (int i = 0; i<10; i++)
+                {
+                    Proposition p = new Proposition("p" + i.ToString());
+                    propositionRepository.Add(p);
+                    w.AddProposition(p);
+                }
+
+                AccessibilityRelation R = new AccessibilityRelation(agents, new HashSet<IWorld> { w });
+                State initialState = new State(new HashSet<IWorld> { w }, new HashSet<IWorld> { w }, R);
+
+                Event e1 = new Event(Formula.Top());
+                Event e2 = new Event(Formula.Top());
+                AccessibilityRelation Q = new AccessibilityRelation(agents, new HashSet<IWorld> { e1, e2 });
+                Q.AddEdge(a, (e1, e2));
+
+                Action action = new Action(new HashSet<IWorld> { e1, e2 }, new HashSet<IWorld> { e1, e2 } , Q, "action1", a);
+
+                Event e3 = new Event(Formula.Top());
+                AccessibilityRelation Q2 = new AccessibilityRelation(agents, new HashSet<IWorld> { e3 });
+
+                Action action2 = new Action(new HashSet<IWorld> { e3 }, new HashSet<IWorld> { e3 } , Q, "action2", a);
+
+                State s = initialState;
+                Stopwatch watch = new Stopwatch();
+                int noOfUpdates = 10;
+                Console.WriteLine($"Updating 1-state Kripke model with 2-event action model {noOfUpdates} times. Starting stopwatch.");
+                watch.Start();
+
+                for (int i=0; i<noOfUpdates; i++)
+                {
+                    s = s.ProductUpdate(action);
+                }
+
+                watch.Stop();
+                Console.WriteLine($"Elapsed tim after {noOfUpdates} updates: {watch.Elapsed}");
+                Console.WriteLine($"Number of states in Kripke model: {s.possibleWorlds.Count}");
+                Console.WriteLine("Resetting watch.");
+
+                watch.Reset();
+
+                int noOfUpdatesSmallAction = 100;
+                Console.WriteLine($"\nUpdating resulting Kripke model with 1-event action model {noOfUpdatesSmallAction} times. Restarting stopwatch.");
+
+                watch.Start();
+                for (int i=0; i<noOfUpdatesSmallAction; i++)
+                {
+                    s = s.ProductUpdate(action2);
+                }
+
+                watch.Stop();
+                Console.WriteLine($"Elapsed time after {noOfUpdatesSmallAction} updates: {watch.Elapsed}");
+                Console.WriteLine($"Number of states in Kripke model: {s.possibleWorlds.Count}");
+                Console.WriteLine("Stopping watch.");
+
+                if (writer != null && ostrm != null)
+                {
+                    Console.SetOut (oldOut);
+                    writer.Close();
+                    ostrm.Close();
+                }
+                Console.WriteLine ("Done");
+
+            }
     }
+
+
 }
