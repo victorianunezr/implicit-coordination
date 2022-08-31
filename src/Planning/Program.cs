@@ -149,7 +149,7 @@ namespace ImplicitCoordination
                 Proposition p = new Proposition("p");
                 propositionRepository.Add(p);
                 w.AddProposition(p);
-                for (int i = 0; i<10; i++)
+                for (int i = 0; i<9; i++)
                 {
                     Proposition prop = new Proposition("p" + i.ToString());
                     propositionRepository.Add(prop);
@@ -172,7 +172,7 @@ namespace ImplicitCoordination
                 Action action2 = new Action(new HashSet<IWorld> { e3 }, new HashSet<IWorld> { e3 } , Q, "action2", a);
 
                 Event e4 = new Event(Formula.Atom(p), new Dictionary<Proposition, bool> { { p, false } });
-                Event e5 = new Event(Formula.Not(Formula.Atom(p)), new Dictionary<Proposition, bool> { { p, true } });
+                Event e5 = new Event(Formula.Atom(p), new Dictionary<Proposition, bool> { { p, true } });
 
                 AccessibilityRelation Q3 = new AccessibilityRelation(agents, new HashSet<IWorld> { e5, e4 });
 
@@ -201,7 +201,7 @@ namespace ImplicitCoordination
                 {
                     watch.Reset();
 
-                    Console.WriteLine($"\nUpdating resulting Kripke model with 1-event action model {noOfUpdatesSmallAction*j} times. Restarting stopwatch.");
+                    Console.WriteLine($"\nUpdating resulting Kripke model with 2-event action model {noOfUpdatesSmallAction*j} times. Restarting stopwatch.");
 
                     watch.Start();
                     for (int i=0; i<noOfUpdatesSmallAction*j; i++)
