@@ -128,7 +128,7 @@ namespace ImplicitCoordination
                     string filename = "ABMtest" + stamp;
                     try
                     {
-                        ostrm = new FileStream($"../experiments/ABM/{filename}.txt", FileMode.OpenOrCreate, FileAccess.Write);
+                        ostrm = new FileStream($"../experiments/ABM/two-event-action/{filename}.txt", FileMode.OpenOrCreate, FileAccess.Write);
                         writer = new StreamWriter (ostrm);
                     }
                         catch (Exception e)
@@ -146,11 +146,14 @@ namespace ImplicitCoordination
                 World w = new World();
                 // Init propositions for lever position
                 PropositionRepository propositionRepository = new PropositionRepository();
+                Proposition p = new Proposition("p");
+                propositionRepository.Add(p);
+                w.AddProposition(p);
                 for (int i = 0; i<10; i++)
                 {
-                    Proposition p = new Proposition("p" + i.ToString());
-                    propositionRepository.Add(p);
-                    w.AddProposition(p);
+                    Proposition prop = new Proposition("p" + i.ToString());
+                    propositionRepository.Add(prop);
+                    w.AddProposition(prop);
                 }
 
                 AccessibilityRelation R = new AccessibilityRelation(agents, new HashSet<IWorld> { w });
@@ -167,6 +170,13 @@ namespace ImplicitCoordination
                 AccessibilityRelation Q2 = new AccessibilityRelation(agents, new HashSet<IWorld> { e3 });
 
                 Action action2 = new Action(new HashSet<IWorld> { e3 }, new HashSet<IWorld> { e3 } , Q, "action2", a);
+
+                Event e4 = new Event(Formula.Atom(p), new Dictionary<Proposition, bool> { { p, false } });
+                Event e5 = new Event(Formula.Not(Formula.Atom(p)), new Dictionary<Proposition, bool> { { p, true } });
+
+                AccessibilityRelation Q3 = new AccessibilityRelation(agents, new HashSet<IWorld> { e5, e4 });
+
+                Action action3 = new Action(new HashSet<IWorld> { e4, e5 }, new HashSet<IWorld> { e4, e5 } , Q, "action3", a);
 
                 State s = initialState;
                 Stopwatch watch = new Stopwatch();
@@ -196,20 +206,14 @@ namespace ImplicitCoordination
                     watch.Start();
                     for (int i=0; i<noOfUpdatesSmallAction*j; i++)
                     {
-                        s = s.ProductUpdate(action2);
+                        s = s.ProductUpdate(action3);
                     }
 
                     watch.Stop();
-                    Console.WriteLine($"Elapsed time after {noOfUpdatesSmallAction} updates: {watch.Elapsed}");
+                    Console.WriteLine($"Elapsed time after {noOfUpdatesSmallAction*j} updates: {watch.Elapsed}");
                     Console.WriteLine($"Number of states in Kripke model: {s.possibleWorlds.Count}");
                     Console.WriteLine("Stopping watch.");
-                    
-                    elapsed.Append(watch.Elapsed.Seconds);
                 }
-
-                // Printing list of elapsed seconds as comma-separated values, for easy copying into excel
-                Console.WriteLine("\n");
-                Console.WriteLine(String.Join(",", elapsed));
 
                 if (writer != null && ostrm != null)
                 {

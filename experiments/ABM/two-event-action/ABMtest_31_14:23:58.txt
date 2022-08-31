@@ -1,0 +1,54 @@
+Updating 1-state Kripke model with 2-event action model 10 times. Starting stopwatch.
+Elapsed tim after 10 updates: 00:00:01.3739807
+Number of states in Kripke model: 1024
+Resetting watch.
+
+Updating resulting Kripke model with 1-event action model 25 times. Restarting stopwatch.
+Elapsed time after 25 updates: 00:00:05.7018895
+Number of states in Kripke model: 1024
+Stopping watch.
+
+Updating resulting Kripke model with 1-event action model 50 times. Restarting stopwatch.
+Elapsed time after 50 updates: 00:00:09.9071174
+Number of states in Kripke model: 1024
+Stopping watch.
+
+Updating resulting Kripke model with 1-event action model 75 times. Restarting stopwatch.
+Elapsed time after 75 updates: 00:00:17.3386911
+Number of states in Kripke model: 1024
+Stopping watch.
+
+Updating resulting Kripke model with 1-event action model 100 times. Restarting stopwatch.
+Elapsed time after 100 updates: 00:00:19.8369561
+Number of states in Kripke model: 1024
+Stopping watch.
+
+Updating resulting Kripke model with 1-event action model 125 times. Restarting stopwatch.
+Elapsed time after 125 updates: 00:00:32.4985375
+Number of states in Kripke model: 1024
+Stopping watch.
+
+Updating resulting Kripke model with 1-event action model 150 times. Restarting stopwatch.
+Elapsed time after 150 updates: 00:00:41.4707673
+Number of states in Kripke model: 1024
+Stopping watch.
+
+Updating resulting Kripke model with 1-event action model 175 times. Restarting stopwatch.
+Elapsed time after 175 updates: 00:00:40.4489310
+Number of states in Kripke model: 1024
+Stopping watch.
+
+Updating resulting Kripke model with 1-event action model 200 times. Restarting stopwatch.
+Elapsed time after 200 updates: 00:00:45.6144364
+Number of states in Kripke model: 1024
+Stopping watch.
+
+Updating resulting Kripke model with 1-event action model 225 times. Restarting stopwatch.
+Elapsed time after 225 updates: 00:00:51.6683250
+Number of states in Kripke model: 1024
+Stopping watch.
+
+Updating resulting Kripke model with 1-event action model 250 times. Restarting stopwatch.
+Elapsed time after 250 updates: 00:00:55.3228479
+Number of states in Kripke model: 1024
+Stopping watch.
