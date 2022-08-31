@@ -119,12 +119,13 @@ namespace ImplicitCoordination
                 StreamWriter writer = null;
                 TextWriter oldOut = Console.Out;
     
-                bool writeToFile = false;
+                bool writeToFile = true;
 
                 if (writeToFile)
                 {
-                    DateTime stamp = DateTime.Now;
-                    string filename = "ABMtest" + stamp.ToString();
+                    DateTime now = DateTime.Now;
+                    string stamp = "_" + now.Day.ToString() + "_" + now.Hour.ToString() + ":" + now.Minute.ToString() + ":" + now.Second.ToString();
+                    string filename = "ABMtest" + stamp;
                     try
                     {
                         ostrm = new FileStream($"../experiments/ABM/{filename}.txt", FileMode.OpenOrCreate, FileAccess.Write);
@@ -183,21 +184,32 @@ namespace ImplicitCoordination
                 Console.WriteLine($"Number of states in Kripke model: {s.possibleWorlds.Count}");
                 Console.WriteLine("Resetting watch.");
 
-                watch.Reset();
+                IList<int> elapsed = new List<int>();
 
-                int noOfUpdatesSmallAction = 100;
-                Console.WriteLine($"\nUpdating resulting Kripke model with 1-event action model {noOfUpdatesSmallAction} times. Restarting stopwatch.");
-
-                watch.Start();
-                for (int i=0; i<noOfUpdatesSmallAction; i++)
+                int noOfUpdatesSmallAction = 25;
+                for (int j=1; j<11; j++)
                 {
-                    s = s.ProductUpdate(action2);
+                    watch.Reset();
+
+                    Console.WriteLine($"\nUpdating resulting Kripke model with 1-event action model {noOfUpdatesSmallAction*j} times. Restarting stopwatch.");
+
+                    watch.Start();
+                    for (int i=0; i<noOfUpdatesSmallAction*j; i++)
+                    {
+                        s = s.ProductUpdate(action2);
+                    }
+
+                    watch.Stop();
+                    Console.WriteLine($"Elapsed time after {noOfUpdatesSmallAction} updates: {watch.Elapsed}");
+                    Console.WriteLine($"Number of states in Kripke model: {s.possibleWorlds.Count}");
+                    Console.WriteLine("Stopping watch.");
+                    
+                    elapsed.Append(watch.Elapsed.Seconds);
                 }
 
-                watch.Stop();
-                Console.WriteLine($"Elapsed time after {noOfUpdatesSmallAction} updates: {watch.Elapsed}");
-                Console.WriteLine($"Number of states in Kripke model: {s.possibleWorlds.Count}");
-                Console.WriteLine("Stopping watch.");
+                // Printing list of elapsed seconds as comma-separated values, for easy copying into excel
+                Console.WriteLine("\n");
+                Console.WriteLine(String.Join(",", elapsed));
 
                 if (writer != null && ostrm != null)
                 {
