@@ -149,7 +149,7 @@ namespace ImplicitCoordination
                 Proposition p = new Proposition("p");
                 propositionRepository.Add(p);
                 w.AddProposition(p);
-                for (int i = 0; i<9; i++)
+                for (int i = 0; i<10; i++)
                 {
                     Proposition prop = new Proposition("p" + i.ToString());
                     propositionRepository.Add(prop);
@@ -184,20 +184,24 @@ namespace ImplicitCoordination
                 Console.WriteLine($"Updating 1-state Kripke model with 2-event action model {noOfUpdates} times. Starting stopwatch.");
                 watch.Start();
 
+                HashSet<State> history = new HashSet<State>();
+
                 for (int i=0; i<noOfUpdates; i++)
                 {
                     s = s.ProductUpdate(action);
+                    history.Add(new State(s.possibleWorlds, s.designatedWorlds, s.accessibility));
                 }
 
                 watch.Stop();
                 Console.WriteLine($"Elapsed tim after {noOfUpdates} updates: {watch.Elapsed}");
                 Console.WriteLine($"Number of states in Kripke model: {s.possibleWorlds.Count}");
+                Console.WriteLine($"Number of DEL states history: {history.Count}");
                 Console.WriteLine("Resetting watch.");
 
                 IList<int> elapsed = new List<int>();
 
                 int noOfUpdatesSmallAction = 25;
-                for (int j=1; j<11; j++)
+                for (int j=5; j<6; j++)
                 {
                     watch.Reset();
 
@@ -207,11 +211,13 @@ namespace ImplicitCoordination
                     for (int i=0; i<noOfUpdatesSmallAction*j; i++)
                     {
                         s = s.ProductUpdate(action3);
+                        history.Add(new State(s.possibleWorlds, s.designatedWorlds, s.accessibility));
                     }
 
                     watch.Stop();
                     Console.WriteLine($"Elapsed time after {noOfUpdatesSmallAction*j} updates: {watch.Elapsed}");
                     Console.WriteLine($"Number of states in Kripke model: {s.possibleWorlds.Count}");
+                    Console.WriteLine($"Number of DEL states history: {history.Count}");
                     Console.WriteLine("Stopping watch.");
                 }
 

@@ -1,0 +1,10 @@
+Updating 1-state Kripke model with 2-event action model 10 times. Starting stopwatch.
+Elapsed tim after 10 updates: 00:00:05.7681956
+Number of states in Kripke model: 1024
+Number of DEL states history: 11
+Resetting watch.
+
+Updating resulting Kripke model with 2-event action model 125 times. Restarting stopwatch.
+Elapsed time after 125 updates: 00:01:58.6002152
+Number of states in Kripke model: 2048
+Stopping watch.
