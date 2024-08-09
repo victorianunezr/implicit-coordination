@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using ImplicitCoordination.PDDLParser.Models;
 
 namespace ImplicitCoordination.PDDLParser.Parsers
 {
@@ -19,6 +20,6 @@ namespace ImplicitCoordination.PDDLParser.Parsers
             return match.Success ? match.Groups[1].Value.Split(new[] { '(', ')' }, StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>();
         }
 
-        public abstract void Parse(string filePath);
+        public abstract void Parse(string filePath, DomainModel domain);
     }
 }
