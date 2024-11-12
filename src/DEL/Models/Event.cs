@@ -7,6 +7,7 @@ namespace ImplicitCoordination.DEL
 {
     public class Event : IWorld
     {
+        public string name;
         private static ushort Counter = 0;
         private readonly ushort id;
 
@@ -51,6 +52,7 @@ namespace ImplicitCoordination.DEL
         //    this.id = Counter;
         //    Counter++;
         //}
+        public Event(){}
 
         public Event(Formula pre, IDictionary<Proposition, bool> post=null)
         {

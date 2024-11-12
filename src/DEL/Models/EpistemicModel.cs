@@ -12,6 +12,8 @@ namespace ImplicitCoordination.DEL
 
         public AccessibilityRelation accessibility;
 
+        public EpistemicModel(){}
+
         public EpistemicModel(
             HashSet<IWorld> possibleWorlds,
             HashSet<IWorld> designatedWorlds,

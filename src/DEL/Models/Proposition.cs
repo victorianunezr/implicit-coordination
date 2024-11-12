@@ -3,16 +3,15 @@
 namespace ImplicitCoordination.DEL
 {
     /// <summary>
-    /// Proposition are atomic n-ary formulas and their negations, e.g. Has(Alice, Keys), ~Has(Bob, Keys)
+    /// A proposition is a statement or assertion that can either be true or false
     /// </summary>
     public class Proposition
     {
         private static ushort Counter = 0;
         public string name;
         public ushort id; // id will be used to access truth assignment of proposition in bitvector of a world
-        public ushort arity;
 
-        public Proposition(string name, int arity=0)
+        public Proposition(string name)
         {
             this.name = name;
             this.id = Counter;
