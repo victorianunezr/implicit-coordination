@@ -11,13 +11,15 @@ namespace ImplicitCoordination.DEL
         private static ushort Counter = 0;
         public string name;
         public ushort id; // id will be used to access truth assignment of predicate in bitvector of a world
+        public bool isNegated;
         public List<Parameter> Parameters { get; set; }
 
-        public Predicate(string name, List<Parameter> parameters)
+        public Predicate(string name, List<Parameter> parameters, bool isNegated=false)
         {
             this.name = name;
             this.id = Counter;
             Parameters = parameters;
+            this.isNegated = isNegated;
             Counter++;
         }
 
@@ -32,6 +34,10 @@ namespace ImplicitCoordination.DEL
         public string Name { get; set; }
         public string Type { get; set; }
 
+        public Parameter(string name)
+        {
+            Name = name;
+        }
         public Parameter(string name, string type)
         {
             Name = name;

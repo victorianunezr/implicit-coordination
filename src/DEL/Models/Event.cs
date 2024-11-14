@@ -11,6 +11,8 @@ namespace ImplicitCoordination.DEL
         private static ushort Counter = 0;
         private readonly ushort id;
 
+        public HashSet<Predicate> effect;
+
         public ushort Id => this.id;
         // public ulong TruePropositions => throw new NotImplementedException();
 
@@ -52,7 +54,11 @@ namespace ImplicitCoordination.DEL
         //    this.id = Counter;
         //    Counter++;
         //}
-        public Event(){}
+        public Event()
+        {
+            this.effect = new HashSet<Predicate>();
+            Counter++;
+        }
 
         public Event(Formula pre, IDictionary<Proposition, bool> post=null)
         {
