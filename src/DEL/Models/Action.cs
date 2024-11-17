@@ -6,7 +6,7 @@ namespace ImplicitCoordination.DEL
     //todo: fully implement action owner
     public class Action : EpistemicModel
     {
-        public HashSet<Agent> owners { get; set; }
+        public HashSet<Agent> owners { get; set; } = new();
         public string name;
 
         public Action()
@@ -35,7 +35,7 @@ namespace ImplicitCoordination.DEL
             : base(events, designatedEvents, accessibility)
         {
             this.name = name;
-            this.owners = new HashSet<Agent>{ owner };
+            this.owners.Add(owner);
         }
 
         public Action(HashSet<IWorld> events,
@@ -46,7 +46,7 @@ namespace ImplicitCoordination.DEL
             : base(events, designatedEvents, agents)
         {
             this.name = name;
-            this.owners = new HashSet<Agent>{ owner };
+            this.owners.Add(owner);
         }       
     }
 }

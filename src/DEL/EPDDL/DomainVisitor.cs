@@ -70,12 +70,19 @@ namespace ImplicitCoordination.DEL
             var action = new Action { name = actionName };
 
             // Visit each event definition within the action
-            foreach (var eventContext in context.eventsDef().eventDef())
+            var events = context.eventsDef().eventDef();
+            foreach (var eventContext in events)
             {
                 var eventInstance = VisitEventDef(eventContext) as Event;
                 action.possibleWorlds.Add(eventInstance);
                 action.designatedWorlds.Add(eventInstance);
             }
+
+            foreach (var agentName in context.ownersDef().agentList().agentName())
+            {
+                action.owners.Add(new Agent(agentName.AGENT_NAME().GetText()));
+            }
+
             Console.WriteLine($"Action: {actionName}");
             domain.actions.Add(action);
 
