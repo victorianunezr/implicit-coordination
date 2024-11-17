@@ -152,5 +152,9 @@ namespace ImplicitCoordination.DEL
             return new Formula { type = FormulaType.CommonKnow, child = f };
         }
 
+        public FormulaType GetFormulaType()
+        {
+            return this.type;
+        }
     }
 }

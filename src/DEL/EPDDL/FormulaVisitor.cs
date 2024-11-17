@@ -4,6 +4,14 @@ namespace ImplicitCoordination.DEL
 {
     public class FormulaVisitor : EPDDLParserBaseVisitor<Formula>
     {
+        public override Formula VisitFormulaOrEmpty(EPDDLParser.FormulaOrEmptyContext context)
+        {
+            if (context == null || context.formula() == null)
+            {
+                return Formula.Top();
+            }
+            return Visit(context.formula());
+        }
         public override Formula VisitFormula(EPDDLParser.FormulaContext context)
         {
             if (context.IMPLY() != null)

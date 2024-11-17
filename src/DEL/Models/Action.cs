@@ -29,13 +29,24 @@ namespace ImplicitCoordination.DEL
 
         public Action(HashSet<IWorld> events,
                       HashSet<IWorld> designatedEvents,
+                      AccessibilityRelation accessibility,
+                      string name,
+                      Agent owner)
+            : base(events, designatedEvents, accessibility)
+        {
+            this.name = name;
+            this.owners = new HashSet<Agent>{ owner };
+        }
+
+        public Action(HashSet<IWorld> events,
+                      HashSet<IWorld> designatedEvents,
                       ICollection<Agent> agents,
                       string name,
-                      HashSet<Agent> owners)
+                      Agent owner)
             : base(events, designatedEvents, agents)
         {
             this.name = name;
-            this.owners = owners;
-        }
+            this.owners = new HashSet<Agent>{ owner };
+        }       
     }
 }

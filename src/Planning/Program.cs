@@ -7,6 +7,8 @@ using static ImplicitCoordination.Planning.PolicyExecuter;
 using Action = ImplicitCoordination.DEL.Action;
 using System.Linq;
 using System.Diagnostics;
+using Antlr4.Runtime;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ImplicitCoordination
 {
@@ -14,7 +16,7 @@ namespace ImplicitCoordination
     {
         static void Main(string[] args)
         {
-            TestABM();
+            ParseLeverDomain_CreatesCorrectDomainStructure();
         }
 
         public static void SetupAndRunExperiments(string[] args)
@@ -113,6 +115,88 @@ namespace ImplicitCoordination
             // Console.WriteLine($"Average execution length: {((float)executionLengths.Sum()/(float)executionLengths.Count):F2}");
         }
 
+        public static void ParseLeverDomain_CreatesCorrectDomainStructure()
+        {
+            // Arrange: Define the EPDDL input for the lever domain
+            string leverDomainEPDDL = @"
+            (define (domain lever-domain)
+                (:requirements :del)
+                (:types position)
+                (:predicates
+                    (at ?pos - position)
+                    (adjacent ?pos0 - position ?pos1 - position)
+                    (leftmost ?pos - position)
+                    (rightmost ?pos - position)
+                )
+                (:action move-left
+                    :parameters (?pos - position ?next-pos - position)
+                    :owners (Alice)
+                    :events
+                        (
+                            (e1
+                                :precondition (and (at ?pos) (not (leftmost ?pos)) (adjacent ?next-pos ?pos))
+                                :effect ((at ?next-pos) (not (at ?pos)))
+                            )
+                        )
+                    :accessibility ()
+                )
+                (:action move-right
+                    :parameters (?pos - position ?next-pos - position)
+                    :owners (Bob)
+                    :events
+                        (
+                            (e1
+                                :precondition (and (at ?pos) (not (rightmost ?pos)) (adjacent ?pos ?next-pos))
+                                :effect ((at ?next-pos) (not (at ?pos)))
+                            )
+                        )
+                    :accessibility ()
+                )
+            )";
+
+            // Act: Parse the input
+            var inputStream = new AntlrInputStream(leverDomainEPDDL);
+            var lexer = new EPDDLLexer(inputStream);
+            var tokenStream = new CommonTokenStream(lexer);
+            var parser = new EPDDLParser(tokenStream);
+            var visitor = new EPDDLVisitor(); // Assuming this is your main visitor class
+
+            Domain parsedDomain = visitor.Visit(parser.mainDef()) as Domain;
+
+            // Assert: Verify that domain and actions were parsed correctly
+            Assert.IsNotNull(parsedDomain);
+            Assert.AreEqual("lever-domain", parsedDomain.name);
+
+            // Verify predicates
+            var predicateNames = new HashSet<string> { "at", "adjacent", "leftmost", "rightmost" };
+            foreach (var predicate in parsedDomain.Predicates)
+            {
+                Assert.IsTrue(predicateNames.Contains(predicate.name));
+            }
+
+            // Verify actions
+            Assert.AreEqual(2, parsedDomain.actions.Count);
+            
+            var moveLeft = parsedDomain.actions.FirstOrDefault(a => a.name == "move-left");
+            var moveRight = parsedDomain.actions.FirstOrDefault(a => a.name == "move-right");
+
+            Assert.IsNotNull(moveLeft);
+            Assert.AreEqual(1, moveLeft.possibleWorlds.Count);
+
+            var leftEvent = moveLeft.possibleWorlds.First() as Event;
+            Assert.AreEqual("e1", leftEvent.name);
+            Assert.IsTrue(leftEvent.pre != null); // Check precondition structure
+            Assert.IsTrue(leftEvent.effect.Count == 2); // Two literals in the effect
+
+            Assert.IsNotNull(moveRight);
+            Assert.AreEqual(1, moveRight.possibleWorlds.Count);
+
+            var rightEvent = moveRight.possibleWorlds.First() as Event;
+            Assert.AreEqual("e1", rightEvent.name);
+            Assert.IsTrue(rightEvent.pre != null); // Check precondition structure
+            Assert.IsTrue(rightEvent.effect.Count == 2); // Two literals in the effect
+        }
+
             public static void TestABM()
             {
                 FileStream ostrm = null;
@@ -164,7 +248,7 @@ namespace ImplicitCoordination
                 AccessibilityRelation Q = new AccessibilityRelation(agents, new HashSet<IWorld> { e1, e2 });
                 Q.AddEdge(a, (e1, e2));
 
-                Action action = new Action(new HashSet<IWorld> { e1, e2 }, new HashSet<IWorld> { e1, e2 } , Q, "action1", a);
+                 Action action = new Action(new HashSet<IWorld> { e1, e2 }, new HashSet<IWorld> { e1, e2 } , Q, "action1", a);
 
                 Event e3 = new Event(Formula.Top());
                 AccessibilityRelation Q2 = new AccessibilityRelation(agents, new HashSet<IWorld> { e3 });

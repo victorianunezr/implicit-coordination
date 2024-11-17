@@ -264,7 +264,7 @@ namespace ImplicitCoordination.Planning
                     foreach (WorldEdge edge in world.outgoingEdges)
                     {
                         // Prune outgoing edges with cost(w, i:a) > cost(w, i)
-                        agent = edge.action.owner;
+                        agent = edge.action.owners.FirstOrDefault();
                         if (world.worldAgentCost[agent].value < edge.cost.value)
                         {
                             edge.isPruned = true;

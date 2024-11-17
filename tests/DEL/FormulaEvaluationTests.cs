@@ -20,9 +20,9 @@ namespace DEL.Tests
         [OneTimeSetUp]
         public void TestInit()
         {
-            this.p = new Proposition(name: "p", arity: 0);
-            this.q = new Proposition(name: "q", arity: 0);
-            this.r = new Proposition(name: "r", arity: 0);
+            this.p = new Proposition(name: "p");
+            this.q = new Proposition(name: "q");
+            this.r = new Proposition(name: "r");
             this.atomP = Formula.Atom(p);
             this.atomQ = Formula.Atom(q);
             this.atomR = Formula.Atom(r);

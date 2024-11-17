@@ -19,10 +19,12 @@
     <None Remove="utils\" />
     <None Remove="DEL\" />
     <None Remove="Planning\" />
+    <None Remove="EPDDL\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="utils\" />
     <Folder Include="DEL\" />
     <Folder Include="Planning\" />
+    <Folder Include="EPDDL\" />
   </ItemGroup>
 </Project>

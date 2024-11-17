@@ -12,8 +12,24 @@ namespace ImplicitCoordination.DEL
         public override object VisitDomainDef(EPDDLParser.DomainDefContext context)
         {
             var domainName = context.domainName().GetText();
+
             this.domain = new Domain { name = domainName };
             Console.WriteLine($"Domain: {domainName}");
+            foreach (var item in context.domainItemDef())
+            {
+                if (item.predicateListDef() != null)
+                {
+                    VisitPredicateListDef(item.predicateListDef());
+                }
+                else if (item.actionDef() != null)
+                {
+                    VisitActionDef(item.actionDef());
+                }
+                else
+                {
+                    Console.WriteLine("Unprocessed domain item detected.");
+                }
+            }
             return domain;
         }
 

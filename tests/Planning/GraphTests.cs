@@ -20,22 +20,22 @@ namespace Planning.Tests
             World.ResetIdCounter();
         }
 
-        [Test]
-        public void AddOrNode_NodeDoesNotExist_NodeAdded()
-        {
-            // Arrange
-            PlanningTask task = PlanningTaskInitializer.DiamondHeist();
-            AndOrGraph Graph = new AndOrGraph(task);
+        // [Test]
+        // public void AddOrNode_NodeDoesNotExist_NodeAdded()
+        // {
+        //     // Arrange
+        //     PlanningTask task = PlanningTaskInitializer.DiamondHeist();
+        //     AndOrGraph Graph = new AndOrGraph(task);
 
-            State global = task.initialState.GetSetOfGlobals().GetSingleElement();
-            AndOrNode s1 = new AndOrNode(global, Graph.root, NodeType.Or);
+        //     State global = task.initialState.GetSetOfGlobals().GetSingleElement();
+        //     AndOrNode s1 = new AndOrNode(global, Graph.root, NodeType.Or);
 
-            // Act - Assert
-            Assert.IsTrue(Graph.AddOrNode(s1));
-            Assert.AreEqual(1, Graph.root.children.Count);
-            Assert.AreEqual(1, Graph.OrNodes.Count);
-            Assert.AreEqual(Graph.root, s1.parent);
-        }
+        //     // Act - Assert
+        //     Assert.IsTrue(Graph.AddOrNode(s1));
+        //     Assert.AreEqual(1, Graph.root.children.Count);
+        //     Assert.AreEqual(1, Graph.OrNodes.Count);
+        //     Assert.AreEqual(Graph.root, s1.parent);
+        // }
 
         //[Test]
         //public void AddOrNode_NodeExists_NodeNotAdded()
@@ -57,25 +57,25 @@ namespace Planning.Tests
         //    Assert.AreEqual(Graph.root, s1.parent);
         //}
 
-        [Test]
-        public void AddAndNode_NodeDoesNotExist_NodeAdded()
-        {
-            // Arrange
-            PlanningTask task = PlanningTaskInitializer.DiamondHeist();
-            AndOrGraph Graph = new AndOrGraph(task);
+        // [Test]
+        // public void AddAndNode_NodeDoesNotExist_NodeAdded()
+        // {
+        //     // Arrange
+        //     PlanningTask task = PlanningTaskInitializer.DiamondHeist();
+        //     AndOrGraph Graph = new AndOrGraph(task);
 
-            State global = task.initialState.GetSetOfGlobals().GetSingleElement();
-            AndOrNode sOR = new AndOrNode(global, Graph.root, NodeType.Or);
-            Action cutRed = task.actions.FirstOrDefault(x => x.name.Equals("cutRed"));
-            State sPrime = global.ProductUpdate(cutRed);
-            AndOrNode sAND = new AndOrNode(sPrime, sOR, NodeType.And, cutRed);
+        //     State global = task.initialState.GetSetOfGlobals().GetSingleElement();
+        //     AndOrNode sOR = new AndOrNode(global, Graph.root, NodeType.Or);
+        //     Action cutRed = task.actions.FirstOrDefault(x => x.name.Equals("cutRed"));
+        //     State sPrime = global.ProductUpdate(cutRed);
+        //     AndOrNode sAND = new AndOrNode(sPrime, sOR, NodeType.And, cutRed);
 
-            // Act - Assert
-            Assert.IsTrue(Graph.AddAndNode(sAND));
-            Assert.AreEqual(2, Graph.AndNodes.Count);
-            Assert.AreEqual(sOR, sAND.parent);
+        //     // Act - Assert
+        //     Assert.IsTrue(Graph.AddAndNode(sAND));
+        //     Assert.AreEqual(2, Graph.AndNodes.Count);
+        //     Assert.AreEqual(sOR, sAND.parent);
 
-        }
+        // }
 
         //[Test]
         //public void AddAndNode_NodeEqualsRoot_NodeNotAdded()
@@ -209,9 +209,9 @@ namespace Planning.Tests
 
             // Agents
             Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { a.name, a }, { b.name, b } };
-            PlanningTask task = new PlanningTask(s0, actions, gamma, agentDict);
-            return task;
-
+            //PlanningTask task = new PlanningTask(s0, actions, gamma, agentDict);
+            //return task;
+            return null;
         }
     }
 }

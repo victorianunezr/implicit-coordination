@@ -47,7 +47,7 @@ namespace ImplicitCoordination.Planning
                 // actionList.Shuffle();
                 foreach (Action action in actionList)
                 {
-                    sJ = s.state.GetAssociatedLocal(action.owner);
+                    sJ = s.state.GetAssociatedLocal(action.owners.FirstOrDefault());
                     if (!sJ.IsApplicable(action,this.task)) continue;
                     sPrime = new AndOrNode(s.state.ProductUpdate(action, null, this.task), s, NodeType.And, action);                   
 

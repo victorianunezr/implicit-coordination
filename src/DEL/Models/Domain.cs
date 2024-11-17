@@ -7,7 +7,7 @@ namespace ImplicitCoordination.DEL
     {
         public string name;
         public HashSet<Type> types { get; set; }
-        public HashSet<Action> actions { get; set; }
+        public HashSet<Action> actions { get; set; } = new();
         public Dictionary<string, int> PredicateIndices { get; set; } = new();
         public HashSet<Predicate> Predicates { get; set; } = new();
 
