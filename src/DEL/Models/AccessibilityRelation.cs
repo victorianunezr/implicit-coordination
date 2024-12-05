@@ -17,6 +17,11 @@ namespace ImplicitCoordination.DEL
     {
         public IDictionary<Agent, HashSet<(IWorld, IWorld)>> graph;
 
+        public AccessibilityRelation()
+        {
+            this.graph = new Dictionary<Agent, HashSet<(IWorld, IWorld)>>();
+        }
+
         public AccessibilityRelation(ICollection<Agent> agents, ICollection<IWorld> worlds = null)
         {
             this.graph = new Dictionary<Agent, HashSet<(IWorld, IWorld)>>();
@@ -51,11 +56,35 @@ namespace ImplicitCoordination.DEL
             }
             catch (KeyNotFoundException)
             {
-                throw new AgentNotFoundException("Agent does not exist in accessibility graph.");
+                // Add new entry if agent doesn't exist in the graph
+                graph.Add(a, new HashSet<(IWorld, IWorld)>{ edge });
             }
             AddReflexiveEdgeForAllAgents(edge.Item1);
             AddReflexiveEdgeForAllAgents(edge.Item2);
         }
+
+        public void AddEdge(string agentName, (IWorld, IWorld) edge)
+        {
+            var a = new Agent(agentName);
+
+            try
+            {
+                // Only add (w,v) if edge not already in set.
+                // Although this is a set, we must check because to avoid adding symmetric edges, which the set does not consider as equal.
+                if (!this.graph[a].ContainsEdge(edge))
+                {
+                    this.graph[a].Add(edge);
+                }
+            }
+            catch (KeyNotFoundException)
+            {
+                // Add new entry if agent doesn't exist in the graph
+                graph.Add(a, new HashSet<(IWorld, IWorld)>{ edge });
+            }
+            AddReflexiveEdgeForAllAgents(edge.Item1);
+            AddReflexiveEdgeForAllAgents(edge.Item2);
+        }
+
 
 
         public void AddEdgeForAllAgents((IWorld, IWorld) edge)
@@ -95,6 +124,20 @@ namespace ImplicitCoordination.DEL
 
         public HashSet<(IWorld, IWorld)> GetAccessibilityEdges(Agent a)
         {
+            try
+            {
+                return this.graph[a];
+            }
+            catch (KeyNotFoundException)
+            {
+                throw new AgentNotFoundException("Agent does not exist in accessibility graph.");
+            }
+        }
+
+        public HashSet<(IWorld, IWorld)> GetAccessibilityEdges(string agentName)
+        {
+            var a = new Agent(agentName);
+
             try
             {
                 return this.graph[a];

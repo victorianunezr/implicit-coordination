@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ImplicitCoordination.DEL
 {
@@ -7,6 +8,8 @@ namespace ImplicitCoordination.DEL
     {
         private Domain domain;
         private FormulaVisitor formulaVisitor = new FormulaVisitor();
+
+        private Action currentAction;
 
 
         public override object VisitDomainDef(EPDDLParser.DomainDefContext context)
@@ -68,6 +71,7 @@ namespace ImplicitCoordination.DEL
         {
             var actionName = context.actionName().GetText();
             var action = new Action { name = actionName };
+            currentAction = action;
 
             // Visit each event definition within the action
             var events = context.eventsDef().eventDef();
@@ -81,6 +85,12 @@ namespace ImplicitCoordination.DEL
             foreach (var agentName in context.ownersDef().agentList().agentName())
             {
                 action.owners.Add(new Agent(agentName.AGENT_NAME().GetText()));
+            }
+
+            if (context.accessibilityDef() != null)
+            {
+                var accessibilityRelation = VisitAccessibilityDef(context.accessibilityDef()) as AccessibilityRelation;
+                action.accessibility = accessibilityRelation;
             }
 
             Console.WriteLine($"Action: {actionName}");
@@ -111,25 +121,70 @@ namespace ImplicitCoordination.DEL
             var preconditionContext = context.formulaOrEmpty();
             eventObj.pre = formulaVisitor.Visit(preconditionContext);
 
-            // Handle effect as a set of literals
-            foreach (var literalContext in context.literal())
+            var literals = context.effectDef().literal();
+            if (literals != null)
             {
-                var predicateName = literalContext.predicate().predicateName().NAME().GetText();
-                bool isNegated = literalContext.NOT() != null;
-
-                List<Parameter> parameters = new();
-                foreach (var termContext in literalContext.predicate().term())
+                // Handle effect as a set of literals
+                foreach (var literalContext in literals)
                 {
-                    string termText = termContext.GetText();
-                    parameters.Add(new Parameter(termText));
+                    var predicateName = literalContext.predicate().predicateName().NAME().GetText();
+                    bool isNegated = literalContext.NOT() != null;
+
+                    List<Parameter> parameters = new();
+                    foreach (var termContext in literalContext.predicate().term())
+                    {
+                        string termText = termContext.GetText();
+                        parameters.Add(new Parameter(termText));
+                    }
+
+                    Predicate predicate = new Predicate(predicateName, parameters, isNegated);
+                    eventObj.effect.Add(predicate);
                 }
-
-                Predicate predicate = new Predicate(predicateName, parameters, isNegated);
-                eventObj.effect.Add(predicate);
             }
-
             return eventObj;
         }
+
+        public override object VisitAccessibilityDef(EPDDLParser.AccessibilityDefContext context)
+        {
+            var accessibilityRelation = new AccessibilityRelation();
+
+            // Handle trivial accessibility definition
+            if (context.TRIVIAL_DEF() != null)
+            {
+                Console.WriteLine("Trivial accessibility relation detected. No edges to add.");
+                return accessibilityRelation;
+            }
+
+            // Handle non-trivial accessibility definition
+            if (context.accessibilityRel() != null)
+            {
+                foreach (var relContext in context.accessibilityRel())
+                {
+                    var event1Name = relContext.NAME(0).GetText();
+                    var event2Name = relContext.NAME(1).GetText();
+
+                    // Retrieve the corresponding events
+                    var event1 = currentAction.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.name == event1Name);
+                    var event2 = currentAction.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.name == event2Name);
+
+                    if (event1 == null || event2 == null)
+                    {
+                        throw new InvalidOperationException($"Events {event1Name} or {event2Name} not found in action {currentAction.name}");
+                    }
+
+                    // Add the relation for each agent in the list
+                    foreach (var agentContext in relContext.agentName())
+                    {
+                        var agentName = agentContext.GetText();
+
+                        accessibilityRelation.AddEdge(new Agent(agentName), (event1, event2));
+                    }
+                }
+            }
+
+            return accessibilityRelation;
+        }
+
 
     }
 }

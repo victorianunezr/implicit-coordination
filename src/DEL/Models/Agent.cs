@@ -20,5 +20,15 @@
         {
             Counter = 0;
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Agent other && name == other.name;
+        }
+
+        public override int GetHashCode()
+        {
+            return name.GetHashCode();
+        }
     }
 }
