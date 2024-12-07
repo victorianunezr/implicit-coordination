@@ -9,6 +9,7 @@ namespace ImplicitCoordination.DEL
         private static ushort Counter = 0;
         private readonly ushort id;
         public ushort Id => this.id;
+        public string name { get; set; }
         public HashSet<Proposition> TruePropositions = new HashSet<Proposition>();
 
         /// <summary>

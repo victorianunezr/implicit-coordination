@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace EPDDL.Tests
 {
-    public class LeverDomainTests
+    public class EPDDLDomainTests
     {
         [Test]
         public void ParseLeverDomain_CreatesCorrectDomainStructure()

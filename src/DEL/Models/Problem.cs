@@ -6,6 +6,9 @@ namespace ImplicitCoordination.DEL
     public class Problem
     {
         private Domain domain;
+        public string name { get; set; }
+        public State initialState { get; set; }
+        public Formula goalFormula { get; set; }
         public List<ulong> PredicateTruthValues { get; set; }  // Each ulong stores 64 predicate truth values in bits
 
         public Problem(Domain domain)

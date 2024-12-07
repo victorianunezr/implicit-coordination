@@ -9,7 +9,7 @@ namespace ImplicitCoordination.DEL
         private Domain domain;
         private FormulaVisitor formulaVisitor = new FormulaVisitor();
 
-        private Action currentAction;
+        private AccessibilityRelationVisitor accessibilityRelationVisitor = new AccessibilityRelationVisitor();
 
 
         public override object VisitDomainDef(EPDDLParser.DomainDefContext context)
@@ -71,7 +71,7 @@ namespace ImplicitCoordination.DEL
         {
             var actionName = context.actionName().GetText();
             var action = new Action { name = actionName };
-            currentAction = action;
+            this.accessibilityRelationVisitor.model = action;
 
             // Visit each event definition within the action
             var events = context.eventsDef().eventDef();
@@ -143,48 +143,5 @@ namespace ImplicitCoordination.DEL
             }
             return eventObj;
         }
-
-        public override object VisitAccessibilityDef(EPDDLParser.AccessibilityDefContext context)
-        {
-            var accessibilityRelation = new AccessibilityRelation();
-
-            // Handle trivial accessibility definition
-            if (context.TRIVIAL_DEF() != null)
-            {
-                Console.WriteLine("Trivial accessibility relation detected. No edges to add.");
-                return accessibilityRelation;
-            }
-
-            // Handle non-trivial accessibility definition
-            if (context.accessibilityRel() != null)
-            {
-                foreach (var relContext in context.accessibilityRel())
-                {
-                    var event1Name = relContext.NAME(0).GetText();
-                    var event2Name = relContext.NAME(1).GetText();
-
-                    // Retrieve the corresponding events
-                    var event1 = currentAction.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.name == event1Name);
-                    var event2 = currentAction.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.name == event2Name);
-
-                    if (event1 == null || event2 == null)
-                    {
-                        throw new InvalidOperationException($"Events {event1Name} or {event2Name} not found in action {currentAction.name}");
-                    }
-
-                    // Add the relation for each agent in the list
-                    foreach (var agentContext in relContext.agentName())
-                    {
-                        var agentName = agentContext.GetText();
-
-                        accessibilityRelation.AddEdge(new Agent(agentName), (event1, event2));
-                    }
-                }
-            }
-
-            return accessibilityRelation;
-        }
-
-
     }
 }

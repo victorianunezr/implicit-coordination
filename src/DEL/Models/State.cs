@@ -12,22 +12,19 @@ namespace ImplicitCoordination.DEL
     {
         public readonly byte[] accessibilityHash;
 
-        //todo: maybe List<Wordls> is better for checking equality as elementwise check is O(1)
+        public State(): base() {}
+
         public State(
             HashSet<IWorld> possibleWorlds,
             HashSet<IWorld> designatedWorlds,
             AccessibilityRelation accessibility,
             State globalState=null)
             : base(possibleWorlds, designatedWorlds, accessibility)
-        {
-            //this.accessibilityHash = HashingHelper.HashAccessibilityRelation(this.accessibility);
-        }
+        {}
 
         public State(HashSet<IWorld> possibleWorlds, HashSet<IWorld> designatedWorlds, ICollection<Agent> agents)
             : base(possibleWorlds, designatedWorlds, agents)
-        {
-            //this.accessibilityHash = HashingHelper.HashAccessibilityRelation(this.accessibility);
-        }
+        {}
 
 
         /// <summary>

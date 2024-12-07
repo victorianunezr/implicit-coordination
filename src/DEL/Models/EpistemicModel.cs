@@ -12,7 +12,12 @@ namespace ImplicitCoordination.DEL
 
         public AccessibilityRelation accessibility;
 
-        public EpistemicModel(){}
+        public EpistemicModel()
+        {
+            this.possibleWorlds = new HashSet<IWorld>();
+            this.designatedWorlds = new HashSet<IWorld>();
+            this.accessibility = new AccessibilityRelation();
+        }
 
         public EpistemicModel(
             HashSet<IWorld> possibleWorlds,
