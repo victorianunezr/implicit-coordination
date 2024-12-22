@@ -15,15 +15,13 @@ namespace ImplicitCoordination.DEL
         {
             this.formulaVisitor = formulaVisitor;
             this.domain = domain;
+            this.problem = new Problem(domain);
         }
 
         public override object VisitProblemDef(EPDDLParser.ProblemDefContext context)
         {
             var problemName = context.problemName().GetText();
-            Problem problem = new Problem(domain)
-            {
-                name = problemName
-            };
+            this.problem.name = problemName;
 
             var initDefContextItem = context.problemItemDef().Where(item => item.initDef() != null);
 

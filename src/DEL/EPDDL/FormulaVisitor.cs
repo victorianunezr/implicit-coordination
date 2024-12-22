@@ -27,6 +27,10 @@ namespace ImplicitCoordination.DEL
                 {
                     formulas.Add(Visit(formulaContext));
                 }
+                if (formulas.Count == 2)
+                {
+                    return Formula.Or(formulas[0], formulas[1]);
+                }
                 return Formula.Disjunction(formulas);
             }
             else if (context.AND() != null)
@@ -35,6 +39,10 @@ namespace ImplicitCoordination.DEL
                 foreach (var formulaContext in context.formula())
                 {
                     formulas.Add(Visit(formulaContext));
+                }
+                if (formulas.Count == 2)
+                {
+                    return Formula.And(formulas[0], formulas[1]);
                 }
                 return Formula.Conjunction(formulas);
             }
@@ -72,6 +80,10 @@ namespace ImplicitCoordination.DEL
                 {
                     formulas.Add(VisitPredicateFormula(subContext));
                 }
+                if (formulas.Count == 2)
+                {
+                    return Formula.Or(formulas[0], formulas[1]);
+                }
                 return Formula.Disjunction(formulas);
             }
             else if (context.AND() != null)
@@ -80,6 +92,10 @@ namespace ImplicitCoordination.DEL
                 foreach (var subContext in context.predicateFormula())
                 {
                     formulas.Add(VisitPredicateFormula(subContext));
+                }
+                if (formulas.Count == 2)
+                {
+                    return Formula.And(formulas[0], formulas[1]);
                 }
                 return Formula.Conjunction(formulas);
             }

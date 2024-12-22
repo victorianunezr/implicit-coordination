@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime;
+using ImplicitCoordination.utils;
 using NUnit.Framework;
 
 namespace ImplicitCoordination.DEL.Tests
@@ -98,31 +98,41 @@ namespace ImplicitCoordination.DEL.Tests
             Assert.AreEqual(3, parsedProblem.initialState.possibleWorlds.Count);
             
             // Verify worlds
-            var world1 = parsedProblem.initialState.possibleWorlds.FirstOrDefault(w => w.name == "w1");
+            var world1 = parsedProblem.initialState.possibleWorlds.FirstOrDefault(w => w.name == "w1") as World;
             Assert.IsNotNull(world1);
-            Assert.IsTrue(world1.predicates.Exists(p => p.name == "at" && p.Parameters[0].Name == "pos2"));
+            Assert.IsTrue(world1.predicates.Any(p => p.name == "at" && p.Parameters[0].Name == "pos2"));
+            Assert.IsTrue(world1.predicates.Any(p => p.name == "goal" && p.Parameters[0].Name == "pos0"));
 
-            var world2 = parsedProblem.initialState.possibleWorlds.FirstOrDefault(w => w.name == "w2");
+            var world2 = parsedProblem.initialState.possibleWorlds.FirstOrDefault(w => w.name == "w2") as World;
             Assert.IsNotNull(world2);
-            Assert.IsTrue(world2.predicates.Exists(p => p.name == "goal" && p.Parameters[0].Name == "pos4"));
+            Assert.IsTrue(world2.predicates.Any(p => p.name == "at" && p.Parameters[0].Name == "pos2"));
+            Assert.IsTrue(world2.predicates.Any(p => p.name == "goal" && p.Parameters[0].Name == "pos0"));
+            Assert.IsTrue(world2.predicates.Any(p => p.name == "goal" && p.Parameters[0].Name == "pos4"));
 
-            // Verify accessibility
+            var world3 = parsedProblem.initialState.possibleWorlds.FirstOrDefault(w => w.name == "w3") as World;
+            Assert.IsNotNull(world3);
+            Assert.IsTrue(world3.predicates.Any(p => p.name == "at" && p.Parameters[0].Name == "pos2"));
+            Assert.IsTrue(world3.predicates.Any(p => p.name == "goal" && p.Parameters[0].Name == "pos4"));
+
             var accessibility = parsedProblem.initialState.accessibility;
-            Assert.IsTrue(accessibility.graph["Alice"].Contains(("w1", "w2")));
-            Assert.IsTrue(accessibility.graph["Bob"].Contains(("w2", "w3")));
+            Agent alice = new Agent("Alice");
+            Agent bob = new Agent("Bob");
+            Assert.IsTrue(accessibility.graph[alice].ContainsEdge(world1, world2));
+            Assert.IsTrue(accessibility.graph[bob].ContainsEdge(world3, world2));
 
             // Verify goal formula
             Assert.IsNotNull(parsedProblem.goalFormula);
-            Assert.AreEqual(Formula.Or(
+            Formula expectedGoalFormula = Formula.Or(
                 Formula.And(
-                    Formula.Atom(new Proposition("at", new List<string> { "pos0" })),
-                    Formula.Atom(new Proposition("goal", new List<string> { "pos0" }))
+                    Formula.Atom(new Predicate("at", new List<string> { "pos0" })),
+                    Formula.Atom(new Predicate("goal", new List<string> { "pos0" }))
                 ),
                 Formula.And(
-                    Formula.Atom(new Proposition("at", new List<string> { "pos4" })),
-                    Formula.Atom(new Proposition("goal", new List<string> { "pos4" }))
+                    Formula.Atom(new Predicate("at", new List<string> { "pos4" })),
+                    Formula.Atom(new Predicate("goal", new List<string> { "pos4" }))
                 )
-            ), parsedProblem.goalFormula);
+            );
+            Assert.IsTrue(Formula.AreFormulasEqual(expectedGoalFormula, parsedProblem.goalFormula));
         }
     }
 }

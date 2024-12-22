@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ImplicitCoordination.DEL
 {
@@ -155,6 +156,46 @@ namespace ImplicitCoordination.DEL
         public FormulaType GetFormulaType()
         {
             return this.type;
+        }
+
+        public static bool AreFormulasEqual(Formula f1, Formula f2)
+        {
+            if (f1.GetFormulaType() != f2.GetFormulaType())
+                return false;
+
+            switch (f1.GetFormulaType())
+            {
+                case FormulaType.Top:
+                case FormulaType.Bottom:
+                    return true;
+
+                case FormulaType.Atom:
+                    return f1.predicate.Equals(f2.predicate);
+
+                case FormulaType.Not:
+                    return AreFormulasEqual(f1.child, f2.child);
+
+                case FormulaType.And:
+                case FormulaType.Or:
+                case FormulaType.Implies:
+                    return AreFormulasEqual(f1.leftChild, f2.leftChild) &&
+                            AreFormulasEqual(f1.rightChild, f2.rightChild);
+
+                case FormulaType.Disjunction:
+                case FormulaType.Conjunction:
+                    return f1.operands.Count == f2.operands.Count &&
+                            f1.operands.Zip(f2.operands, AreFormulasEqual).All(equal => equal);
+
+                case FormulaType.Knows:
+                    return f1.agent == f2.agent &&
+                            AreFormulasEqual(f1.child, f2.child);
+
+                case FormulaType.CommonKnow:
+                    return AreFormulasEqual(f1.child, f2.child);
+
+                default:
+                    return false;
+            }
         }
     }
 }

@@ -24,6 +24,19 @@ namespace ImplicitCoordination.DEL
             Parameters = parameters ?? new List<Parameter>();
         }
 
+        public Predicate(string name, List<string> parameterNames, bool isNegated=false)
+        {
+            this.name = name;
+            this.id = Counter;
+            this.isNegated = isNegated;
+            Counter++;
+            Parameters = new List<Parameter>();
+            foreach (string param in parameterNames)
+            {
+                Parameters.Add(new Parameter(param));
+            }
+        }
+
         public static void ResetIdCounter()
         {
             Counter = 0;
