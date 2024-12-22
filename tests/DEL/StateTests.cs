@@ -12,8 +12,8 @@ namespace DEL.Tests
     {
         private Agent a;
         private Agent b;
-        private Proposition p;
-        private Proposition q;
+        private Predicate p;
+        private Predicate q;
         private World w;
         private World u;
         private World v;
@@ -38,29 +38,29 @@ namespace DEL.Tests
             World.ResetIdCounter();
 
             // To visualize scenario, see ProductUpdateExampple.png
-            this.a = new Agent();
-            this.b = new Agent();
+            this.a = new Agent("a");
+            this.b = new Agent("b");
             var agents = new HashSet<Agent>() { a, b };
 
-            this.p = new Proposition("p");
-            this.q = new Proposition("q");
+            this.p = new Predicate("p");
+            this.q = new Predicate("q");
 
             this.w = new World(0b11); // p, q
-            w.AddProposition(p);
-            w.AddProposition(q);
+            w.AddPredicate(p);
+            w.AddPredicate(q);
 
             this.u = new World(0b01); // p, ~q
-            u.AddProposition(p);
+            u.AddPredicate(p);
 
             this.v = new World(0b10); // ~p, q
-            v.AddProposition(q);
+            v.AddPredicate(q);
 
             this.t = new World(0b00); // ~p, ~q
 
             this.worlds = new HashSet<IWorld> { w, u, v, t };
 
-            this.e = new Event(Formula.Atom(p), new Dictionary<Proposition, bool> { { p, false } }); // pre: p, post: ~p (q not set)
-            this.f = new Event(Formula.Atom(q), new Dictionary<Proposition, bool> { { p, true }, { q, false } }); // pre: q, post: p, ~q
+            this.e = new Event{ pre = Formula.Atom(p), effect = new Dictionary<Predicate, bool> { { p, false } }}; // pre: p, post: ~p (q not set)
+            this.f = new Event{ pre = Formula.Atom(q), effect = new Dictionary<Predicate, bool> { { p, true }, { q, false } }}; // pre: q, post: p, ~q
             this.events = new HashSet<IWorld> { e, f };
 
             stateAccessibility = new AccessibilityRelation(agents, worlds);
@@ -164,91 +164,6 @@ namespace DEL.Tests
 
         }
 
-        //[Test]
-        //public void Equals_SmallStates()
-        //{
-        //    // Arrange
-        //    State s1 = new State(new HashSet<IWorld> { w }, new HashSet<IWorld> { w }, new HashSet<Agent>() { a, b });
-        //    AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent>() { a, b });
-        //    R.AddReflexiveEdgeForAllAgents(w);
-
-        //    World wP = new World(0b11);
-        //    State s2 = new State(new HashSet<IWorld> { wP }, new HashSet<IWorld> { wP }, R);
-        //    State s3 = new State(new HashSet<IWorld> { wP }, new HashSet<IWorld> { wP }, new HashSet<Agent>() { a });
-        //    State s4 = new State(new HashSet<IWorld> { wP }, new HashSet<IWorld> { }, new HashSet<Agent>() { a, b });
-        //    State s5 = new State(new HashSet<IWorld> { wP, w }, new HashSet<IWorld> { w }, new HashSet<Agent>() { a, b });
-
-
-        //    // Assert
-        //    Assert.AreEqual(HashingHelper.AccessibilityGraphToString(s1.accessibility), HashingHelper.AccessibilityGraphToString(s2.accessibility));
-        //    Assert.AreEqual(HashingHelper.HashAccessibilityRelation(s1.accessibility), HashingHelper.HashAccessibilityRelation(s2.accessibility));
-        //    Assert.AreEqual(s1.accessibilityHash, s2.accessibilityHash);
-        //    Assert.IsTrue(s1.accessibilityHash.SequenceEqual(s2.accessibilityHash));
-
-        //    Assert.IsTrue(s1.Equals(s2));
-        //    Assert.IsFalse(s1.Equals(s3));
-        //    Assert.IsFalse(s1.Equals(s4));
-        //    Assert.IsFalse(s1.Equals(s5));
-        //}
-
-        //[Test]
-        //public void Equals_CopyState()
-        //{
-        //    // Arrange
-        //    State sCopy = this.state = new State(worlds, new HashSet<IWorld>() { w }, stateAccessibility);
-
-        //    // Assert
-        //    Assert.IsTrue(state.Equals(sCopy));
-        //}
-
-        //[Test]
-        //public void Equals_EqualStates()
-        //{
-        //    // Arrange
-        //    World wP = new World(0b11); // p, q
-        //    World uP = new World(0b01); // p, ~q
-        //    World vP = new World(0b10); // ~p, q
-        //    World tP = new World(0b00); // ~p, ~q
-        //    AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent>() { a, b });
-        //    R.AddEdge(a, (wP, uP));
-        //    R.AddEdge(b, (wP, vP));
-        //    R.AddEdge(b, (uP, tP));
-
-        //    State sP = new State(new HashSet<IWorld> { wP, uP, vP, tP }, new HashSet<IWorld>() { wP }, R);
-
-        //    // Assert
-        //    Assert.IsTrue(state.Equals(sP));
-        //}
-
-        //[Test]
-        //public void Equals_ActionWithNoEffect_EqualWorldsAfter()
-        //{
-        //    // Arrange
-        //    Event eP = new Event(Formula.Atom(p), new Dictionary<ushort, bool> { { 0, true } }); // pre: p, post: p (no change)
-        //    Event fP = new Event(Formula.Not(Formula.Atom(p)), new Dictionary<ushort, bool> { { 0, false } }); // pre: ~p, post: ~p (no change)
-
-        //    AccessibilityRelation Q = new AccessibilityRelation(new HashSet<Agent>() { a, b });
-        //    Q.AddReflexiveEdgeForAllAgents(eP);
-        //    Q.AddEdgeForAllAgents((eP, fP));
-
-
-        //    Action noEffectAction = new Action(new HashSet<IWorld>() { eP, fP }, new HashSet<IWorld>() { eP }, Q, "noEffect", a);
-        //    State sP = state.ProductUpdate(noEffectAction);
-
-        //    // Assert
-        //    Assert.IsTrue(state.Equals(sP));
-        //}
-
-        //[Test]
-        //public void Equals_ApplicableAction_NotEqualWorlds()
-        //{
-        //    // Arrange
-        //    State sP = state.ProductUpdate(applicableAction);
-
-        //    // Assert
-        //    Assert.IsFalse(state.Equals(sP));
-        //}
-
         [Test]
         public void ApplicableAction()
         {
@@ -288,26 +203,26 @@ namespace DEL.Tests
             HashSet<Agent> agents = new HashSet<Agent>() { agentL, agentR };
 
             // Propositions
-            Proposition at1 = new Proposition("at1");
-            Proposition at2 = new Proposition("at2");
-            Proposition at3 = new Proposition("at3");
-            Proposition at4 = new Proposition("at4");
-            Proposition at5 = new Proposition("at5");
-            Proposition goalAt1 = new Proposition("goalAt1");
-            Proposition goalAt5 = new Proposition("goalAt5");
+            Predicate at1 = new Predicate("at1");
+            Predicate at2 = new Predicate("at2");
+            Predicate at3 = new Predicate("at3");
+            Predicate at4 = new Predicate("at4");
+            Predicate at5 = new Predicate("at5");
+            Predicate goalAt1 = new Predicate("goalAt1");
+            Predicate goalAt5 = new Predicate("goalAt5");
 
             World w1 = new World();
-            w1.AddProposition(at3);
-            w1.AddProposition(goalAt1);
+            w1.AddPredicate(at3);
+            w1.AddPredicate(goalAt1);
 
             World w2 = new World();
-            w2.AddProposition(at3);
-            w2.AddProposition(goalAt1);
-            w2.AddProposition(goalAt5);
+            w2.AddPredicate(at3);
+            w2.AddPredicate(goalAt1);
+            w2.AddPredicate(goalAt5);
 
             World w3 = new World();
-            w3.AddProposition(at3);
-            w3.AddProposition(goalAt5);
+            w3.AddPredicate(at3);
+            w3.AddPredicate(goalAt5);
 
             AccessibilityRelation R = new AccessibilityRelation(agents, new HashSet<IWorld> { w1, w2, w3 });
             R.AddEdge(agentL, (w1, w2));

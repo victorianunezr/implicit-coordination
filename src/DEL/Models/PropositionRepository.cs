@@ -6,23 +6,23 @@ using System.Threading.Tasks;
 
 namespace ImplicitCoordination.DEL
 {
-    public class PropositionRepository
+    public class PredicateRepository
     {
-        public Dictionary<string, Proposition> Propositions = new Dictionary<string, Proposition>();
+        public Dictionary<string, Predicate> Predicates = new Dictionary<string, Predicate>();
         
-        public void Add(Proposition p)
+        public void Add(Predicate p)
         {
-            Propositions.Add(p.name, p);
+            Predicates.Add(p.name, p);
         }
 
-        public Proposition Get(string name)
+        public Predicate Get(string name)
         {
-            Proposition p;
-            if (Propositions.TryGetValue(name, out p))
+            Predicate p;
+            if (Predicates.TryGetValue(name, out p))
             {
                 return p;
             }
-            throw new Exception("Proposition not found");
+            throw new Exception("Predicate not found");
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ImplicitCoordination.DEL
 {
@@ -14,20 +15,50 @@ namespace ImplicitCoordination.DEL
         public bool isNegated;
         public List<Parameter> Parameters { get; set; }
 
-        public Predicate(string name, List<Parameter> parameters, bool isNegated=false)
+        public Predicate(string name, List<Parameter> parameters=null, bool isNegated=false)
         {
             this.name = name;
             this.id = Counter;
-            Parameters = parameters;
             this.isNegated = isNegated;
             Counter++;
+            Parameters = parameters ?? new List<Parameter>();
         }
 
         public static void ResetIdCounter()
         {
             Counter = 0;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is not Predicate other)
+                return false;
+
+            return string.Equals(name, other.name, StringComparison.Ordinal) &&
+                   Parameters.Count == other.Parameters.Count &&
+                   !Parameters.Where((t, i) => !t.Name.Equals(other.Parameters[i].Name, StringComparison.Ordinal)).Any();
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = name.GetHashCode();
+                foreach (var parameter in Parameters)
+                {
+                    hash = (hash * 397) ^ parameter.Name.GetHashCode();
+                }
+                return hash;
+            }
+        }
+
+        public override string ToString()
+        {
+            var paramsStr = string.Join(", ", Parameters.Select(p => p.Name));
+            return $"{(isNegated ? "~" : "")}{name}({paramsStr})";
+        }
     }
+    
 
     public class Parameter
     {
@@ -42,6 +73,10 @@ namespace ImplicitCoordination.DEL
         {
             Name = name;
             Type = type;
+        }
+        public override string ToString()
+        {
+            return Type != null ? $"{Name}:{Type}" : Name;
         }
     }
 }

@@ -10,7 +10,8 @@ namespace ImplicitCoordination.DEL
         private readonly ushort id;
         public ushort Id => this.id;
         public string name { get; set; }
-        public HashSet<Proposition> TruePropositions = new HashSet<Proposition>();
+
+        public HashSet<Predicate> predicates = new HashSet<Predicate>();
 
         /// <summary>
         /// valuation[i] gives truth value for atomic proposition with id i. BitArray currently only allows 64 propositions per world.
@@ -58,36 +59,27 @@ namespace ImplicitCoordination.DEL
             Counter++;
         }
 
-        public bool IsTrue(Proposition p)
+        public bool IsTrue(Predicate p)
         {
-            //return this.valuation.GetValue(p.id);
-            return this.TruePropositions.Contains(p);
+            return this.predicates.Contains(p);
         }
 
-        public void AddProposition(Proposition p)
+        public void AddPredicate(Predicate p)
         {
-            //this.SetValuation(p.id, true);
-            this.TruePropositions.Add(p);
+            this.predicates.Add(p);
         }
 
-        public void SetValuation(Proposition p, bool value)
+        public void SetValuation(Predicate p, bool value)
         {
-            //this.SetValuation(p.id, value);
             if (value)
             {
-                this.TruePropositions.Add(p);
+                this.predicates.Add(p);
             }
             else
             {
-                this.TruePropositions.Remove(p);
+                this.predicates.Remove(p);
             }
         }
-
-        //public void SetValuation(ushort propId, bool value)
-        //{
-        //    this.valuation.SetValue(propId, value);
-        //}
-
 
         public bool IsValid(State s, Formula f)
         {
@@ -97,7 +89,7 @@ namespace ImplicitCoordination.DEL
         public World Copy()
         {
             World w = new World(this.valuation.data);
-            w.TruePropositions = new HashSet<Proposition>(this.TruePropositions);
+            w.predicates = new HashSet<Predicate>(this.predicates);
             return w;
         }
 
@@ -124,7 +116,7 @@ namespace ImplicitCoordination.DEL
         /// <returns>True if worlds valuations are equal</returns>
         public bool IsEqualTo(World other)
         {
-            return this.TruePropositions.SetEquals(other.TruePropositions);
+            return this.predicates.SetEquals(other.predicates);
         }
 
         public static void ResetIdCounter()
@@ -138,10 +130,6 @@ namespace ImplicitCoordination.DEL
             {
                 foreach (Event e in a.possibleWorlds)
                 {
-                    if (e.dynamicEvaluation)
-                    {
-                        e.EvaluateDynamicPreAndPost(this, task);
-                    }
                     if (e.pre.Evaluate(s, this)) return true;
                 }
             }

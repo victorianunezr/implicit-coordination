@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ImplicitCoordination.DEL;
 using NUnit.Framework;
 
@@ -7,9 +8,9 @@ namespace DEL.Tests
     [TestFixture]
     public class FormulaEvaluationTests
     {
-        private Proposition p;
-        private Proposition q;
-        private Proposition r;
+        private Predicate p;
+        private Predicate q;
+        private Predicate r;
         private Formula atomP;
         private Formula atomQ;
         private Formula atomR;
@@ -20,31 +21,29 @@ namespace DEL.Tests
         [OneTimeSetUp]
         public void TestInit()
         {
-            this.p = new Proposition(name: "p");
-            this.q = new Proposition(name: "q");
-            this.r = new Proposition(name: "r");
+            this.p = new Predicate(name: "p");
+            this.q = new Predicate(name: "q");
+            this.r = new Predicate(name: "r");
             this.atomP = Formula.Atom(p);
             this.atomQ = Formula.Atom(q);
             this.atomR = Formula.Atom(r);
             this.w = new World(0b111);
-            w.AddProposition(p);
-            w.AddProposition(q);
-            w.AddProposition(r);
+            w.AddPredicate(p);
+            w.AddPredicate(q);
+            w.AddPredicate(r);
 
             this.u = new World(0b011);
-            u.AddProposition(p);
-            u.AddProposition(q);
+            u.AddPredicate(p);
+            u.AddPredicate(q);
 
             this.v = new World(0b110);
-            v.AddProposition(q);
-            v.AddProposition(r);
+            v.AddPredicate(q);
+            v.AddPredicate(r);
         }
 
         [Test]
         public void PropositionalLogic()
         {
-            Proposition.ResetIdCounter();
-
             // Evaluating formulas in a world. The setup is:
             // p = false (idx = 0), q = true (idx = 1), r = true (idx = 1)
 
@@ -85,7 +84,7 @@ namespace DEL.Tests
             // w = 111, u = 011, v = 110
 
             // Arrange
-            Agent a = new Agent();
+            Agent a = new Agent("a");
             AccessibilityRelation r = new AccessibilityRelation(new HashSet<Agent>{ a }, new HashSet<IWorld> { w, u, v });
             r.AddEdge(a, (w, v));
             r.AddEdge(a, (w, u));
@@ -123,9 +122,9 @@ namespace DEL.Tests
             // w = 111, u = 011, v = 110, t = 001
 
             var t = new World(0b100);
-            t.AddProposition(this.r);
-            Agent a = new Agent();
-            Agent b = new Agent();
+            t.AddPredicate(this.r);
+            Agent a = new Agent("a");
+            Agent b = new Agent("b");
 
             AccessibilityRelation r = new AccessibilityRelation(new HashSet<Agent> { a, b }, new HashSet<IWorld> { t, u, v, w });
             r.AddEdge(a, (w, v));
@@ -168,9 +167,9 @@ namespace DEL.Tests
 
             // Arrange
             var t = new World(0b100);
-            t.AddProposition(this.r);
-            Agent a = new Agent();
-            Agent b = new Agent();
+            t.AddPredicate(this.r);
+            Agent a = new Agent("a");
+            Agent b = new Agent("b");
 
             AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent> { a, b }, new HashSet<IWorld> { w, u, v, t });
             R.AddEdge(a, (w, u));
@@ -198,8 +197,8 @@ namespace DEL.Tests
             // w = 111, u = 011, v = 110
 
             // Arrange
-            Agent a = new Agent();
-            Agent b = new Agent();
+            Agent a = new Agent("a");
+            Agent b = new Agent("b");
 
             AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent> { a, b }, new HashSet<IWorld> { w, u, v });
             R.AddEdge(a, (w, u));
@@ -217,8 +216,8 @@ namespace DEL.Tests
         public void DisjunctionOfGoalFormulas()
         {
             // Arrange
-            Agent a = new Agent();
-            Agent b = new Agent();
+            Agent a = new Agent("a");
+            Agent b = new Agent("b");
 
             AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent> { a, b }, new HashSet<IWorld> { w, u, v });
             R.AddEdge(a, (w, u));
@@ -226,13 +225,13 @@ namespace DEL.Tests
 
 
             // Propositions
-            Proposition pg1 = new Proposition("g1");
-            Proposition pg2 = new Proposition("g2");
-            Proposition pg3 = new Proposition("g3");
+            Predicate pg1 = new Predicate("g1");
+            Predicate pg2 = new Predicate("g2");
+            Predicate pg3 = new Predicate("g3");
 
-            w.AddProposition(pg1);
-            u.AddProposition(pg2);
-            v.AddProposition(pg3);
+            w.AddPredicate(pg1);
+            u.AddPredicate(pg2);
+            v.AddPredicate(pg3);
 
             State s = new State(new HashSet<IWorld> { w, u, v }, new HashSet<IWorld> { w, u }, R);
 
@@ -258,14 +257,14 @@ namespace DEL.Tests
         public void DoesHelperKnowsThatActorKnows()
         {
             // Arrange
-            Agent a = new Agent();
-            Agent h = new Agent();
+            Agent a = new Agent("a");
+            Agent h = new Agent("h");
 
             World w1 = new World();
             World w2 = new World();
-            Proposition pp = new Proposition("p");
+            Predicate pp = new Predicate("p");
 
-            w1.AddProposition(pp);
+            w1.AddPredicate(pp);
             AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent> { a, h }, new HashSet<IWorld> { w1, w2 });
             R.AddEdge(h, (w1, w2));
 

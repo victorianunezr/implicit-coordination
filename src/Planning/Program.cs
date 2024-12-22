@@ -228,16 +228,16 @@ namespace ImplicitCoordination
                 HashSet<Agent> agents = new HashSet<Agent>() { a };
 
                 World w = new World();
-                // Init propositions for lever position
-                PropositionRepository propositionRepository = new PropositionRepository();
-                Proposition p = new Proposition("p");
-                propositionRepository.Add(p);
-                w.AddProposition(p);
+                // Init Predicates for lever position
+                PredicateRepository PredicateRepository = new PredicateRepository();
+                Predicate p = new Predicate("p");
+                PredicateRepository.Add(p);
+                w.AddPredicate(p);
                 for (int i = 0; i<10; i++)
                 {
-                    Proposition prop = new Proposition("p" + i.ToString());
-                    propositionRepository.Add(prop);
-                    w.AddProposition(prop);
+                    Predicate prop = new Predicate("p" + i.ToString());
+                    PredicateRepository.Add(prop);
+                    w.AddPredicate(prop);
                 }
 
                 AccessibilityRelation R = new AccessibilityRelation(agents, new HashSet<IWorld> { w });
@@ -255,8 +255,8 @@ namespace ImplicitCoordination
 
                 Action action2 = new Action(new HashSet<IWorld> { e3 }, new HashSet<IWorld> { e3 } , Q, "action2", a);
 
-                Event e4 = new Event(Formula.Atom(p), new Dictionary<Proposition, bool> { { p, false } });
-                Event e5 = new Event(Formula.Atom(p), new Dictionary<Proposition, bool> { { p, true } });
+                Event e4 = new Event(Formula.Atom(p), new Dictionary<Predicate, bool> { { p, false } });
+                Event e5 = new Event(Formula.Atom(p), new Dictionary<Predicate, bool> { { p, true } });
 
                 AccessibilityRelation Q3 = new AccessibilityRelation(agents, new HashSet<IWorld> { e5, e4 });
 

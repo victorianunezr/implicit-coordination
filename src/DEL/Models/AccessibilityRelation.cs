@@ -86,7 +86,6 @@ namespace ImplicitCoordination.DEL
         }
 
 
-
         public void AddEdgeForAllAgents((IWorld, IWorld) edge)
         {
             foreach (var key in this.graph.Keys)

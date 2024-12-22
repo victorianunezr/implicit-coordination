@@ -16,103 +16,9 @@ namespace Planning.Tests
         public void ResetCounters()
         {
             Agent.ResetIdCounter();
-            Proposition.ResetIdCounter();
+            Predicate.ResetIdCounter();
             World.ResetIdCounter();
         }
-
-        // [Test]
-        // public void AddOrNode_NodeDoesNotExist_NodeAdded()
-        // {
-        //     // Arrange
-        //     PlanningTask task = PlanningTaskInitializer.DiamondHeist();
-        //     AndOrGraph Graph = new AndOrGraph(task);
-
-        //     State global = task.initialState.GetSetOfGlobals().GetSingleElement();
-        //     AndOrNode s1 = new AndOrNode(global, Graph.root, NodeType.Or);
-
-        //     // Act - Assert
-        //     Assert.IsTrue(Graph.AddOrNode(s1));
-        //     Assert.AreEqual(1, Graph.root.children.Count);
-        //     Assert.AreEqual(1, Graph.OrNodes.Count);
-        //     Assert.AreEqual(Graph.root, s1.parent);
-        // }
-
-        //[Test]
-        //public void AddOrNode_NodeExists_NodeNotAdded()
-        //{
-        //    // Arrange
-        //    PlanningTask task = PlanningTaskInitializer.DiamondHeist();
-        //    Graph Graph = new Graph(task);
-
-        //    State global = task.initialState.GetSetOfGlobals().GetSingleElement();
-        //    Node s1 = new Node(global, Graph.root, NodeType.Or);
-        //    State global2 = task.initialState.GetSetOfGlobals().GetSingleElement();
-        //    Node s2 = new Node(global2, Graph.root, NodeType.Or);
-        //    Graph.AddOrNode(s1);
-
-        //    // Act - Assert
-        //    Assert.IsFalse(Graph.AddOrNode(s2));
-        //    Assert.AreEqual(1, Graph.root.children.Count);
-        //    Assert.AreEqual(1, Graph.OrNodes.Count);
-        //    Assert.AreEqual(Graph.root, s1.parent);
-        //}
-
-        // [Test]
-        // public void AddAndNode_NodeDoesNotExist_NodeAdded()
-        // {
-        //     // Arrange
-        //     PlanningTask task = PlanningTaskInitializer.DiamondHeist();
-        //     AndOrGraph Graph = new AndOrGraph(task);
-
-        //     State global = task.initialState.GetSetOfGlobals().GetSingleElement();
-        //     AndOrNode sOR = new AndOrNode(global, Graph.root, NodeType.Or);
-        //     Action cutRed = task.actions.FirstOrDefault(x => x.name.Equals("cutRed"));
-        //     State sPrime = global.ProductUpdate(cutRed);
-        //     AndOrNode sAND = new AndOrNode(sPrime, sOR, NodeType.And, cutRed);
-
-        //     // Act - Assert
-        //     Assert.IsTrue(Graph.AddAndNode(sAND));
-        //     Assert.AreEqual(2, Graph.AndNodes.Count);
-        //     Assert.AreEqual(sOR, sAND.parent);
-
-        // }
-
-        //[Test]
-        //public void AddAndNode_NodeEqualsRoot_NodeNotAdded()
-        //{
-        //    // Arrange - recreate initial state
-        //    PlanningTask task = PlanningTaskInitializer.DiamondHeist();
-        //    AndOrGraph Graph = new AndOrGraph(task);
-
-        //    // Agents
-        //    Agent.ResetIdCounter();
-        //    Proposition.ResetIdCounter();
-        //    World.ResetIdCounter();
-
-        //    Agent agent1 = new Agent();
-        //    Agent agent2 = new Agent();
-
-        //    // Propositions
-        //    Proposition r = new Proposition("r");
-        //    Proposition l = new Proposition("l");
-
-        //    World w1 = new World();
-        //    w1.AddProposition(r);
-        //    w1.AddProposition(l);
-
-        //    World w2 = new World();
-        //    w2.AddProposition(l);
-
-        //    AccessibilityRelation R = new AccessibilityRelation(new HashSet<Agent>() { agent1, agent2 }, new HashSet<IWorld>() { w1, w2 });
-        //    R.AddEdge(agent2, (w1, w2));
-
-        //    State initialState = new State(new HashSet<IWorld>() { w1, w2 }, new HashSet<IWorld>() { w1 }, R);
-        //    State global = Graph.root.state.GetSetOfGlobals().GetSingleElement();
-        //    AndOrNode s0 = new AndOrNode(initialState, new AndOrNode(global, Graph.root, NodeType.Or), NodeType.And);
-
-        //    // Assert
-        //    Assert.IsTrue(Graph.root.state.Equals(s0.state));
-        //}
 
         [Test]
         public void UpdateSolvedDead_Depth1()
@@ -166,7 +72,7 @@ namespace Planning.Tests
             ResetCounters();
 
             // Arrange
-            Proposition p = new Proposition("p");
+            Predicate p = new Predicate("p");
 
             World w = new World(0b010);
             World u = new World(0b11);
@@ -183,7 +89,7 @@ namespace Planning.Tests
             // Initial State
             State s0 = new State(new HashSet<IWorld> { w, u, v }, new HashSet<IWorld> { w, v }, R);
 
-            Event e = new Event(Formula.Atom(p), new Dictionary<Proposition, bool> { { p, true } });
+            Event e = new Event(Formula.Atom(p), new Dictionary<Predicate, bool> { { p, true } });
             HashSet<IWorld> events = new HashSet<IWorld> { e };
 
             Action act1 = new Action(

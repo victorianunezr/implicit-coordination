@@ -89,7 +89,7 @@ namespace ImplicitCoordination.DEL
 
             if (context.accessibilityDef() != null)
             {
-                var accessibilityRelation = VisitAccessibilityDef(context.accessibilityDef()) as AccessibilityRelation;
+                var accessibilityRelation = accessibilityRelationVisitor.VisitAccessibilityDef(context.accessibilityDef());
                 action.accessibility = accessibilityRelation;
             }
 
@@ -137,8 +137,9 @@ namespace ImplicitCoordination.DEL
                         parameters.Add(new Parameter(termText));
                     }
 
-                    Predicate predicate = new Predicate(predicateName, parameters, isNegated);
-                    eventObj.effect.Add(predicate);
+                    Predicate predicate = new Predicate(predicateName, parameters);
+
+                    eventObj.effect.Add(predicate, !isNegated);
                 }
             }
             return eventObj;

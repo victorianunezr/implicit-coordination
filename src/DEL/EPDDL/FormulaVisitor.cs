@@ -90,10 +90,33 @@ namespace ImplicitCoordination.DEL
             }
             else
             {
-                var propositionName = context.predicateName().GetText();
-                var proposition = new Proposition(propositionName);
-                return Formula.Atom(proposition);
+                return VisitPredicate(context.predicate());
             }
+        }
+
+        public override Formula VisitPredicate(EPDDLParser.PredicateContext context)
+        {
+            string predicateName = context.predicateName().GetText();
+            List<Parameter> parameters = new List<Parameter>();
+
+            foreach (var termContext in context.term())
+            {
+                string termText = termContext.GetText();
+                string parameterType = null;
+
+                if (termContext.VARIABLE() != null)
+                {
+                    parameterType = "variable";
+                }
+                else if (termContext.groundTerm() != null)
+                {
+                    parameterType = termContext.groundTerm().NAME() != null ? "ground" : "agent";
+                }
+
+                parameters.Add(new Parameter(termText, parameterType));
+            }
+
+            return Formula.Atom(new Predicate(predicateName, parameters));
         }
     }
 }

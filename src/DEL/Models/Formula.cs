@@ -9,7 +9,8 @@ namespace ImplicitCoordination.DEL
         private Formula child;
         private Formula leftChild;
         private Formula rightChild;
-        private Proposition proposition;
+        // todo: deprecate proposition
+        private Predicate predicate;
         private ICollection<Formula> operands;
         private Agent agent;
 
@@ -30,7 +31,7 @@ namespace ImplicitCoordination.DEL
                     return false;
 
                 case FormulaType.Atom:
-                    return w.IsTrue(proposition);
+                    return w.IsTrue(predicate);
 
                 case FormulaType.Not:
                     return !child.Evaluate(s, w);
@@ -112,9 +113,9 @@ namespace ImplicitCoordination.DEL
             return new Formula { type = FormulaType.Not, child = f };
         }
 
-        public static Formula Atom(Proposition p)
+        public static Formula Atom(Predicate p)
         {
-            return new Formula { type = FormulaType.Atom, proposition = p };
+            return new Formula { type = FormulaType.Atom, predicate = p };
         }
 
         public static Formula And(Formula f1, Formula f2)

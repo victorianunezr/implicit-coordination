@@ -11,7 +11,6 @@ namespace ImplicitCoordination.DEL
     public class State : EpistemicModel
     {
         public readonly byte[] accessibilityHash;
-
         public State(): base() {}
 
         public State(
@@ -128,10 +127,6 @@ namespace ImplicitCoordination.DEL
 
                 foreach (Event e in action.designatedWorlds)
                 {
-                    if (e.dynamicEvaluation)
-                    {
-                        e.EvaluateDynamicPreAndPost(w, task);
-                    }
                     if (w.IsValid(this, e.pre))
                     {
                         eventExistsForWorld = true;
@@ -168,17 +163,13 @@ namespace ImplicitCoordination.DEL
             {
                 foreach (Event e in action.possibleWorlds)
                 {
-                    if (e.dynamicEvaluation)
-                    {
-                        e.EvaluateDynamicPreAndPost(w, task);
-                    }
                     if (w.IsValid(this, e.pre))
                     {
                         // If precondition of e holds in w, create child world w'
                         World wPrime = w.CreateChild(action, e);
 
                         // Update valuation of w' according to postcondition of e. Valuation only changes if e.post != null
-                        UpdateValuation(wPrime, e.post);
+                        UpdateValuation(wPrime, e.effect);
 
                         newPossibleWorlds.Add(wPrime);
 
@@ -213,7 +204,7 @@ namespace ImplicitCoordination.DEL
         /// The valuation of w is initalized as a copy of the parent world's valuation.
         /// This means that the new valuation of p will remain the same if it is not set to a value in the postcondition of e.
         /// </remarks>
-        public static void UpdateValuation(World w, IDictionary<Proposition, bool> postcondition)
+        public static void UpdateValuation(World w, IDictionary<Predicate, bool> postcondition)
         {
             if (postcondition != null)
             {
@@ -223,7 +214,6 @@ namespace ImplicitCoordination.DEL
                 }
             }
         }
-
 
         /// <summary>
         /// Takes in a copy of the source accessibility relation and applies the changes according to the product update on it

@@ -22,28 +22,28 @@ namespace ImplicitCoordination.Planning
         /// </summary>
         public readonly IDictionary<string, Agent> agents;
 
-        public PropositionRepository propositions;
+        public PredicateRepository Predicates;
 
         public int numberOfLeverPositions;
         public int startingLeverPosition;
 
-        public PlanningTask(State initialState, HashSet<Action> actions, Formula goalFormula, IDictionary<string, Agent> agents, PropositionRepository propositions)
+        public PlanningTask(State initialState, HashSet<Action> actions, Formula goalFormula, IDictionary<string, Agent> agents, PredicateRepository Predicates)
         {
             this.initialState = initialState;
             this.actions = actions;
             this.goalFormula = goalFormula;
             this.listGoalFormulas = null;
             this.agents = agents;
-            this.propositions = propositions;
+            this.Predicates = Predicates;
         }
 
-        public PlanningTask(State initialState, HashSet<Action> actions, IList<Formula> listGoalFormulas, IDictionary<string, Agent> agents, PropositionRepository propositions)
+        public PlanningTask(State initialState, HashSet<Action> actions, IList<Formula> listGoalFormulas, IDictionary<string, Agent> agents, PredicateRepository Predicates)
         {
             this.initialState = initialState;
             this.actions = actions;
             this.listGoalFormulas = listGoalFormulas;
             this.agents = agents;
-            this.propositions = propositions;
+            this.Predicates = Predicates;
         }
 
     }

@@ -27,42 +27,42 @@ namespace ImplicitCoordination.Planning
             Agent agentR = new Agent("agentRight");
             HashSet<Agent> agents = new HashSet<Agent>() { agentL, agentR };
 
-            // Init propositions for lever position
-            PropositionRepository propositionRepository = new PropositionRepository();
+            // Init Predicates for lever position
+            PredicateRepository PredicateRepository = new PredicateRepository();
             for (int i = 1; i<n; i++)
             {
-                propositionRepository.Add(new Proposition("at" + i.ToString()));
+                PredicateRepository.Add(new Predicate("at" + i.ToString()));
             }
-            propositionRepository.Add(new Proposition("atn"));
+            PredicateRepository.Add(new Predicate("atn"));
 
-            // Propositions for goal configuration
+            // Predicates for goal configuration
             // Goal at the leftmost position
-            Proposition l = new Proposition("l");
-            propositionRepository.Add(l);
+            Predicate l = new Predicate("l");
+            PredicateRepository.Add(l);
             // Goal at the rightmost position
-            Proposition r = new Proposition("r");
-            propositionRepository.Add(r);
+            Predicate r = new Predicate("r");
+            PredicateRepository.Add(r);
             // Goal at both ends of the lever
-            Proposition lr = new Proposition("lr");
-            propositionRepository.Add(lr);
+            Predicate lr = new Predicate("lr");
+            PredicateRepository.Add(lr);
 
-            // Get start and end positions from proposition repo
-            Proposition at1 = propositionRepository.Get("at1");
-            Proposition atn = propositionRepository.Get("atn");
-            Proposition atStart = propositionRepository.Get("at" + start.ToString());
+            // Get start and end positions from Predicate repo
+            Predicate at1 = PredicateRepository.Get("at1");
+            Predicate atn = PredicateRepository.Get("atn");
+            Predicate atStart = PredicateRepository.Get("at" + start.ToString());
 
             // Initial State
             World w1 = new World();
-            w1.AddProposition(atStart);
-            w1.AddProposition(l);
+            w1.AddPredicate(atStart);
+            w1.AddPredicate(l);
 
             World w2 = new World();
-            w2.AddProposition(atStart);
-            w2.AddProposition(lr);
+            w2.AddPredicate(atStart);
+            w2.AddPredicate(lr);
 
             World w3 = new World();
-            w3.AddProposition(atStart);
-            w3.AddProposition(r);
+            w3.AddPredicate(atStart);
+            w3.AddPredicate(r);
 
             AccessibilityRelation R = new AccessibilityRelation(agents, new HashSet<IWorld> { w1, w2, w3 });
             R.AddEdge(agentL, (w1, w2));
@@ -70,17 +70,17 @@ namespace ImplicitCoordination.Planning
             State initialState = new State(new HashSet<IWorld> { w1, w2, w3 }, new HashSet<IWorld> { w2 }, R);
 
             Func<World, PlanningTask, Formula> precondDelegateRight = (w,t) => PreconditionDelegateMoveRight(w, t);
-            Func<World, PlanningTask, IDictionary<Proposition, bool>?> postcondDelegateRight = (w, t) => PostconditionDelegateMoveRight(w, t);
+            Func<World, PlanningTask, IDictionary<Predicate, bool>?> postcondDelegateRight = (w, t) => PostconditionDelegateMoveRight(w, t);
 
             Func<World, PlanningTask, Formula> precondDelegateLeft = (w, t) => PreconditionDelegateMoveLeft(w, t);
-            Func<World, PlanningTask, IDictionary<Proposition, bool>?> postcondDelegateLeft = (w, t) => PostconditionDelegateMoveLeft(w, t);
+            Func<World, PlanningTask, IDictionary<Predicate, bool>?> postcondDelegateLeft = (w, t) => PostconditionDelegateMoveLeft(w, t);
 
             // Actions
-            Event pullRightEvent = new Event(precondDelegateRight, postcondDelegateRight);
+            Event pullRightEvent = new Event();
             AccessibilityRelation moveRightRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { pullRightEvent });
             Action pullRight = new Action(new HashSet<IWorld> { pullRightEvent }, new HashSet<IWorld> { pullRightEvent }, moveRightRelation, "Bob:Right", agentR);
 
-            Event pullLeftEvent = new Event(precondDelegateLeft, postcondDelegateLeft);
+            Event pullLeftEvent = new Event();
             AccessibilityRelation moveLeftRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { pullLeftEvent });
             Action pullLeft = new Action(new HashSet<IWorld> { pullLeftEvent }, new HashSet<IWorld> { pullLeftEvent }, moveLeftRelation, "Alice:Left", agentL);
 
@@ -99,12 +99,12 @@ namespace ImplicitCoordination.Planning
             {
                 // To announce success at leftmost position, lever should be at1
                 Event announceLeftEvent = new Event(Formula.And(Formula.Atom(at1),Formula.Knows(agentL, Formula.Or(Formula.Atom(l), Formula.Atom(lr)))), 
-                                                    new Dictionary<Proposition, bool> { {l, true}, {r, false}});
+                                                    new Dictionary<Predicate, bool> { {l, true}, {r, false}});
                 AccessibilityRelation announceLeftRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { announceLeftEvent });
                 Action announceLeftGoal = new Action(new HashSet<IWorld> { announceLeftEvent }, new HashSet<IWorld> { announceLeftEvent }, announceLeftRelation, "Alice:AnnounceGoalAtLeft", agentL);
 
                 Event announceRightEvent = new Event(Formula.And(Formula.Atom(atn),Formula.Knows(agentR, Formula.Or(Formula.Atom(r), Formula.Atom(lr)))), 
-                                                    new Dictionary<Proposition, bool> { {r, true}, {l, false}});
+                                                    new Dictionary<Predicate, bool> { {r, true}, {l, false}});
                 AccessibilityRelation announceRightRelation = new AccessibilityRelation(agents, new HashSet<IWorld> { announceRightEvent });
                 Action announceRightGoal = new Action(new HashSet<IWorld> { announceRightEvent }, new HashSet<IWorld> { announceRightEvent }, announceRightRelation, "Bob:AnnounceGoalAtRight", agentR);
             
@@ -148,69 +148,69 @@ namespace ImplicitCoordination.Planning
             Dictionary<string, Agent> agentDict = new Dictionary<string, Agent> { { agentL.name, agentL }, { agentR.name, agentR } };
 
             // Planning Task
-            PlanningTask task = new PlanningTask(initialState, actions, gamma, agentDict, propositionRepository);
+            PlanningTask task = new PlanningTask(initialState, actions, gamma, agentDict, PredicateRepository);
             task.startingLeverPosition = start;
             task.numberOfLeverPositions = n;
             return task;
         }
 
-        public static Proposition CurrentLeverPosition(World w)
+        public static Predicate CurrentLeverPosition(World w)
         {
-            int atProps = w.TruePropositions.Where(p => p.name.StartsWith("at")).Count();
+            int atProps = w.predicates.Where(p => p.name.StartsWith("at")).Count();
             if (atProps != 1 )
             {
                 throw new Exception($"Found {atProps} that are true in this world");
             }
-            return w.TruePropositions.First(p => p.name.StartsWith("at"));
+            return w.predicates.First(p => p.name.StartsWith("at"));
         }
 
         public static Formula PreconditionDelegateMoveRight(World w, PlanningTask task)
         {
-            return Formula.And(Formula.Not(Formula.Atom(task.propositions.Get("atn"))), Formula.Atom(CurrentLeverPosition(w)));
+            return Formula.And(Formula.Not(Formula.Atom(task.Predicates.Get("atn"))), Formula.Atom(CurrentLeverPosition(w)));
         }
 
-        public static IDictionary<Proposition, bool>? PostconditionDelegateMoveRight(World w, PlanningTask task)
+        public static IDictionary<Predicate, bool>? PostconditionDelegateMoveRight(World w, PlanningTask task)
         {
-            Proposition currentPositionProposition = CurrentLeverPosition(w);
-            if (currentPositionProposition.name.Equals("atn"))
+            Predicate currentPositionPredicate = CurrentLeverPosition(w);
+            if (currentPositionPredicate.name.Equals("atn"))
             {
                 return null;
             }
-            int currentPos = int.Parse(currentPositionProposition.name.Substring(2));
-            Proposition delta;
+            int currentPos = int.Parse(currentPositionPredicate.name.Substring(2));
+            Predicate delta;
             if (currentPos == task.numberOfLeverPositions - 1)
             {
-                delta = task.propositions.Get("atn");
+                delta = task.Predicates.Get("atn");
             }
             else
             {
-                delta = task.propositions.Get("at" + (currentPos + 1).ToString());
+                delta = task.Predicates.Get("at" + (currentPos + 1).ToString());
             }
-            return new Dictionary<Proposition, bool> { { currentPositionProposition, false }, { delta, true } };
+            return new Dictionary<Predicate, bool> { { currentPositionPredicate, false }, { delta, true } };
         }
         public static Formula PreconditionDelegateMoveLeft(World w, PlanningTask task)
         {
-            return Formula.And(Formula.Not(Formula.Atom(task.propositions.Get("at1"))), Formula.Atom(CurrentLeverPosition(w)));
+            return Formula.And(Formula.Not(Formula.Atom(task.Predicates.Get("at1"))), Formula.Atom(CurrentLeverPosition(w)));
         }
 
-        public static IDictionary<Proposition, bool>? PostconditionDelegateMoveLeft(World w, PlanningTask task)
+        public static IDictionary<Predicate, bool>? PostconditionDelegateMoveLeft(World w, PlanningTask task)
         {
-            Proposition currentPositionProposition = CurrentLeverPosition(w);
+            Predicate currentPositionPredicate = CurrentLeverPosition(w);
             int currentPos;
-            if (currentPositionProposition.name.Equals("atn"))
+            if (currentPositionPredicate.name.Equals("atn"))
             {
                 currentPos = task.numberOfLeverPositions;
             }
             else
             {
-                currentPos = int.Parse(currentPositionProposition.name.Substring(2));
+                currentPos = int.Parse(currentPositionPredicate.name.Substring(2));
             }
             if (currentPos == 1)
             {
                 return null;
             }
-            Proposition delta = task.propositions.Get("at" + (currentPos - 1).ToString());
-            return new Dictionary<Proposition, bool> { { currentPositionProposition, false }, { delta, true } };
+            Predicate delta = task.Predicates.Get("at" + (currentPos - 1).ToString());
+            return new Dictionary<Predicate, bool> { { currentPositionPredicate, false }, { delta, true } };
         }
     }
 }

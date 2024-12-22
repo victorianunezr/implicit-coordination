@@ -9,7 +9,7 @@
 
         public string name;
 
-        public Agent(string name=null)
+        public Agent(string name)
         {
             this.name = name;
             this.id = Counter;

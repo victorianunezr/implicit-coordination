@@ -9,8 +9,8 @@ namespace DEL.Tests
     {
         private Agent a;
         private Agent b;
-        private Proposition p;
-        private Proposition q;
+        private Predicate p;
+        private Predicate q;
         private World w;
         private World u;
         private World v;
@@ -27,24 +27,24 @@ namespace DEL.Tests
             Proposition.ResetIdCounter();
 
             // To visualize scenario, see ProductUpdateExampple.png
-            this.a = new Agent();
-            this.b = new Agent();
+            this.a = new Agent("a");
+            this.b = new Agent("b");
             var agents = new HashSet<Agent>() { a, b };
 
-            this.p = new Proposition("p");
-            this.q = new Proposition("q");
+            this.p = new Predicate("p");
+            this.q = new Predicate("q");
 
             this.w = new World(0b11); // p, q
-            w.AddProposition(p);
-            w.AddProposition(q);
+            w.AddPredicate(p);
+            w.AddPredicate(q);
             this.u = new World(0b01); // p, ~q
-            u.AddProposition(p);
+            u.AddPredicate(p);
             this.v = new World(0b10); // ~p, q
-            v.AddProposition(q);
+            v.AddPredicate(q);
             this.worlds = new HashSet<IWorld> { w, u, v };
 
-            this.e = new Event(Formula.Atom(p), new Dictionary<Proposition, bool> { { p, false } }); // pre: p, post: ~p (q not set)
-            this.f = new Event(Formula.Atom(q), new Dictionary<Proposition, bool> { { p, true }, { q, false } }); // pre: q, post: p, ~q
+            this.e = new Event{ pre = Formula.Atom(p), effect = new Dictionary<Predicate, bool> { { p, false } }}; // pre: p, post: ~p (q not set)
+            this.f = new Event{ pre = Formula.Atom(q), effect = new Dictionary<Predicate, bool> { { p, true }, { q, false } }}; // pre: q, post: p, ~q
             this.events = new HashSet<IWorld> { e, f };
 
             AccessibilityRelation stateAccessibility = new AccessibilityRelation(agents, worlds);
@@ -69,9 +69,9 @@ namespace DEL.Tests
             World vPrime = this.v.Copy();
 
             // Act
-            State.UpdateValuation(wPrime, this.e.post);
-            State.UpdateValuation(uPrime, this.e.post);
-            State.UpdateValuation(vPrime, this.e.post);
+            State.UpdateValuation(wPrime, this.e.effect);
+            State.UpdateValuation(uPrime, this.e.effect);
+            State.UpdateValuation(vPrime, this.e.effect);
 
             // Assert
             Assert.IsFalse(wPrime.IsTrue(p));
@@ -94,9 +94,9 @@ namespace DEL.Tests
             World vPrime = this.v.Copy();
 
             // Act
-            State.UpdateValuation(wPrime, this.f.post);
-            State.UpdateValuation(uPrime, this.f.post);
-            State.UpdateValuation(vPrime, this.f.post);
+            State.UpdateValuation(wPrime, this.f.effect);
+            State.UpdateValuation(uPrime, this.f.effect);
+            State.UpdateValuation(vPrime, this.f.effect);
 
             // Assert
             Assert.IsTrue(wPrime.IsTrue(p));

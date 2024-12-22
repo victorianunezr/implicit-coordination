@@ -11,19 +11,19 @@ namespace DEL.Tests
         [SetUp]
         public void Init()
         {
-            Proposition.ResetIdCounter();
+            Predicate.ResetIdCounter();
         }
 
         [Test]
         public void GetValuation()
         {
             // Arrange
-            Proposition p = new Proposition("p");
-            Proposition q = new Proposition("q");
-            Proposition r = new Proposition("r");
+            Predicate p = new Predicate("p");
+            Predicate q = new Predicate("q");
+            Predicate r = new Predicate("r");
             World w = new World(0b101);
-            w.AddProposition(p);
-            w.AddProposition(r);
+            w.AddPredicate(p);
+            w.AddPredicate(r);
 
             // Act - Assert
             Assert.IsTrue(w.IsTrue(p));
@@ -32,18 +32,18 @@ namespace DEL.Tests
         }
 
         [Test]
-        public void AddProposition()
+        public void AddPredicate()
         {
             // Arrange
-            Proposition p = new Proposition("p");
-            Proposition q = new Proposition("q");
-            Proposition r = new Proposition("r");
+            Predicate p = new Predicate("p");
+            Predicate q = new Predicate("q");
+            Predicate r = new Predicate("r");
             World w = new World(0b101); // q is originally false
-            w.AddProposition(p);
-            w.AddProposition(r);
+            w.AddPredicate(p);
+            w.AddPredicate(r);
 
             // Act
-            w.AddProposition(q);
+            w.AddPredicate(q);
             
             // Assert
             Assert.IsTrue(w.IsTrue(p));
@@ -55,12 +55,12 @@ namespace DEL.Tests
         public void SetValuation()
         {
             // Arrange
-            Proposition p = new Proposition("p");
-            Proposition q = new Proposition("q");
-            Proposition r = new Proposition("r");
+            Predicate p = new Predicate("p");
+            Predicate q = new Predicate("q");
+            Predicate r = new Predicate("r");
             World w = new World(0b101);
-            w.AddProposition(p);
-            w.AddProposition(r);
+            w.AddPredicate(p);
+            w.AddPredicate(r);
 
             // Act
             w.SetValuation(p, false);
@@ -75,12 +75,12 @@ namespace DEL.Tests
         public void SetValuation_WithPropId()
         {
             // Arrange
-            Proposition p = new Proposition("p");
-            Proposition q = new Proposition("q");
-            Proposition r = new Proposition("r");
+            Predicate p = new Predicate("p");
+            Predicate q = new Predicate("q");
+            Predicate r = new Predicate("r");
             World w = new World(0b101);
-            w.AddProposition(p);
-            w.AddProposition(r);
+            w.AddPredicate(p);
+            w.AddPredicate(r);
 
             // Act
             w.SetValuation(r, false);
@@ -95,14 +95,14 @@ namespace DEL.Tests
         public void IsValid()
         {
             // Arrange
-            Proposition p = new Proposition("p");
-            Proposition q = new Proposition("q");
-            Proposition r = new Proposition("r");
+            Predicate p = new Predicate("p");
+            Predicate q = new Predicate("q");
+            Predicate r = new Predicate("r");
             World w = new World(0b101);
-            w.AddProposition(p);
-            w.AddProposition(r);
+            w.AddPredicate(p);
+            w.AddPredicate(r);
 
-            Agent a = new Agent();
+            Agent a = new Agent("a");
             State s = new State(new HashSet<IWorld> { w }, new HashSet<IWorld> { w }, new HashSet<Agent> { a });
             Formula f = Formula.And(Formula.Atom(p), Formula.Atom(r));
 
@@ -114,13 +114,13 @@ namespace DEL.Tests
         public void Copy()
         {
             // Arrange
-            Proposition p = new Proposition("p");
-            Proposition q = new Proposition("q");
-            Proposition r = new Proposition("r");
+            Predicate p = new Predicate("p");
+            Predicate q = new Predicate("q");
+            Predicate r = new Predicate("r");
 
             World w = new World(0b101);
-            w.AddProposition(p);
-            w.AddProposition(r);
+            w.AddPredicate(p);
+            w.AddPredicate(r);
 
             // Act
             World wP = w.Copy();
@@ -134,17 +134,17 @@ namespace DEL.Tests
         public void CreateChild()
         {
             // Arrange
-            Proposition p = new Proposition("p");
-            Proposition q = new Proposition("q");
-            Proposition r = new Proposition("r");
+            Predicate p = new Predicate("p");
+            Predicate q = new Predicate("q");
+            Predicate r = new Predicate("r");
 
-            Agent a = new Agent();
+            Agent a = new Agent("a");
             World w = new World(0b101);
-            w.AddProposition(p);
-            w.AddProposition(r);
+            w.AddPredicate(p);
+            w.AddPredicate(r);
 
-            Event e = new Event(Formula.Atom(new Proposition("p")));
-            Event f = new Event(Formula.Atom(new Proposition("q")));
+            Event e = new Event(Formula.Atom(new Predicate("p")));
+            Event f = new Event(Formula.Atom(new Predicate("q")));
 
             Action action = new Action(new HashSet<IWorld> { e, f }, new HashSet<IWorld> { e }, new HashSet<Agent> { a }, "action", a);
 
@@ -166,18 +166,18 @@ namespace DEL.Tests
         [Test]
         public void Equals()
         {
-            Proposition p = new Proposition("p");
-            Proposition q = new Proposition("q");
-            Proposition r = new Proposition("r");
+            Predicate p = new Predicate("p");
+            Predicate q = new Predicate("q");
+            Predicate r = new Predicate("r");
 
             // Arrange
             World w = new World(0b101);
-            w.AddProposition(p);
-            w.AddProposition(r);
+            w.AddPredicate(p);
+            w.AddPredicate(r);
 
             World v = new World(0b101);
-            v.AddProposition(p);
-            v.AddProposition(r);
+            v.AddPredicate(p);
+            v.AddPredicate(r);
 
 
             // Act -  Assert

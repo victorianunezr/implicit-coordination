@@ -8,9 +8,9 @@ namespace DEL.Tests
     [TestFixture]
     public class AccessibilityRelationTests
     {
-        private Agent a = new Agent();
-        private Agent b = new Agent();
-        private Agent c = new Agent();
+        private Agent a = new Agent("a");
+        private Agent b = new Agent("b");
+        private Agent c = new Agent("c");
         private World w = new World(1);
         private World v = new World(3);
         private World u = new World(3);
@@ -66,7 +66,7 @@ namespace DEL.Tests
         {
             Assert.Throws<AgentNotFoundException>(() =>
             {
-                this.accessibility.AddEdge(new Agent(), (w, v));
+                this.accessibility.AddEdge(new Agent("z"), (w, v));
             });
         }
 
@@ -89,7 +89,7 @@ namespace DEL.Tests
         {
             Assert.Throws<AgentNotFoundException>(() =>
             {
-                this.accessibility.RemoveEdge(new Agent(), (w, v));
+                this.accessibility.RemoveEdge(new Agent("a"), (w, v));
             });
         }
 
