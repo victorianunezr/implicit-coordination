@@ -103,7 +103,7 @@ namespace ImplicitCoordination.Planning
         public static List<Action> ExecuteBaselinePolicy(AndOrGraph policy, PlanningTask task)
         {
             AndOrNode node = policy.root;
-            Proposition currentPos;
+            Predicate currentPos;
             // Define empty list that will serve as the sequence of actions resulting from the execution
             List<Action> execution = new List<Action>();
             HashSet<AndOrNode> childAndNodes = new HashSet<AndOrNode>();
@@ -150,11 +150,11 @@ namespace ImplicitCoordination.Planning
 
                 if (currentPosition == task.numberOfLeverPositions)
                 {
-                    currentPos = task.propositions.Get("atn");
+                    currentPos = task.Predicates.Get("atn");
                 }
                 else
                 {
-                  currentPos = task.propositions.Get("at" + currentPosition.ToString());
+                  currentPos = task.Predicates.Get("at" + currentPosition.ToString());
                 }
                 solvedAndNodesList.Shuffle();
                 node = null;

@@ -9,7 +9,6 @@ namespace ImplicitCoordination.DEL
         private Formula child;
         private Formula leftChild;
         private Formula rightChild;
-        // todo: deprecate proposition
         private Predicate predicate;
         private ICollection<Formula> operands;
         private Agent agent;

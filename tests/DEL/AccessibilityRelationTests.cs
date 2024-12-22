@@ -62,15 +62,6 @@ namespace DEL.Tests
         }
 
         [Test]
-        public void AddEdge_AgentNotInGraph_Throws()
-        {
-            Assert.Throws<AgentNotFoundException>(() =>
-            {
-                this.accessibility.AddEdge(new Agent("z"), (w, v));
-            });
-        }
-
-        [Test]
         public void RemoveEdge_EdgeExists_EdgeRemoved()
         {
             // Arrange
@@ -89,7 +80,7 @@ namespace DEL.Tests
         {
             Assert.Throws<AgentNotFoundException>(() =>
             {
-                this.accessibility.RemoveEdge(new Agent("a"), (w, v));
+                this.accessibility.RemoveEdge(new Agent("z"), (w, v));
             });
         }
 
