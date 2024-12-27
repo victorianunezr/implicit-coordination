@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using ImplicitCoordination.Planning;
 using ImplicitCoordination.utils;
 
 namespace ImplicitCoordination.DEL
 {
     public class State : EpistemicModel
     {
-        public readonly byte[] accessibilityHash;
+        public string Name { get; set; }
+        public State Parent { get; set; }     
+        public List<State> Children { get; set; } = new();     
+        public string ActionName { get; set; }
+        public Agent Agent { get; set; }    
+        public double EdgeCost { get; set; }        
+        public ushort depth { get; set; }
         public State(): base() {}
 
         public State(
@@ -21,10 +24,21 @@ namespace ImplicitCoordination.DEL
             : base(possibleWorlds, designatedWorlds, accessibility)
         {}
 
+        public State(
+            HashSet<IWorld> possibleWorlds,
+            HashSet<IWorld> designatedWorlds,
+            AccessibilityRelation accessibility,
+            State parent,
+            string actionName)
+            : base(possibleWorlds, designatedWorlds, accessibility)
+        {
+            Parent = parent;
+            ActionName = actionName;
+        }
+
         public State(HashSet<IWorld> possibleWorlds, HashSet<IWorld> designatedWorlds, ICollection<Agent> agents)
             : base(possibleWorlds, designatedWorlds, agents)
         {}
-
 
         /// <summary>
         /// Returns true if at least one world satisfies the goal formula
@@ -117,7 +131,7 @@ namespace ImplicitCoordination.DEL
         /// </summary>
         /// <param name="action"></param>
         /// <returns>Returns true if for all designated worlds there exists a designated events where precond holds.</returns>
-        public bool IsApplicable(Action action, PlanningTask task=null)
+        public bool IsApplicable(Action action)
         {
             bool eventExistsForWorld;
 
@@ -148,16 +162,13 @@ namespace ImplicitCoordination.DEL
         /// Generates the new state s' resulting from applying action a on state s
         /// </summary>
         /// <param name="action">Action to apply.</param>
-        /// <param name="localDesignatedWorlds">Designated worlds in the perspective shifted (local) state of an agent.
         /// Designated worlds in the resulting state will be selected based on the set of designated worlds, if passed.
         /// Otherwise the W_d from the original state are used.</param>
         /// <returns>New state after appliying an action on the source state.</returns>
-        public State ProductUpdate(Action action, HashSet<IWorld> localDesignatedWorlds=null, PlanningTask task = null)
+        public State ProductUpdate(Action action)
         {
             HashSet<IWorld> newPossibleWorlds = new HashSet<IWorld>();
             HashSet<IWorld> newDesignatedWorlds = new HashSet<IWorld>();
-            // If we don't pass the local set of designated worlds, we use the ones from the parent state
-            HashSet<IWorld> designatedWorldsInOrigin = localDesignatedWorlds ?? this.designatedWorlds;
 
             foreach (World w in this.possibleWorlds)
             {
@@ -173,7 +184,7 @@ namespace ImplicitCoordination.DEL
 
                         newPossibleWorlds.Add(wPrime);
 
-                        if (designatedWorldsInOrigin.Contains(w) && action.designatedWorlds.Contains(e))
+                        if (this.designatedWorlds.Contains(w) && action.designatedWorlds.Contains(e))
                         {
                             newDesignatedWorlds.Add(wPrime);
                         }
@@ -191,7 +202,7 @@ namespace ImplicitCoordination.DEL
             AccessibilityRelation newAccessibility = this.accessibility.CopyEmptyGraph(newPossibleWorlds);
 
             UpdateAccessibility(action, newAccessibility, newPossibleWorlds);
-            return new State(newPossibleWorlds, newDesignatedWorlds, newAccessibility);
+            return new State(newPossibleWorlds, newDesignatedWorlds, newAccessibility, this, action.name);
         }
 
 
