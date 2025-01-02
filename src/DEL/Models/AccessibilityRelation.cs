@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using ImplicitCoordination.DEL;
 using ImplicitCoordination.utils;
 
 namespace ImplicitCoordination.DEL
@@ -16,6 +13,7 @@ namespace ImplicitCoordination.DEL
     public class AccessibilityRelation
     {
         public IDictionary<Agent, HashSet<(IWorld, IWorld)>> graph;
+        public HashSet<(IWorld, IWorld)> cutEdges = new HashSet<(IWorld, IWorld)>();
 
         public AccessibilityRelation()
         {

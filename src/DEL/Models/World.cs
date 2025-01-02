@@ -35,6 +35,16 @@ namespace ImplicitCoordination.DEL
         public Cost cost;
 
         /// <summary>
+        /// c_o(w)
+        /// </summary>
+        public Cost objectiveCost;
+
+        /// <summary>
+        /// c_s(w)
+        /// </summary>
+        public Cost subjectiveCost;
+
+        /// <summary>
         /// cost(w,i)
         /// </summary>
         public IDictionary<Agent, Cost> worldAgentCost = new Dictionary<Agent, Cost>();
@@ -124,9 +134,18 @@ namespace ImplicitCoordination.DEL
             Counter = 0;
         }
 
-        public bool HasAnyApplicableEvent(PlanningTask task, State s)
+        public bool IsApplicable(State state, Action action)
         {
-            foreach (Action a in task.actions)
+            foreach (Event e in action.designatedWorlds)
+            {
+                if (e.pre.Evaluate(state, this)) return true;
+            }
+            return false;
+        }
+
+        public bool HasAnyApplicableEvent(ICollection<Action> actions, State s)
+        {
+            foreach (Action a in actions)
             {
                 foreach (Event e in a.possibleWorlds)
                 {

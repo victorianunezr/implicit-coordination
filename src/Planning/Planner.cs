@@ -35,9 +35,15 @@ namespace ImplicitCoordination.Planning
             Console.WriteLine("Computing costs");
             ComputeCosts();
 
-            // if root worlds don't have fixed costs, iterate on depth
-            HashSet<World> worldsInRoot = Root.possibleWorlds.Cast<World>().ToHashSet();
-            while (worldsInRoot.Any(w => w.cost.value.HasValue && w.cost.isRange))
+            // Step 3
+            var worldsInRoot = Root.possibleWorlds.OfType<World>();
+            if (worldsInRoot.All(w => w.objectiveCost.Type == CostType.Infinity))
+            {
+                // Problem not solvable. Give up
+                return;
+            }
+            // if any root world has cost +, iterate on depth
+            while (worldsInRoot.Any(w => w.objectiveCost.Type == CostType.Undefined))
             {
                 Leaves.Clear();
 
@@ -96,9 +102,84 @@ namespace ImplicitCoordination.Planning
                 }
             }
         }
-        private void ComputeCosts()
+
+        private void CutIndistinguishabilityEdges()
         {
-            throw new NotImplementedException();
+            var queue = new Queue<State>();
+            var visited = new HashSet<State>();
+
+            queue.Enqueue(Root);
+            visited.Add(Root);
+
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                
+                foreach (var agentEdges in current.accessibility.graph)
+                {
+                    var edges = agentEdges.Value;
+
+                    foreach (var (world1, world2) in edges)
+                    {
+                        if (world1 is World w1 && world2 is World w2)
+                        {
+                            if (w1.cost.Type == CostType.Finite && (w2.cost.Type == CostType.Infinity ||w2.cost.Type == CostType.Undefined))
+                            {
+                                current.accessibility.cutEdges.Add((world1, world2));
+                            }
+                        }
+                    }
+                }
+                
+                foreach (var state in current.Children)
+                {
+                    if (!visited.Contains(state))
+                    {
+                        visited.Add(state);
+                        queue.Enqueue(state);
+                    }
+                }
+            }
+        }
+
+        private void ComputeObjectiveWorldCost(State state, World w)
+        {
+            if (Problem.goalFormula.Evaluate(state, w))
+            {
+                w.objectiveCost = Cost.Finite(0);
+            }
+            else
+            {
+                // If no applicable events on the world, assign infinity (max value)
+                if (!w.HasAnyApplicableEvent(Domain.actions, state))
+                {
+                    w.objectiveCost = Cost.Infinity();
+                }
+                // If it's a leaf node and there are applicable events, cost is +
+                else if (Leaves.Contains(state))
+                {
+                    w.objectiveCost = Cost.Undefined();
+                }
+                // If not a leaf node, assing min cost of all outgoing edges
+                else
+                {
+                    // Group edges by action
+                    var actionGroups = w.outgoingEdges
+                        .GroupBy(edge => edge.action)
+                        .Select(group => group.ToList())
+                        .ToList();
+
+                    // Compute max cost for each action group
+                    var actionCosts = actionGroups
+                        .Select(group => group.Max(edge => edge.childWorld.objectiveCost))
+                        .ToList();
+
+                    // Find the minimum among these maximum costs
+                    var minActionCost = actionCosts.Min().Value;
+
+                    // Apply the cost formula: 1 + min(max(child_costs))
+                    w.objectiveCost = Cost.Finite(minActionCost + 1);
+            }
         }
     }
 }
