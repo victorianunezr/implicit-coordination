@@ -10,6 +10,7 @@ namespace ImplicitCoordination.Planning
     {
         private readonly Domain Domain;
         private readonly Problem Problem;
+        private bool NewWorldsPruned = true;
         /// <summary>
         /// Maintains a set of the leaf nodes in the graph. Dynamically updated during planning, after node expansion.
         /// </summary>
@@ -65,13 +66,16 @@ namespace ImplicitCoordination.Planning
             Console.WriteLine("Step 4: Cutting indistinguishability edges.");
             CutIndistinguishabilityEdges();
 
-            // Step 5
-            Console.WriteLine("Step 5: Computing subjective costs.");
-            ComputeSubjectiveCosts();
-            
-            // Step 6
-            Console.WriteLine("Step 6: Pruning tree");
-            Prune();
+            while (NewWorldsPruned)
+            {
+                // Step 5
+                Console.WriteLine("Step 5: Computing subjective costs.");
+                ComputeSubjectiveCosts();
+                
+                // Step 6
+                Console.WriteLine("Step 6: Pruning tree");
+                Prune();
+            }
         }
 
         private bool UndefinedCostsInRoot()
@@ -79,7 +83,6 @@ namespace ImplicitCoordination.Planning
             var worldsInRoot = Root.possibleWorlds.OfType<World>();
             return worldsInRoot.Any(w => w.objectiveCost.Type == CostType.Undefined);
         }        
-
 
         private void BuildTree()
         {
@@ -226,6 +229,7 @@ namespace ImplicitCoordination.Planning
         private IEnumerable<Cost> SubjectiveCostAggregator(World w, State state)
         {
             return w.outgoingEdges
+                .Where(edge => !edge.isPruned && !edge.childWorld.isPruned)
                 .GroupBy(edge => edge.action)
                 .Select(group =>
                 {
@@ -234,6 +238,7 @@ namespace ImplicitCoordination.Planning
                     // Costs from accessible worlds' children
                     var accessibleChildCosts = state.accessibility.GetAccessibleWorlds(actionOwner, w, includeCutEdges:false)
                         .OfType<World>()
+                        .Where(world => !world.isPruned)
                         .SelectMany(world => world.outgoingEdges)
                         .Select(edge => edge.childWorld.subjectiveCost);
 
@@ -290,6 +295,8 @@ namespace ImplicitCoordination.Planning
 
         public void Prune()
         {
+            NewWorldsPruned = false;
+            
             // Top-down traversal (BFS) starting from root
             var statesToVisit = new Queue<State>();
             statesToVisit.Enqueue(Root);
@@ -306,6 +313,7 @@ namespace ImplicitCoordination.Planning
                         if (w.incomingEdge?.isPruned == true)
                         {
                             PruneWorld(w);
+                            NewWorldsPruned = true;
                         }
                     }
                 }
@@ -326,6 +334,7 @@ namespace ImplicitCoordination.Planning
                         if (w.worldAgentCost[agent] < edge.cost)
                         {
                             edge.isPruned = true;
+                            NewWorldsPruned = true;
                         }
                     }
                 }
@@ -347,7 +356,7 @@ namespace ImplicitCoordination.Planning
             }
         }
 
-        public void ComputeWorldAgentCosts(State state, World w)
+        private void ComputeWorldAgentCosts(State state, World w)
         {
             if (w.cost.Type == CostType.Unassigned)
             {
