@@ -84,7 +84,7 @@ namespace ImplicitCoordination.DEL
 
             foreach (var agentName in context.ownersDef().agentList().agentName())
             {
-                action.owners.Add(new Agent(agentName.AGENT_NAME().GetText()));
+                action.AllowedAgents.Add(new Agent(agentName.AGENT_NAME().GetText()));
             }
 
             if (context.accessibilityDef() != null)

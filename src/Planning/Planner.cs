@@ -141,45 +141,89 @@ namespace ImplicitCoordination.Planning
                 }
             }
         }
-
-        private void ComputeObjectiveWorldCost(State state, World w)
+        private void ComputeWorldCost(
+            State state,
+            World w,
+            Func<World, State, IEnumerable<Cost>> costAggregator,
+            Action<World, Cost> costAssigner)
         {
             if (Problem.goalFormula.Evaluate(state, w))
             {
-                w.objectiveCost = Cost.Finite(0);
+                costAssigner(w, Cost.Finite(0));
+            }
+            else if (!w.HasAnyApplicableEvent(Domain.actions, state))
+            {
+                costAssigner(w, Cost.Infinity());
+            }
+            else if (Leaves.Contains(state))
+            {
+                costAssigner(w, Cost.Undefined());
             }
             else
             {
-                // If no applicable events on the world, assign infinity (max value)
-                if (!w.HasAnyApplicableEvent(Domain.actions, state))
+                var costs = costAggregator(w, state).ToList();
+
+                if (costs.Any())
                 {
-                    w.objectiveCost = Cost.Infinity();
+                    var minActionCost = costs.Min();
+                    costAssigner(w, Cost.Finite(minActionCost.Value + 1));
                 }
-                // If it's a leaf node and there are applicable events, cost is +
-                else if (Leaves.Contains(state))
-                {
-                    w.objectiveCost = Cost.Undefined();
-                }
-                // If not a leaf node, assing min cost of all outgoing edges
                 else
                 {
-                    // Group edges by action
-                    var actionGroups = w.outgoingEdges
-                        .GroupBy(edge => edge.action)
-                        .Select(group => group.ToList())
-                        .ToList();
-
-                    // Compute max cost for each action group
-                    var actionCosts = actionGroups
-                        .Select(group => group.Max(edge => edge.childWorld.objectiveCost))
-                        .ToList();
-
-                    // Find the minimum among these maximum costs
-                    var minActionCost = actionCosts.Min().Value;
-
-                    // Apply the cost formula: 1 + min(max(child_costs))
-                    w.objectiveCost = Cost.Finite(minActionCost + 1);
+                    costAssigner(w, Cost.Infinity());
+                }
             }
+        }
+
+        private IEnumerable<Cost> ObjectiveCostAggregator(World w, State state)
+        {
+            return w.outgoingEdges
+                .GroupBy(edge => edge.action)
+                .Select(group => group.Max(edge => edge.childWorld.objectiveCost));
+        }
+
+        private void ComputeObjectiveWorldCost(State state, World w)
+        {
+            ComputeWorldCost(
+                state,
+                w,
+                ObjectiveCostAggregator,
+                (world, cost) => world.objectiveCost = cost
+            );
+        }
+
+        private IEnumerable<Cost> SubjectiveCostAggregator(World w, State state)
+        {
+            return w.outgoingEdges
+                .GroupBy(edge => edge.action)
+                .Select(group =>
+                {
+                    var actionOwner = group.First().action.owner;
+
+                    // Costs from accessible worlds' children
+                    var accessibleChildCosts = state.accessibility.GetAccessibleWorlds(actionOwner, w, includeCutEdges:false)
+                        .OfType<World>()
+                        .SelectMany(world => world.outgoingEdges)
+                        .Select(edge => edge.childWorld.subjectiveCost);
+
+                    // Costs from the current world's children
+                    var directChildCosts = group.Select(edge => edge.childWorld.subjectiveCost);
+
+                    // Combine and get the max cost
+                    return accessibleChildCosts
+                        .Concat(directChildCosts)
+                        .Max();
+                });
+        }
+
+        private void ComputeSubjectiveWorldCost(State state, World w)
+        {
+            ComputeWorldCost(
+                state,
+                w,
+                SubjectiveCostAggregator,
+                (world, cost) => world.subjectiveCost = cost
+            );
         }
     }
 }

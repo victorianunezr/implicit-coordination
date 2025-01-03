@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using ImplicitCoordination.utils;
 
 namespace ImplicitCoordination.DEL
@@ -151,7 +152,7 @@ namespace ImplicitCoordination.DEL
         /// <param name="a">The agent for which we want the accessible worlds.</param>
         /// <param name="w">The world from which output worlds are reachable.</param>
         /// <returns>The hashset of worlds that are accessible from w. Implicit transitive edges are taken into account.</returns>
-        public HashSet<IWorld> GetAccessibleWorlds(Agent a, IWorld w)
+        public HashSet<IWorld> GetAccessibleWorlds(Agent a, IWorld w, bool includeCutEdges=true)
         {
             var edges = this.GetAccessibilityEdges(a);
 
@@ -166,6 +167,10 @@ namespace ImplicitCoordination.DEL
                 current = queue.Dequeue();
                 foreach (var (u, v) in edges)
                 {
+                    if (!includeCutEdges && cutEdges.Contains((u, v)))
+                    {
+                        continue;
+                    }
                     if (current == u)
                     {
                         if (!accesibleWorlds.Contains(v))

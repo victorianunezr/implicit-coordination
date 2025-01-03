@@ -86,7 +86,7 @@ namespace EPDDL.Tests
             Assert.IsNotNull(moveRight);
             Assert.AreEqual(1, moveRight.possibleWorlds.Count);
 
-            var leftOwner = moveLeft.owners.FirstOrDefault();
+            var leftOwner = moveLeft.AllowedAgents.FirstOrDefault();
             Assert.AreEqual("Alice", leftOwner.name);
 
             var rightEvent = moveRight.possibleWorlds.First() as Event;
@@ -95,7 +95,7 @@ namespace EPDDL.Tests
             Assert.IsTrue(rightEvent.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(rightEvent.effect.Count == 2); // Two literals in the effect
 
-            var rightOwner = moveRight.owners.FirstOrDefault();
+            var rightOwner = moveRight.AllowedAgents.FirstOrDefault();
             Assert.AreEqual("Bob", rightOwner.name);
         }
 
@@ -162,7 +162,7 @@ namespace EPDDL.Tests
             Assert.IsTrue(e2.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(e2.effect.Count == 2); // Two literals in the effect
 
-            Assert.AreEqual(2, action.owners.Count());
+            Assert.AreEqual(2, action.AllowedAgents.Count());
         }
 
         [Test]
@@ -229,7 +229,7 @@ namespace EPDDL.Tests
             Assert.IsTrue(e2.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(e2.effect.Count == 2); // Two literals in the effect
 
-            Assert.AreEqual(0, action.owners.Count());
+            Assert.AreEqual(0, action.AllowedAgents.Count());
         }
 
         [Test]
@@ -310,7 +310,7 @@ namespace EPDDL.Tests
             Assert.IsTrue(e3.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(e3.effect.Count == 2); // Two literals in the effect
 
-            Assert.AreEqual(2, action.owners.Count());
+            Assert.AreEqual(2, action.AllowedAgents.Count());
 
             var accessibilityRelation = action.accessibility;
 
