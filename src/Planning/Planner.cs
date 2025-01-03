@@ -29,39 +29,59 @@ namespace ImplicitCoordination.Planning
             Frontier.Enqueue(Root);
 
             // todo: iterate on pruning
-            Console.WriteLine("Building search tree");
+            // Step 1
+            Console.WriteLine("Step 1: Build tree.");
             BuildTree();
 
-            Console.WriteLine("Computing costs");
-            ComputeCosts();
+            // Step 2
+            Console.WriteLine("Step 2: Computing objective costs.");
+            ComputeObjectiveCosts();
 
             // Step 3
-            var worldsInRoot = Root.possibleWorlds.OfType<World>();
-            if (worldsInRoot.All(w => w.objectiveCost.Type == CostType.Infinity))
-            {
-                // Problem not solvable. Give up
-                return;
-            }
             // if any root world has cost +, iterate on depth
-            while (worldsInRoot.Any(w => w.objectiveCost.Type == CostType.Undefined))
+            while (UndefinedCostsInRoot())
             {
+                var worldsInRoot = Root.possibleWorlds.OfType<World>();
+                if (worldsInRoot.All(w => w.objectiveCost.Type == CostType.Infinity))
+                {
+                    Console.WriteLine("All root worlds have cost infinity. Game over :(");
+                    // Problem not solvable. Give up
+                    return;
+                }
+
+                Console.WriteLine("Some root world has cost '+'");
+
                 Leaves.Clear();
 
                 Console.WriteLine("Iterating on cutoff depth. Expanding tree further.");
 
                 BuildTree();
 
-                Console.WriteLine("Recomputing costs");
-                ComputeCosts();
+                Console.WriteLine("Recomputing objective costs...");
+                ComputeObjectiveCosts();
             }
-            
-            Console.WriteLine("Pruning tree");
 
+            // Step 4
+            Console.WriteLine("Step 4: Cutting indistinguishability edges.");
+            CutIndistinguishabilityEdges();
+
+            // Step 5
+            Console.WriteLine("Step 5: Computing subjective costs.");
+            ComputeSubjectiveCosts();
+            
+            // Step 6
+            Console.WriteLine("Step 6: Pruning tree");
             Prune();
         }
 
+        private bool UndefinedCostsInRoot()
+        {
+            var worldsInRoot = Root.possibleWorlds.OfType<World>();
+            return worldsInRoot.Any(w => w.objectiveCost.Type == CostType.Undefined);
+        }        
 
-        public void BuildTree()
+
+        private void BuildTree()
         {
             int cutoffDepth = int.MaxValue;
 
@@ -141,6 +161,27 @@ namespace ImplicitCoordination.Planning
                 }
             }
         }
+
+        private void ComputeObjectiveCosts()
+        {
+            Action<World, Cost> objectiveAssigner = (w, cost) => w.objectiveCost = cost;
+
+            BottomUpCostTraversal(
+                ObjectiveCostAggregator,
+                objectiveAssigner
+            );
+        }
+
+        private void ComputeSubjectiveCosts()
+        {
+            Action<World, Cost> subjectiveAssigner = (w, cost) => w.subjectiveCost = cost;
+
+            BottomUpCostTraversal(
+                SubjectiveCostAggregator,
+                subjectiveAssigner
+            );
+        }
+
         private void ComputeWorldCost(
             State state,
             World w,
@@ -182,16 +223,6 @@ namespace ImplicitCoordination.Planning
                 .Select(group => group.Max(edge => edge.childWorld.objectiveCost));
         }
 
-        private void ComputeObjectiveWorldCost(State state, World w)
-        {
-            ComputeWorldCost(
-                state,
-                w,
-                ObjectiveCostAggregator,
-                (world, cost) => world.objectiveCost = cost
-            );
-        }
-
         private IEnumerable<Cost> SubjectiveCostAggregator(World w, State state)
         {
             return w.outgoingEdges
@@ -216,14 +247,45 @@ namespace ImplicitCoordination.Planning
                 });
         }
 
-        private void ComputeSubjectiveWorldCost(State state, World w)
+        public void BottomUpCostTraversal(
+            Func<World, State, IEnumerable<Cost>> costAggregator,
+            Action<World, Cost> costAssigner)
         {
-            ComputeWorldCost(
-                state,
-                w,
-                SubjectiveCostAggregator,
-                (world, cost) => world.subjectiveCost = cost
-            );
+            var visitedStates = new HashSet<State>();
+            var stateStack = new Stack<State>();
+
+            foreach (var leaf in Leaves)
+            {
+                if (!visitedStates.Contains(leaf))
+                {
+                    stateStack.Push(leaf);
+                }
+            }
+
+            while (stateStack.Count > 0)
+            {
+                var currentState = stateStack.Pop();
+
+                if (visitedStates.Contains(currentState))
+                    continue;
+
+                foreach (var world in currentState.possibleWorlds.OfType<World>())
+                {
+                    ComputeWorldCost(
+                        currentState, 
+                        world, 
+                        costAggregator,
+                        costAssigner
+                    );
+                }
+
+                visitedStates.Add(currentState);
+
+                if (currentState.Parent != null && !visitedStates.Contains(currentState.Parent))
+                {
+                    stateStack.Push(currentState.Parent);
+                }
+            }
         }
     }
 }

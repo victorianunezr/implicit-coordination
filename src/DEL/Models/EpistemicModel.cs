@@ -59,7 +59,5 @@ namespace ImplicitCoordination.DEL
             AccessibilityRelation acs = new AccessibilityRelation(agents, possibleWorlds);
             this.accessibility = acs;
         }
-
-
     }
 }
