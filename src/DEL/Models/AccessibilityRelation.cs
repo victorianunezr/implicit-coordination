@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using ImplicitCoordination.utils;
 
 namespace ImplicitCoordination.DEL

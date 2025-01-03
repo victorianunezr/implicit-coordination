@@ -287,5 +287,84 @@ namespace ImplicitCoordination.Planning
                 }
             }
         }
+
+        public void Prune()
+        {
+            // Top-down traversal (BFS) starting from root
+            var statesToVisit = new Queue<State>();
+            statesToVisit.Enqueue(Root);
+
+            while (statesToVisit.Any())
+            {
+                var state = statesToVisit.Dequeue();
+
+                // Prune worlds if indicated by incoming edges
+                if (state.depth > 0)
+                {
+                    foreach (var w in state.possibleWorlds.OfType<World>())
+                    {
+                        if (w.incomingEdge?.isPruned == true)
+                        {
+                            PruneWorld(w);
+                        }
+                    }
+                }
+
+                // Compute costs and prune outgoing edges
+                foreach (var w in state.possibleWorlds.OfType<World>())
+                {
+                    if (w.isPruned) continue;  // Skip if already pruned
+
+                    ComputeWorldAgentCosts(state, w);
+
+                    foreach (var edge in w.outgoingEdges)
+                    {
+                        var agent = edge.action.owner;
+                        if (agent == null) throw new Exception($"Action {edge.action.name} has no owner."); // Or handle no-agent case
+
+                        // Prune edges whose cost is higher than the world’s cost for that agent
+                        if (w.worldAgentCost[agent] < edge.cost)
+                        {
+                            edge.isPruned = true;
+                        }
+                    }
+                }
+
+                // Enqueue children
+                foreach (var child in state.Children)
+                {
+                    statesToVisit.Enqueue(child);
+                }
+            }
+        }
+
+        private void PruneWorld(World w)
+        {
+            w.isPruned = true;
+            foreach (var edge in w.outgoingEdges)
+            {
+                edge.isPruned = true;
+            }
+        }
+
+        public void ComputeWorldAgentCosts(State state, World w)
+        {
+            if (w.cost.Type == CostType.Unassigned)
+            {
+                throw new Exception("All worlds must have an assigned cost(w) before computing world-agent costs");
+            }
+
+            // todo: restrict agents to action owners
+            foreach (Agent agent in state.accessibility.graph.Keys)
+            {
+                var accessibleUnprunedWorlds = state.accessibility
+                    .GetAccessibleWorlds(agent, w)
+                    .OfType<World>()
+                    .Where(world => !world.isPruned);
+
+                Cost cost = accessibleUnprunedWorlds.Select(w => w.subjectiveCost).Max();
+                w.worldAgentCost.Add(agent, cost);
+            }
+        }
     }
 }

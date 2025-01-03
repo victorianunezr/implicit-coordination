@@ -61,6 +61,7 @@ namespace ImplicitCoordination.Planning
 
     public enum CostType
     {
+        Unassigned,
         Finite,
         Infinity,
         Undefined
