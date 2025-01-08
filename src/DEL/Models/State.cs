@@ -7,12 +7,13 @@ namespace ImplicitCoordination.DEL
 {
     public class State : EpistemicModel
     {
-        public string Name { get; set; }
-        public State Parent { get; set; }     
+        private static ushort Counter = 0;
+        private readonly ushort id;
+        public ushort Id => this.id;
+        public string Name => $"s{id}";
+        public State Parent { get; set; }
         public List<State> Children { get; set; } = new();     
         public string ActionName { get; set; }
-        public Agent Agent { get; set; }    
-        public double EdgeCost { get; set; }        
         public ushort depth { get; set; }
         public State(): base() {}
 
@@ -22,7 +23,10 @@ namespace ImplicitCoordination.DEL
             AccessibilityRelation accessibility,
             State globalState=null)
             : base(possibleWorlds, designatedWorlds, accessibility)
-        {}
+        {
+            id = Counter;
+            Counter++;
+        }
 
         public State(
             HashSet<IWorld> possibleWorlds,
@@ -34,11 +38,16 @@ namespace ImplicitCoordination.DEL
         {
             Parent = parent;
             ActionName = actionName;
+            id = Counter;
+            Counter++;
         }
 
         public State(HashSet<IWorld> possibleWorlds, HashSet<IWorld> designatedWorlds, ICollection<Agent> agents)
             : base(possibleWorlds, designatedWorlds, agents)
-        {}
+        {
+            id = Counter;
+            Counter++;
+        }
 
         /// <summary>
         /// Returns true if at least one world satisfies the goal formula

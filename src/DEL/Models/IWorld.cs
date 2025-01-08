@@ -6,7 +6,7 @@ namespace ImplicitCoordination.DEL
     public interface IWorld
     {
         public ushort Id { get; }
-        public string name { get; set; }
+        public string Name { get; }
 
         // public HashSet<Proposition> TruePropositions { get; }
 

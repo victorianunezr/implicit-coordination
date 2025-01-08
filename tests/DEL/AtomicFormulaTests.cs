@@ -15,7 +15,7 @@ namespace ImplicitCoordination.Tests
         public void Setup()
         {
             // Initialize a state and world for testing
-            world = new World { name = "TestWorld" };
+            world = new World { Name = "TestWorld" };
             state = new State();
 
             state.possibleWorlds.Add(world);

@@ -115,7 +115,7 @@ namespace ImplicitCoordination.DEL
         public override IWorld VisitEventDef(EPDDLParser.EventDefContext context)
         {
             var eventName = context.NAME().GetText();
-            var eventObj = new Event { name = eventName };
+            var eventObj = new Event { Name = eventName };
             Console.WriteLine($"Event: {eventName}");
 
             var preconditionContext = context.formulaOrEmpty();

@@ -78,7 +78,7 @@ namespace EPDDL.Tests
             Assert.AreEqual(1, moveLeft.possibleWorlds.Count);
 
             var leftEvent = moveLeft.possibleWorlds.First() as Event;
-            Assert.AreEqual("e1", leftEvent.name);
+            Assert.AreEqual("e1", leftEvent.Name);
             Assert.IsTrue(leftEvent.pre != null);
             Assert.IsTrue(leftEvent.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(leftEvent.effect.Count == 2); // Two literals in the effect
@@ -90,7 +90,7 @@ namespace EPDDL.Tests
             Assert.AreEqual("Alice", leftOwner.name);
 
             var rightEvent = moveRight.possibleWorlds.First() as Event;
-            Assert.AreEqual("e1", rightEvent.name);
+            Assert.AreEqual("e1", rightEvent.Name);
             Assert.IsTrue(rightEvent.pre != null); // Check precondition structure
             Assert.IsTrue(rightEvent.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(rightEvent.effect.Count == 2); // Two literals in the effect
@@ -150,14 +150,14 @@ namespace EPDDL.Tests
             Assert.IsNotNull(action);
             Assert.AreEqual(2, action.possibleWorlds.Count);
 
-            var e1 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.name == "e1");
-            Assert.AreEqual("e1", e1.name);
+            var e1 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.Name == "e1");
+            Assert.AreEqual("e1", e1.Name);
             Assert.IsTrue(e1.pre != null);
             Assert.IsTrue(e1.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(e1.effect.Count == 2); // Two literals in the effect
 
-            var e2 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.name == "e2");
-            Assert.AreEqual("e2", e2.name);
+            var e2 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.Name == "e2");
+            Assert.AreEqual("e2", e2.Name);
             Assert.IsTrue(e2.pre != null);
             Assert.IsTrue(e2.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(e2.effect.Count == 2); // Two literals in the effect
@@ -217,14 +217,14 @@ namespace EPDDL.Tests
             Assert.IsNotNull(action);
             Assert.AreEqual(2, action.possibleWorlds.Count);
 
-            var e1 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.name == "e1");
-            Assert.AreEqual("e1", e1.name);
+            var e1 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.Name == "e1");
+            Assert.AreEqual("e1", e1.Name);
             Assert.IsTrue(e1.pre != null);
             Assert.IsTrue(e1.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(e1.effect.Count == 0); // No literals in the effect
 
-            var e2 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.name == "e2");
-            Assert.AreEqual("e2", e2.name);
+            var e2 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.Name == "e2");
+            Assert.AreEqual("e2", e2.Name);
             Assert.IsTrue(e2.pre != null);
             Assert.IsTrue(e2.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(e2.effect.Count == 2); // Two literals in the effect
@@ -292,20 +292,20 @@ namespace EPDDL.Tests
             Assert.IsNotNull(action);
             Assert.AreEqual(3, action.possibleWorlds.Count);
 
-            var e1 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.name == "e1");
-            Assert.AreEqual("e1", e1.name);
+            var e1 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.Name == "e1");
+            Assert.AreEqual("e1", e1.Name);
             Assert.IsTrue(e1.pre != null);
             Assert.IsTrue(e1.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(e1.effect.Count == 0); // No literals in the effect
 
-            var e2 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.name == "e2");
-            Assert.AreEqual("e2", e2.name);
+            var e2 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.Name == "e2");
+            Assert.AreEqual("e2", e2.Name);
             Assert.IsTrue(e2.pre != null);
             Assert.IsTrue(e2.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(e2.effect.Count == 2); // Two literals in the effect
 
-            var e3 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.name == "e3");
-            Assert.AreEqual("e3", e3.name);
+            var e3 = action.possibleWorlds.OfType<Event>().FirstOrDefault(e => e.Name == "e3");
+            Assert.AreEqual("e3", e3.Name);
             Assert.IsTrue(e3.pre != null);
             Assert.IsTrue(e3.pre.GetFormulaType() == FormulaType.Conjunction);
             Assert.IsTrue(e3.effect.Count == 2); // Two literals in the effect

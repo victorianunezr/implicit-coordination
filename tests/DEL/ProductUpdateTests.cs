@@ -318,7 +318,7 @@ namespace DEL.Tests
             Action aa = new Action(events, new HashSet<IWorld>() { e, f }, actionAccessibility, "aa", a);
 
             // Act - Assert
-            Assert.AreEqual(3, this.state.ProductUpdate(aa, new HashSet<IWorld> { w, v }).designatedWorlds.Count);
+            Assert.AreEqual(3, this.state.ProductUpdate(aa).designatedWorlds.Count);
 
         }
 

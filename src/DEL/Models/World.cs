@@ -9,8 +9,19 @@ namespace ImplicitCoordination.DEL
         private static ushort Counter = 0;
         private readonly ushort id;
         public ushort Id => this.id;
-        public string name { get; set; }
-
+        private string name;
+        public string Name
+        {
+            get
+            {
+                return this.name;
+            }
+            set
+            {
+                this.name = $"{value}{id}";
+            }
+        }
+        
         public HashSet<Predicate> predicates = new HashSet<Predicate>();
 
         /// <summary>

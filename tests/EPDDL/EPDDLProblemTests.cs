@@ -98,18 +98,18 @@ namespace ImplicitCoordination.DEL.Tests
             Assert.AreEqual(3, parsedProblem.initialState.possibleWorlds.Count);
             
             // Verify worlds
-            var world1 = parsedProblem.initialState.possibleWorlds.FirstOrDefault(w => w.name == "w1") as World;
+            var world1 = parsedProblem.initialState.possibleWorlds.FirstOrDefault(w => w.Name == "w1") as World;
             Assert.IsNotNull(world1);
             Assert.IsTrue(world1.predicates.Any(p => p.name == "at" && p.Parameters[0].Name == "pos2"));
             Assert.IsTrue(world1.predicates.Any(p => p.name == "goal" && p.Parameters[0].Name == "pos0"));
 
-            var world2 = parsedProblem.initialState.possibleWorlds.FirstOrDefault(w => w.name == "w2") as World;
+            var world2 = parsedProblem.initialState.possibleWorlds.FirstOrDefault(w => w.Name == "w2") as World;
             Assert.IsNotNull(world2);
             Assert.IsTrue(world2.predicates.Any(p => p.name == "at" && p.Parameters[0].Name == "pos2"));
             Assert.IsTrue(world2.predicates.Any(p => p.name == "goal" && p.Parameters[0].Name == "pos0"));
             Assert.IsTrue(world2.predicates.Any(p => p.name == "goal" && p.Parameters[0].Name == "pos4"));
 
-            var world3 = parsedProblem.initialState.possibleWorlds.FirstOrDefault(w => w.name == "w3") as World;
+            var world3 = parsedProblem.initialState.possibleWorlds.FirstOrDefault(w => w.Name == "w3") as World;
             Assert.IsNotNull(world3);
             Assert.IsTrue(world3.predicates.Any(p => p.name == "at" && p.Parameters[0].Name == "pos2"));
             Assert.IsTrue(world3.predicates.Any(p => p.name == "goal" && p.Parameters[0].Name == "pos4"));

@@ -27,8 +27,8 @@ namespace ImplicitCoordination.DEL
                     var world2Name = relContext.NAME(1).GetText();
 
                     // Retrieve the corresponding events
-                    var world1 = model.possibleWorlds.FirstOrDefault(x => x.name == world1Name);
-                    var world2 = model.possibleWorlds.FirstOrDefault(x => x.name == world2Name);
+                    var world1 = model.possibleWorlds.FirstOrDefault(x => x.Name == world1Name);
+                    var world2 = model.possibleWorlds.FirstOrDefault(x => x.Name == world2Name);
 
                     if (world1 == null || world2 == null)
                     {

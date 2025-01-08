@@ -7,7 +7,7 @@ namespace ImplicitCoordination.DEL
 {
     public class Event : IWorld
     {
-        public string name { get; set; }
+        public string Name { get; set; }
         private static ushort Counter = 0;
         private readonly ushort id;
 

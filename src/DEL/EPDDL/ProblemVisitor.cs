@@ -69,7 +69,7 @@ namespace ImplicitCoordination.DEL
         public override World VisitWorldDef(EPDDLParser.WorldDefContext context)
         {
             var worldName = context.worldName().GetText();
-            var world = new World { name = worldName };
+            var world = new World { Name = worldName };
             Console.WriteLine($"World: {worldName}");
 
             foreach (var predicateContext in context.predicate())

@@ -8,14 +8,13 @@ namespace ImplicitCoordination.Planning
 {
     public class Planner
     {
+        private const string NoSolutionMessage = "All root worlds have cost infinity. Game over :(";
         private readonly Domain Domain;
         private readonly Problem Problem;
         private bool NewWorldsPruned = true;
-        /// <summary>
-        /// Maintains a set of the leaf nodes in the graph. Dynamically updated during planning, after node expansion.
-        /// </summary>
         public ICollection<State> Leaves = new List<State>();
         public State Root;
+        public IEnumerable<World> WorldsInRoot => Root.possibleWorlds.OfType<World>();
         public Queue<State> Frontier = new();
 
         public Planner(Domain domain, Problem problem)
@@ -29,60 +28,76 @@ namespace ImplicitCoordination.Planning
         {
             Frontier.Enqueue(Root);
 
-            // todo: iterate on pruning
-            // Step 1
-            Console.WriteLine("Step 1: Build tree.");
-            BuildTree();
-
-            // Step 2
-            Console.WriteLine("Step 2: Computing objective costs.");
-            ComputeObjectiveCosts();
-
-            // Step 3
-            // if any root world has cost +, iterate on depth
-            while (UndefinedCostsInRoot())
+            while (!SolutionFound())
             {
-                var worldsInRoot = Root.possibleWorlds.OfType<World>();
-                if (worldsInRoot.All(w => w.objectiveCost.Type == CostType.Infinity))
+                if (NotSolvable())
                 {
-                    Console.WriteLine("All root worlds have cost infinity. Game over :(");
-                    // Problem not solvable. Give up
+                    Console.WriteLine(NoSolutionMessage);
                     return;
                 }
 
-                Console.WriteLine("Some root world has cost '+'");
-
-                Leaves.Clear();
-
-                Console.WriteLine("Iterating on cutoff depth. Expanding tree further.");
-
+                // Step 1
+                Console.WriteLine("Step 1: Build tree.");
                 BuildTree();
 
-                Console.WriteLine("Recomputing objective costs...");
+                // Step 2
+                Console.WriteLine("Step 2: Computing objective costs.");
                 ComputeObjectiveCosts();
-            }
 
-            // Step 4
-            Console.WriteLine("Step 4: Cutting indistinguishability edges.");
-            CutIndistinguishabilityEdges();
+                // Step 3
+                // if any root world has cost +, iterate on depth
+                while (UndefinedCostsInRoot())
+                {
+                    if (NotSolvable())
+                    {
+                        Console.WriteLine(NoSolutionMessage);
+                        return;
+                    }
 
-            while (NewWorldsPruned)
-            {
-                // Step 5
-                Console.WriteLine("Step 5: Computing subjective costs.");
-                ComputeSubjectiveCosts();
-                
-                // Step 6
-                Console.WriteLine("Step 6: Pruning tree");
-                Prune();
+                    Console.WriteLine("Some root world has cost '+'");
+
+                    Leaves.Clear();
+
+                    Console.WriteLine("Iterating on cutoff depth. Expanding tree further.");
+
+                    BuildTree();
+
+                    Console.WriteLine("Recomputing objective costs...");
+                    ComputeObjectiveCosts();
+                }
+
+                // Step 4
+                Console.WriteLine("Step 4: Cutting indistinguishability edges.");
+                CutIndistinguishabilityEdges();
+
+                while (NewWorldsPruned)
+                {
+                    // Step 5
+                    Console.WriteLine("Step 5: Computing subjective costs.");
+                    ComputeSubjectiveCosts();
+                    
+                    // Step 6
+                    Console.WriteLine("Step 6: Pruning tree");
+                    Prune();
+                }
             }
         }
 
         private bool UndefinedCostsInRoot()
         {
-            var worldsInRoot = Root.possibleWorlds.OfType<World>();
-            return worldsInRoot.Any(w => w.objectiveCost.Type == CostType.Undefined);
-        }        
+            return WorldsInRoot.Any(w => w.objectiveCost.Type == CostType.Undefined);
+        }
+
+        private bool SolutionFound()
+        {
+            return WorldsInRoot.All(w => w.subjectiveCost.Type == CostType.Finite);
+        }
+
+        private bool NotSolvable()
+        {
+            return WorldsInRoot.All(w => w.objectiveCost.Type == CostType.Infinity) ||
+                   WorldsInRoot.All(w => w.subjectiveCost.Type == CostType.Infinity);
+        }
 
         private void BuildTree()
         {
@@ -296,7 +311,7 @@ namespace ImplicitCoordination.Planning
         public void Prune()
         {
             NewWorldsPruned = false;
-            
+
             // Top-down traversal (BFS) starting from root
             var statesToVisit = new Queue<State>();
             statesToVisit.Enqueue(Root);
