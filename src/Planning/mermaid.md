@@ -1,24 +1,21 @@
 
 ```mermaid
-graph LR
-  %% Subgraph for State #1
-  subgraph S1["State #1"]
-    w1["W1<br/>{p, q}<br/>obj=2, subj=4"]:::notPruned
-    w2["W2<br/>{r}<br/>obj=∞, subj=∞"]:::pruned
+graph TD
+    %% States
+    subgraph State1["State 1"]
+        W1["World 1<br>Predicates: {P, Q}<br>Cost: Obj=2, Sub=3"] -->|Action: A| W2["World 2<br>Predicates: {P, R}<br>Cost: Obj=3, Sub=4"]
+        W1 -->|Agent: Alice| W2
+        W1 -.->|Agent: Bob| W3["World 3<br>Predicates: {Q, R}<br>Cost: Obj=4, Sub=5 (Pruned)"]
+    end
 
-    %% Accessibility edge within State #1
-    w1 --|agentA| w2
-  end
+    subgraph State2["State 2"]
+        W4["World 4<br>Predicates: {P, S}<br>Cost: Obj=1, Sub=2"] -->|Action: B| W5["World 5<br>Predicates: {P, Q, S}<br>Cost: Obj=2, Sub=3"]
+    end
 
-  %% Subgraph for State #2
-  subgraph S2["State #2"]
-    w3["W3<br/>{p}<br/>obj=1, subj=2"]:::notPruned
-  end
+    %% State Relationships
+    State1 -->|Parent| State2
 
-  %% Parent-child relationship (action label)
-  S1 -->|action: A1| S2
-
-  %% Define style classes for pruned vs. notPruned
-  classDef notPruned fill:#fff,stroke:#000,stroke-width:1px
-  classDef pruned stroke-dasharray:3 3,fill:#eee,color:#888
+    %% Accessibility Edges Between Worlds
+    W2 -.->|Agent: Alice| W4
+    W3 -.->|Agent: Bob| W5
   ```

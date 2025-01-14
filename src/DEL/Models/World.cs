@@ -18,7 +18,8 @@ namespace ImplicitCoordination.DEL
             }
             set
             {
-                this.name = $"{value}{id}";
+                if (value != null) this.name = value;
+                else this.name = $"w{id}";
             }
         }
         
@@ -39,11 +40,6 @@ namespace ImplicitCoordination.DEL
         /// Keeps track of child worlds, i.e. worlds generated from 'this' during product update
         /// </summary>
         public ICollection<WorldEdge> outgoingEdges = new HashSet<WorldEdge>();
-
-        /// <summary>
-        /// cost(w)
-        /// </summary>
-        public Cost cost;
 
         /// <summary>
         /// c_o(w)

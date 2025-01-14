@@ -14,7 +14,6 @@ namespace ImplicitCoordination.DEL
             // Handle trivial accessibility definition
             if (context.TRIVIAL_DEF() != null)
             {
-                Console.WriteLine("Trivial accessibility relation detected. No edges to add.");
                 return accessibilityRelation;
             }
 

@@ -2,6 +2,7 @@
 using System.IO;
 using Antlr4.Runtime;
 using ImplicitCoordination.DEL;
+using ImplicitCoordination.Planning;
 
 namespace ImplicitCoordination
 {
@@ -9,24 +10,75 @@ namespace ImplicitCoordination
     {
         static void Main(string[] args)
         {
-            string domainFilePath = "../epddl/domain/turnbased-lever.txt";
-            var inputDomain = File.ReadAllText(domainFilePath);
+            try
+            {
+                // Paths to the domain and problem files
+                string domainFilePath = "/Users/victorianunezr/repos/implicit-coordination/epddl/domain/turnbased-lever.txt";
+                string problemFilePath = "/Users/victorianunezr/repos/implicit-coordination/epddl/problem/goalrecognition-lever.txt";
 
-            var domainStream = new AntlrInputStream(inputDomain);
-            var lexer = new EPDDLLexer(domainStream);
+                // Parse Domain
+                Console.WriteLine("Parsing Domain...");
+                var domain = ParseDomain(domainFilePath);
+                Console.WriteLine($"Domain '{domain.name}' parsed successfully with {domain.actions.Count} actions and {domain.Predicates.Count} predicates.\n");
+
+                // Parse Problem
+                Console.WriteLine("Parsing Problem...");
+                var problem = ParseProblem(problemFilePath, domain);
+                Console.WriteLine($"Problem '{problem.name}' parsed successfully.");
+                Console.WriteLine($"Initial state has {problem.initialState.possibleWorlds.Count} worlds.");
+                Console.WriteLine($"Goal formula: {problem.goalFormula}\n");
+
+                // Plan
+                Planner planner = new Planner(domain, problem);
+                planner.Plan();
+
+                // Print tree
+                TreeVisualizer.PrintTreeToFile(planner.Root, "/Users/victorianunezr/repos/implicit-coordination/epddl/output/goalrecognition-lever.txt");
+                // // Example access to domain and problem objects
+                // Console.WriteLine("Sample Actions in Domain:");
+                // foreach (var action in domain.actions)
+                // {
+                //     Console.WriteLine($"- {action.Name}");
+                // }
+
+                // Console.WriteLine("\nWorlds in Initial State:");
+                // foreach (var world in problem.initialState.possibleWorlds)
+                // {
+                //     Console.WriteLine($"- {world.name} with predicates: {string.Join(", ", world.predicates)}");
+                // }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
+        static Domain ParseDomain(string filePath)
+        {
+            var input = File.ReadAllText(filePath);
+            var inputStream = new AntlrInputStream(input);
+            var lexer = new EPDDLLexer(inputStream);
             var tokenStream = new CommonTokenStream(lexer);
             var parser = new EPDDLParser(tokenStream);
-            var visitor = new EPDDLVisitor(); // Assuming this is your main visitor class
 
-            Domain parsedDomain = visitor.Visit(parser.mainDef()) as Domain;
+            var tree = parser.domainDef();
+            var visitor = new DomainVisitor();
+            return visitor.Visit(tree) as Domain;
+        }
 
-            FormulaVisitor formulaVisitor = new FormulaVisitor();
-            ProblemVisitor problemVisitor = new ProblemVisitor(formulaVisitor, parsedDomain);
-            Console.WriteLine("Domain parsed.");
+        static Problem ParseProblem(string filePath, Domain domain)
+        {
+            var input = File.ReadAllText(filePath);
+            var inputStream = new AntlrInputStream(input);
+            var lexer = new EPDDLLexer(inputStream);
+            var tokenStream = new CommonTokenStream(lexer);
+            var parser = new EPDDLParser(tokenStream);
 
-            var parsedProblem = problemVisitor.VisitProblemDef(parser.problemDef()) as Problem;
+            var tree = parser.problemDef();
+            var formulaVisitor = new FormulaVisitor();
+            var problemVisitor = new ProblemVisitor(formulaVisitor, domain);
 
-            Console.WriteLine("Problem parsed.");
+            return problemVisitor.Visit(tree) as Problem;
         }
     }
 }

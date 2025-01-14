@@ -2,8 +2,9 @@ using System.Text;
 using System.Linq;
 using ImplicitCoordination.DEL;
 using System.Collections.Generic;
+using System;
 
-public static class TreeVisualizer
+public static class mermaidTreeVisualizer
 {
     public static string GenerateMermaidDiagram(State rootState)
     {

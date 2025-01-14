@@ -26,6 +26,8 @@ namespace ImplicitCoordination.Planning
     
         public void Plan()
         {
+            DebugLogger.IsEnabled = true;
+
             Frontier.Enqueue(Root);
 
             while (!SolutionFound())
@@ -125,6 +127,7 @@ namespace ImplicitCoordination.Planning
                             if (sPrime.HasGoalWorld(this.Problem.goalFormula))
                             {
                                 cutoffDepth = sPrime.depth;
+                                DebugLogger.Print($"Found goal world at depth {cutoffDepth}.");
                             }
                         }
                         Frontier.Enqueue(sPrime);
@@ -138,6 +141,7 @@ namespace ImplicitCoordination.Planning
                 {
                     Leaves.Add(state);
                 }
+                DebugLogger.Print($"Added {Leaves.Count()} leaves at cutoff depth {cutoffDepth}.");
             }
         }
 
@@ -161,9 +165,10 @@ namespace ImplicitCoordination.Planning
                     {
                         if (world1 is World w1 && world2 is World w2)
                         {
-                            if (w1.cost.Type == CostType.Finite && (w2.cost.Type == CostType.Infinity ||w2.cost.Type == CostType.Undefined))
+                            if (w1.objectiveCost.Type == CostType.Finite && (w2.objectiveCost.Type == CostType.Infinity || w2.objectiveCost.Type == CostType.Undefined))
                             {
                                 current.accessibility.cutEdges.Add((world1, world2));
+                                DebugLogger.Print($"Cutting edge between world {w1.Name} and {w2.Name}.");
                             }
                         }
                     }
@@ -182,7 +187,11 @@ namespace ImplicitCoordination.Planning
 
         private void ComputeObjectiveCosts()
         {
-            Action<World, Cost> objectiveAssigner = (w, cost) => w.objectiveCost = cost;
+            Action<World, Cost> objectiveAssigner = (w, cost) => 
+            {
+                DebugLogger.Print($"c_o({w.Name}) = {cost}");
+                w.objectiveCost = cost;
+            };
 
             BottomUpCostTraversal(
                 ObjectiveCostAggregator,
@@ -192,7 +201,11 @@ namespace ImplicitCoordination.Planning
 
         private void ComputeSubjectiveCosts()
         {
-            Action<World, Cost> subjectiveAssigner = (w, cost) => w.subjectiveCost = cost;
+            Action<World, Cost> subjectiveAssigner = (w, cost) =>
+            {
+                DebugLogger.Print($"c_s({w.Name}) = {cost}");
+                w.subjectiveCost = cost;
+            };  
 
             BottomUpCostTraversal(
                 SubjectiveCostAggregator,
@@ -373,7 +386,7 @@ namespace ImplicitCoordination.Planning
 
         private void ComputeWorldAgentCosts(State state, World w)
         {
-            if (w.cost.Type == CostType.Unassigned)
+            if (w.subjectiveCost.Type == CostType.Unassigned)
             {
                 throw new Exception("All worlds must have an assigned cost(w) before computing world-agent costs");
             }

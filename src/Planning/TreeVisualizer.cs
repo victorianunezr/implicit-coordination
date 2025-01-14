@@ -5,16 +5,16 @@ using ImplicitCoordination.DEL;
 
 namespace ImplicitCoordination.Planning
 {
-    public class TreeVisualizer
+    public static class TreeVisualizer
     {
-        public void PrintTreeToFile(State rootState, string filePath)
+        public static void PrintTreeToFile(State rootState, string filePath)
         {
             var sb = new StringBuilder();
             PrintState(rootState, sb, "State #0", null, 0);
             File.WriteAllText(filePath, sb.ToString());
         }
 
-        private void PrintState(State state, StringBuilder sb, string stateId, State parent, int indentLevel)
+        private static void PrintState(State state, StringBuilder sb, string stateId, State parent, int indentLevel)
         {
             string indent = new string(' ', indentLevel * 2);
             sb.AppendLine($"{indent}State {stateId} (Parent: {(parent != null ? $"#{parent.Id}" : "#0")})");
