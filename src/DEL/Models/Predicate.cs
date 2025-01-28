@@ -15,6 +15,8 @@ namespace ImplicitCoordination.DEL
         public bool isNegated;
         public List<Parameter> Parameters { get; set; }
 
+        public Predicate(){}
+        
         public Predicate(string name, List<Parameter> parameters=null, bool isNegated=false)
         {
             this.name = name;
@@ -33,8 +35,13 @@ namespace ImplicitCoordination.DEL
             Parameters = new List<Parameter>();
             foreach (string param in parameterNames)
             {
-                Parameters.Add(new Parameter(param));
+                Parameters.Add(new Parameter(param, "default"));
             }
+        }
+
+        public Predicate WithParameters(List<Parameter> parameters)
+        {
+            return new Predicate(name, parameters, isNegated);
         }
 
         public static void ResetIdCounter()
@@ -69,27 +76,6 @@ namespace ImplicitCoordination.DEL
         {
             var paramsStr = string.Join(", ", Parameters.Select(p => p.Name));
             return $"{(isNegated ? "~" : "")}{name}({paramsStr})";
-        }
-    }
-    
-
-    public class Parameter
-    {
-        public string Name { get; set; }
-        public string Type { get; set; }
-
-        public Parameter(string name)
-        {
-            Name = name;
-        }
-        public Parameter(string name, string type)
-        {
-            Name = name;
-            Type = type;
-        }
-        public override string ToString()
-        {
-            return Type != null ? $"{Name}:{Type}" : Name;
         }
     }
 }

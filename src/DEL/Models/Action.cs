@@ -8,6 +8,7 @@ namespace ImplicitCoordination.DEL
     {
         public HashSet<Agent> AllowedAgents { get; set; } = new();
         public Agent owner { get; set; }
+        public List<Parameter> Parameters { get; set; }
 
         public string name;
 
@@ -49,6 +50,6 @@ namespace ImplicitCoordination.DEL
         {
             this.name = name;
             this.AllowedAgents.Add(owner);
-        }       
+        }
     }
 }

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using ImplicitCoordination.DEL.utils;
+﻿using System.Collections;
+using System.Collections.Generic;
 using ImplicitCoordination.Planning;
 
 namespace ImplicitCoordination.DEL
@@ -23,13 +23,14 @@ namespace ImplicitCoordination.DEL
             }
         }
         
+        //todo: deprecate. Use _facts instead.
         public HashSet<Predicate> predicates = new HashSet<Predicate>();
-
-        /// <summary>
-        /// valuation[i] gives truth value for atomic proposition with id i. BitArray currently only allows 64 propositions per world.
-        /// If more propositions are needed, valuation can be modified into a collection of BitArrays.
+            
+        /// <summary>   
+        // A BitArray where each bit corresponds to one ground predicate.
+        // If Facts[index] = true, then that ground predicate is "true" in this state.
         /// </summary>
-        public BitArray valuation;
+        public BitArray Facts;
 
         /// <summary>
         /// Incoming edge keeps track of parent world and event from which this new world was generated.
@@ -64,16 +65,28 @@ namespace ImplicitCoordination.DEL
         /// <summary>
         /// Returns a world with automatically incremented id and BitArray with proposition valuations.
         /// </summary>
-        /// <param name="valuation"></param>
+        /// <param name="totalGroundPredicatesCount">The total number of ground predicates in the problem.</param>
         /// <remarks>
         /// Least significant bit in valuation corresponds to proposition with id=0.
-        /// Instantiating a World without passing a valuation results in a world with all values set to false.
         /// </remarks>
-        public World(ulong valuationData = 0)
+        public World(int totalGroundPredicatesCount=32)
         {
-            this.valuation = new BitArray(valuationData);
+            Facts = new BitArray(totalGroundPredicatesCount, false);
             this.id = Counter;
             Counter++;
+        }
+
+        public World(string name, int totalGroundPredicatesCount=32)
+        {
+            Name = name;
+            Facts = new BitArray(totalGroundPredicatesCount, false);
+            this.id = Counter;
+            Counter++;
+        }
+
+        public World(World other)
+        {
+            Facts = new BitArray(other.Facts);
         }
 
         public bool IsTrue(Predicate p)
@@ -103,10 +116,14 @@ namespace ImplicitCoordination.DEL
             return f.Evaluate(s, this);
         }
 
+        //todo: deprecate. Use constructor instead
         public World Copy()
         {
-            World w = new World(this.valuation.data);
-            w.predicates = new HashSet<Predicate>(this.predicates);
+            World w = new World(this.Facts.Count);
+            if (w.predicates != null)
+            {
+                w.predicates = new HashSet<Predicate>(this.predicates);
+            }
             return w;
         }
 
@@ -160,6 +177,41 @@ namespace ImplicitCoordination.DEL
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Mark the bit at the given index as true (set the predicate as true in this state).
+        /// </summary>
+        public void SetFactTrue(int index)
+        {
+            Facts.Set(index, true);
+        }
+
+        /// <summary>
+        /// Mark the bit at the given index as false (set the predicate as false in this state).
+        /// </summary>
+        public void SetFactFalse(int index)
+        {
+            Facts.Set(index, false);
+        }
+
+        /// <summary>
+        /// Check if the bit at the given index is true (meaning the ground predicate is true in this state).
+        /// </summary>
+        public bool IsFactTrue(int index)
+        {
+            return Facts.Get(index);
+        }
+
+        /// <summary>
+        /// Helper method to check if a particular GroundPredicate is true,
+        /// given we have a Problem that can map the GroundPredicate to an index.
+        /// </summary>
+        public bool IsTrue(GroundPredicate gp)
+        {
+            if (!Problem.GroundPredicateToIndex.TryGetValue(gp, out int idx))
+                return false;  // This ground predicate doesn't exist in the problem indexing
+            return Facts.Get(idx);
         }
     }
 }

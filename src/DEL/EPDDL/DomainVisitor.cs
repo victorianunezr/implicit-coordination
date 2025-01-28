@@ -8,7 +8,7 @@ namespace ImplicitCoordination.DEL
     {
         private Domain domain;
         private FormulaVisitor formulaVisitor = new FormulaVisitor();
-
+        private Action CurrentAction;
         private AccessibilityRelationVisitor accessibilityRelationVisitor = new AccessibilityRelationVisitor();
 
 
@@ -71,7 +71,24 @@ namespace ImplicitCoordination.DEL
         {
             var actionName = context.actionName().GetText();
             var action = new Action { name = actionName };
-            this.accessibilityRelationVisitor.model = action;
+
+            var parametersDef = context.parametersDef();
+            List<Parameter> parameters = new List<Parameter>();
+
+            foreach (var variableContext in parametersDef.typedVariableList().VARIABLE())
+            {
+                string variableName = variableContext.GetText();
+                // Check for type annotation after `-`, if present
+                var typeContext = parametersDef.typedVariableList().type();
+                string variableType = typeContext != null ? typeContext.GetText() : "unknown";
+
+                parameters.Add(new Parameter(variableName, variableType));
+            }
+
+            action.Parameters = parameters;
+
+            accessibilityRelationVisitor.model = action;
+            CurrentAction = action;
 
             // Visit each event definition within the action
             var events = context.eventsDef().eventDef();
@@ -110,6 +127,7 @@ namespace ImplicitCoordination.DEL
         //     }
         //     return null;
         // }
+    
 
         // Visit each event definition and initialize Event model
         public override IWorld VisitEventDef(EPDDLParser.EventDefContext context)
@@ -134,7 +152,14 @@ namespace ImplicitCoordination.DEL
                     foreach (var termContext in literalContext.predicate().term())
                     {
                         string termText = termContext.GetText();
-                        parameters.Add(new Parameter(termText));
+                        Parameter param = CurrentAction.Parameters.FirstOrDefault(
+                            p => p.Name.Equals(termText, StringComparison.OrdinalIgnoreCase));
+
+                        if (param == null)
+                        {
+                            throw new KeyNotFoundException($"No parameter found with name '{termText}'.");
+                        }
+                        parameters.Add(param);
                     }
 
                     Predicate predicate = new Predicate(predicateName, parameters);

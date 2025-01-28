@@ -11,6 +11,7 @@ namespace ImplicitCoordination.DEL
         private Formula leftChild;
         private Formula rightChild;
         private Predicate predicate;
+        private GroundPredicate groundPredicate;
         private ICollection<Formula> operands;
         private Agent agent;
 
@@ -31,6 +32,10 @@ namespace ImplicitCoordination.DEL
                     return false;
 
                 case FormulaType.Atom:
+                    if (groundPredicate != null)
+                    {
+                        return w.IsTrue(groundPredicate);
+                    }
                     return w.IsTrue(predicate);
 
                 case FormulaType.Not:
@@ -118,6 +123,11 @@ namespace ImplicitCoordination.DEL
             return new Formula { type = FormulaType.Atom, predicate = p };
         }
 
+        public static Formula Atom(GroundPredicate gp)
+        {
+            return new Formula { type = FormulaType.Atom, groundPredicate = gp };
+        }
+
         public static Formula And(Formula f1, Formula f2)
         {
             return new Formula { type = FormulaType.And, leftChild = f1, rightChild = f2 };
@@ -170,6 +180,10 @@ namespace ImplicitCoordination.DEL
                     return true;
 
                 case FormulaType.Atom:
+                    if (f1.groundPredicate != null && f2.groundPredicate != null)
+                    {
+                        return f1.groundPredicate.Equals(f2.groundPredicate);
+                    }
                     return f1.predicate.Equals(f2.predicate);
 
                 case FormulaType.Not:

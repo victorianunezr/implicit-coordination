@@ -1,7 +1,4 @@
-﻿using ImplicitCoordination.DEL.utils;
-using ImplicitCoordination.Planning;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ImplicitCoordination.DEL
 {
