@@ -15,6 +15,29 @@ namespace ImplicitCoordination.DEL
             return Type != null ? $"{Name}:{Type}" : Name;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is not NamedEntity other)
+                return false;
+
+            // Compare case-insensitively for both name and type
+            bool sameName = string.Equals(this.Name, other.Name, System.StringComparison.OrdinalIgnoreCase);
+            bool sameType = string.Equals(this.Type, other.Type, System.StringComparison.OrdinalIgnoreCase);
+
+            return sameName && sameType;
+        }
+
+        public override int GetHashCode()
+        {
+            // Case-insensitive hash code by forcing to lower or upper
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 31 + (Name?.ToLowerInvariant().GetHashCode() ?? 0);
+                hash = hash * 31 + (Type?.ToLowerInvariant().GetHashCode() ?? 0);
+                return hash;
+            }
+        }
     }
 
     public class Object : NamedEntity

@@ -13,9 +13,10 @@ namespace ImplicitCoordination.DEL
 
         public ProblemVisitor(FormulaVisitor formulaVisitor, Domain domain)
         {
+            problem = new Problem();
             this.formulaVisitor = formulaVisitor;
+            this.formulaVisitor.problem = problem;
             this.domain = domain;
-            this.problem = new Problem();
         }
 
         public override object VisitProblemDef(EPDDLParser.ProblemDefContext context)

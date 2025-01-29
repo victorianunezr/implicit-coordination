@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 
 namespace ImplicitCoordination.DEL
 {
     public class FormulaVisitor : EPDDLParserBaseVisitor<Formula>
     {
+        public Problem problem;
+
         public override Formula VisitFormulaOrEmpty(EPDDLParser.FormulaOrEmptyContext context)
         {
             if (context == null || context.formula() == null)
@@ -113,26 +116,46 @@ namespace ImplicitCoordination.DEL
         public override Formula VisitPredicate(EPDDLParser.PredicateContext context)
         {
             string predicateName = context.predicateName().GetText();
-            List<Parameter> parameters = new List<Parameter>();
 
-            foreach (var termContext in context.term())
+            var paramArgs = new List<Parameter>();
+            var objectArgs = new List<Object>();
+
+            bool hasVariable = false;
+
+            foreach (var termCtx in context.term())
             {
-                string termText = termContext.GetText();
-                string parameterType = null;
-
-                if (termContext.VARIABLE() != null)
+                // If it's a variable, mark hasVariable = true, and store as a Parameter
+                if (termCtx.VARIABLE() != null)
                 {
-                    parameterType = "variable";
+                    hasVariable = true;
+                    string varName = termCtx.GetText(); 
+                    paramArgs.Add(new Parameter(varName, "variable"));
                 }
-                else if (termContext.groundTerm() != null)
+                else if (termCtx.groundTerm() != null)
                 {
-                    parameterType = termContext.groundTerm().NAME() != null ? "ground" : "agent";
+                    // It's a ground term with a NAME token, e.g. "pos0"
+                    string nameText = termCtx.groundTerm().GetText();
+                    Object obj = problem.GetObjectByName(nameText);
+                    if (obj == null) { throw new Exception($"Unknown object: {nameText}"); }
+                    objectArgs.Add(obj);
                 }
-
-                parameters.Add(new Parameter(termText, parameterType));
+                else
+                {
+                }
             }
 
-            return Formula.Atom(new Predicate(predicateName, parameters));
+            if (hasVariable)
+            {
+                // If any term is a variable, treat the whole predicate as schematic:
+                var schematicPred = new Predicate(predicateName, paramArgs);
+                return Formula.Atom(schematicPred);
+            }
+            else
+            {
+                // If no variables, it's fully grounded:
+                var groundPred = new GroundPredicate(predicateName, objectArgs);
+                return Formula.Atom(groundPred);
+            }
         }
     }
 }
