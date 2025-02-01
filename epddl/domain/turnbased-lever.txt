@@ -9,9 +9,9 @@
         (turn ?agent - agent)
     )
     
-    (:action move-left-alice
-        :parameters (?agent - agent ?pos - position ?next-pos - position)
-        :owners (Alice)
+    (:action move-left
+        :parameters (?agent - agent ?next-agent - agent ?pos - position ?next-pos - position)
+        :owners (Alice Bob)
         :events
             (
                 (e1
@@ -19,22 +19,22 @@
                         (at ?pos) 
                         (not (leftmost ?pos)) 
                         (adjacent ?next-pos ?pos)
-                        (turn Alice)
+                        (turn ?agent)
                     )
                     :effect (
                         (at ?next-pos) 
                         (not (at ?pos)) 
                         (not (turn ?agent)) 
-                        (turn Bob)
+                        (turn ?next-agent)
                     )
                 )
             )
         :accessibility ()
     )
 
-    (:action move-right-alice
-        :parameters (?agent - agent ?pos - position ?next-pos - position)
-        :owners (Alice)
+    (:action move-right
+        :parameters (?agent - agent ?next-agent - agent ?pos - position ?next-pos - position)
+        :owners (Alice Bob)
         :events
             (
                 (e1
@@ -42,59 +42,13 @@
                         (at ?pos) 
                         (not (rightmost ?pos)) 
                         (adjacent ?pos ?next-pos)
-                        (turn Alice)
+                        (turn ?agent)
                     )
                     :effect (
                         (at ?next-pos) 
                         (not (at ?pos)) 
                         (not (turn ?agent)) 
-                        (turn Bob)
-                    )
-                )
-            )
-        :accessibility ()
-    )
-
-    (:action move-left-bob
-        :parameters (?agent - agent ?pos - position ?next-pos - position)
-        :owners (Bob)
-        :events
-            (
-                (e1
-                    :precondition (and 
-                        (at ?pos) 
-                        (not (leftmost ?pos)) 
-                        (adjacent ?next-pos ?pos)
-                        (turn Bob)
-                    )
-                    :effect (
-                        (at ?next-pos) 
-                        (not (at ?pos)) 
-                        (not (turn ?agent)) 
-                        (turn Alice)
-                    )
-                )
-            )
-        :accessibility ()
-    )
-
-    (:action move-right-bob
-        :parameters (?agent - agent ?pos - position ?next-pos - position)
-        :owners (Bob)
-        :events
-            (
-                (e1
-                    :precondition (and 
-                        (at ?pos) 
-                        (not (rightmost ?pos)) 
-                        (adjacent ?pos ?next-pos)
-                        (turn Bob)
-                    )
-                    :effect (
-                        (at ?next-pos) 
-                        (not (at ?pos)) 
-                        (not (turn ?agent)) 
-                        (turn Alice)
+                        (turn ?next-agent)
                     )
                 )
             )

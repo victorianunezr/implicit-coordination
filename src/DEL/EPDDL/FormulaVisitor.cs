@@ -5,7 +5,7 @@ namespace ImplicitCoordination.DEL
 {
     public class FormulaVisitor : EPDDLParserBaseVisitor<Formula>
     {
-        public Problem problem;
+        public static Problem Problem;
 
         public override Formula VisitFormulaOrEmpty(EPDDLParser.FormulaOrEmptyContext context)
         {
@@ -135,7 +135,7 @@ namespace ImplicitCoordination.DEL
                 {
                     // It's a ground term with a NAME token, e.g. "pos0"
                     string nameText = termCtx.groundTerm().GetText();
-                    Object obj = problem.GetObjectByName(nameText);
+                    Object obj = Problem.GetObjectByName(nameText);
                     if (obj == null) { throw new Exception($"Unknown object: {nameText}"); }
                     objectArgs.Add(obj);
                 }

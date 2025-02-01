@@ -71,21 +71,8 @@ namespace ImplicitCoordination.DEL
         {
             var actionName = context.actionName().GetText();
             var action = new Action { name = actionName };
-
-            var parametersDef = context.parametersDef();
-            List<Parameter> parameters = new List<Parameter>();
-
-            foreach (var variableContext in parametersDef.typedVariableList().VARIABLE())
-            {
-                string variableName = variableContext.GetText();
-                // Check for type annotation after `-`, if present
-                var typeContext = parametersDef.typedVariableList().type();
-                string variableType = typeContext != null ? typeContext.GetText() : "unknown";
-
-                parameters.Add(new Parameter(variableName, variableType));
-            }
-
-            action.Parameters = parameters;
+      
+            action.Parameters = VisitParametersDef(context.parametersDef());
 
             accessibilityRelationVisitor.model = action;
             CurrentAction = action;
@@ -116,17 +103,40 @@ namespace ImplicitCoordination.DEL
             return action;
         }
 
-        // Visit parameters definition and populate the action parameters
-        // public override object VisitParametersDef(EPDDLParser.ParametersDefContext context)
-        // {
-        //     foreach (var parameter in context.typedVariableList().VARIABLE())
-        //     {
-        //         var paramName = parameter.GetText();
-        //         currentAction.Parameters.Add(new Parameter { Name = paramName });
-        //         Console.WriteLine($"Parameter: {paramName}");
-        //     }
-        //     return null;
-        // }
+        public override List<Parameter> VisitParametersDef(EPDDLParser.ParametersDefContext context)
+        {
+            // context: PARAMETERS LPAREN typedVariableList RPAREN
+            return VisitTypedVariableList(context.typedVariableList());
+        }
+
+        public override List<Parameter> VisitTypedVariableList(EPDDLParser.TypedVariableListContext context)
+        {
+            var parameters = new List<Parameter>();
+            if (context.DASH() == null)
+            {
+                // First alternative: (VARIABLE)*
+                foreach (var token in context.VARIABLE())
+                {
+                    parameters.Add(new Parameter(token.GetText(), "unknown"));
+                }
+            }
+            else
+            {
+                // Second alternative: VARIABLE (VARIABLE)* DASH type typedVariableList
+                // Collect head variables (those occurring before the DASH)
+                foreach (var token in context.VARIABLE())
+                {
+                    if (token.Symbol.TokenIndex < context.DASH().Symbol.TokenIndex)
+                        parameters.Add(new Parameter(token.GetText(), context.type().GetText()));
+                }
+                // Recurse on the tail if present
+                var tail = context.typedVariableList();
+                if (tail != null)
+                    parameters.AddRange(VisitTypedVariableList(tail));
+            }
+            return parameters;
+        }
+
     
 
         // Visit each event definition and initialize Event model

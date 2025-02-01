@@ -10,7 +10,6 @@ namespace ImplicitCoordination
     {
         static void Main(string[] args)
         {
-            try
             {
                 // Paths to the domain and problem files
                 string domainFilePath = "/Users/victorianunezr/repos/implicit-coordination/epddl/domain/turnbased-lever.txt";
@@ -47,10 +46,7 @@ namespace ImplicitCoordination
                 //     Console.WriteLine($"- {world.name} with predicates: {string.Join(", ", world.predicates)}");
                 // }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
+
         }
 
         static Domain ParseDomain(string filePath)

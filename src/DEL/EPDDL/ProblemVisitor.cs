@@ -15,7 +15,7 @@ namespace ImplicitCoordination.DEL
         {
             problem = new Problem();
             this.formulaVisitor = formulaVisitor;
-            this.formulaVisitor.problem = problem;
+            FormulaVisitor.Problem = problem;
             this.domain = domain;
         }
 

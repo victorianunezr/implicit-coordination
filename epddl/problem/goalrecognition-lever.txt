@@ -5,7 +5,7 @@
 
     (:objects
         pos0 pos1 pos2 pos3 pos4 - position
-        Alice Bob - agent
+        alice bob - agent
     )
 
     (:init
@@ -21,7 +21,7 @@
                     (leftmost pos0)
                     (rightmost pos4)
                     (goal pos0)
-                    (turn Alice)
+                    (turn alice)
                 )
             )
             (w2
@@ -34,7 +34,7 @@
                     (leftmost pos0)
                     (rightmost pos4)
                     (goal pos4)
-                    (turn Alice)
+                    (turn alice)
                 )
             )
         )
