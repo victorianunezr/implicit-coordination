@@ -7,72 +7,59 @@ namespace ImplicitCoordination.DEL
     public class Formula
     {
         private FormulaType type;
+        private Predicate predicate;         // schematic
+        private GroundPredicate groundPredicate;
+
         private Formula child;
         private Formula leftChild;
         private Formula rightChild;
-        private Predicate predicate;
-        private GroundPredicate groundPredicate;
         private ICollection<Formula> operands;
         private Agent agent;
 
+        public FormulaType GetFormulaType()
+        {
+            return type;
+        }
+
         /// <summary>
-        /// Evaluates validity of a formula in a pointed world model (i.e. truth of a formula in a given world).
+        // "Normal" Evaluate for ground formulas in a pointed world model (i.e. truth of a formula in a given world).
         /// </summary>
-        /// <param name="s"></param>
-        /// <param name="w"></param>
-        /// <returns></returns>
         public bool Evaluate(State s, World w)
         {
             switch (type)
             {
-                case FormulaType.Top:
-                    return true;
-
-                case FormulaType.Bottom:
-                    return false;
+                case FormulaType.Top: return true;
+                case FormulaType.Bottom: return false;
 
                 case FormulaType.Atom:
+                    // If groundPredicate is set, check it
                     if (groundPredicate != null)
-                    {
                         return w.IsTrue(groundPredicate);
-                    }
-                    return w.IsTrue(predicate);
+                    // If predicate is set, this is schematic => not handled here
+                    return false;
 
                 case FormulaType.Not:
                     return !child.Evaluate(s, w);
-
                 case FormulaType.And:
-                     return leftChild.Evaluate(s, w) && rightChild.Evaluate(s, w);
-
+                    return leftChild.Evaluate(s, w) && rightChild.Evaluate(s, w);
                 case FormulaType.Or:
                     return leftChild.Evaluate(s, w) || rightChild.Evaluate(s, w);
-
                 case FormulaType.Implies:
                     return !leftChild.Evaluate(s, w) || rightChild.Evaluate(s, w);
 
                 case FormulaType.Disjunction:
-                    foreach (Formula f in operands)
-                    {
-                        if (f.Evaluate(s, w)) { return true; }
-                    }
+                    foreach (var f in operands)
+                        if (f.Evaluate(s, w)) return true;
                     return false;
 
                 case FormulaType.Conjunction:
-                    foreach (Formula f in operands)
-                    {
-                        if (!f.Evaluate(s, w)) 
-                        { 
-                            return false; 
-                        }
-                    }
+                    foreach (var f in operands)
+                        if (!f.Evaluate(s, w)) return false;
                     return true;
 
                 case FormulaType.Knows:
-
                     foreach (World v in s.accessibility.GetAccessibleWorlds(agent, w))
-                    {
-                        if (!child.Evaluate(s, v)) { return false; }
-                    }
+                        if (!child.Evaluate(s, v)) return false;
                     return true;
 
                 case FormulaType.CommonKnow:
@@ -81,7 +68,6 @@ namespace ImplicitCoordination.DEL
 
                 default:
                     return false;
-
             }
         }
 
@@ -102,6 +88,161 @@ namespace ImplicitCoordination.DEL
 
             return true;
         }
+        
+        // Schematic-aware Evaluate that tries all variable assignments if needed
+        public bool EvaluateSchematic(State s, World w, IEnumerable<Object> allObjects)
+        {
+            // If there are no variables in this formula, do normal Evaluate
+            if (!HasVariables(this))
+                return Evaluate(s, w);
+
+            // Otherwise, gather variables, attempt all assignments
+            var vars = new HashSet<string>();
+            CollectVariables(this, vars);
+
+            foreach (var assignment in GenerateAssignments(vars.ToList(), allObjects.ToList()))
+            {
+                var groundFormula = SubstituteVariables(this, assignment);
+                if (groundFormula.Evaluate(s, w))
+                    return true;
+            }
+            return false;
+        }
+
+        // Helper to check if there's at least one variable in the formula
+        private bool HasVariables(Formula f)
+        {
+            var vars = new HashSet<string>();
+            CollectVariables(f, vars);
+            return vars.Any();
+        }
+
+        // Recursively collect variable names from schematic predicates
+        private void CollectVariables(Formula f, HashSet<string> vars)
+        {
+            switch (f.type)
+            {
+                case FormulaType.Atom:
+                    // If schematic, gather variable param names
+                    if (f.predicate != null)
+                    {
+                        foreach (var param in f.predicate.Parameters)
+                            if (IsVariable(param.Name))
+                                vars.Add(param.Name);
+                    }
+                    break;
+
+                case FormulaType.Not:
+                    CollectVariables(f.child, vars);
+                    break;
+                case FormulaType.And:
+                case FormulaType.Or:
+                case FormulaType.Implies:
+                    CollectVariables(f.leftChild, vars);
+                    CollectVariables(f.rightChild, vars);
+                    break;
+                case FormulaType.Disjunction:
+                case FormulaType.Conjunction:
+                    foreach (var sf in f.operands)
+                        CollectVariables(sf, vars);
+                    break;
+                case FormulaType.Knows:
+                case FormulaType.CommonKnow:
+                    CollectVariables(f.child, vars);
+                    break;
+            }
+        }
+
+        private bool IsVariable(string name)
+        {
+            return name.StartsWith("?");
+        }
+
+        // Generate all variable->object assignments (Cartesian product)
+        private IEnumerable<Dictionary<string, Object>> GenerateAssignments(List<string> varList, List<Object> allObjs)
+        {
+            if (!varList.Any())
+            {
+                yield return new Dictionary<string, Object>();
+                yield break;
+            }
+
+            var firstVar = varList[0];
+            var restVars = varList.Skip(1).ToList();
+
+            foreach (var obj in allObjs)
+            {
+                foreach (var partial in GenerateAssignments(restVars, allObjs))
+                {
+                    var newMap = new Dictionary<string, Object>(partial);
+                    newMap[firstVar] = obj;
+                    yield return newMap;
+                }
+            }
+        }
+
+        // Substitute variables in a formula => produce a ground formula
+        private Formula SubstituteVariables(Formula original, Dictionary<string, Object> assignment)
+        {
+            switch (original.type)
+            {
+                case FormulaType.Atom:
+                    if (original.groundPredicate != null)
+                        // Already ground
+                        return original;
+                    if (original.predicate != null)
+                    {
+                        // Build a new ground predicate
+                        var gpName = original.predicate.name;
+                        var gpObjs = new List<Object>();
+                        foreach (var p in original.predicate.Parameters)
+                        {
+                            if (IsVariable(p.Name) && assignment.ContainsKey(p.Name))
+                                gpObjs.Add(assignment[p.Name]);
+                            else
+                                gpObjs.Add(new Object(p.Name, p.Type));
+                        }
+                        return new Formula {
+                            type = FormulaType.Atom,
+                            groundPredicate = new GroundPredicate(gpName, gpObjs)
+                        };
+                    }
+                    return original;
+
+                case FormulaType.Not:
+                    return new Formula {
+                        type = FormulaType.Not,
+                        child = SubstituteVariables(original.child, assignment)
+                    };
+                case FormulaType.And:
+                case FormulaType.Or:
+                case FormulaType.Implies:
+                    return new Formula {
+                        type = original.type,
+                        leftChild = SubstituteVariables(original.leftChild, assignment),
+                        rightChild = SubstituteVariables(original.rightChild, assignment)
+                    };
+                case FormulaType.Disjunction:
+                case FormulaType.Conjunction:
+                    var subs = new List<Formula>();
+                    foreach (var sf in original.operands)
+                        subs.Add(SubstituteVariables(sf, assignment));
+                    return new Formula {
+                        type = original.type,
+                        operands = subs
+                    };
+                case FormulaType.Knows:
+                case FormulaType.CommonKnow:
+                    return new Formula {
+                        type = original.type,
+                        agent = original.agent,
+                        child = SubstituteVariables(original.child, assignment)
+                    };
+                default:
+                    return original;
+            }
+        }
+
 
         public static Formula Top()
         {
@@ -161,11 +302,6 @@ namespace ImplicitCoordination.DEL
         public static Formula CommonKnow(Formula f)
         {
             return new Formula { type = FormulaType.CommonKnow, child = f };
-        }
-
-        public FormulaType GetFormulaType()
-        {
-            return this.type;
         }
 
         public static bool AreFormulasEqual(Formula f1, Formula f2)

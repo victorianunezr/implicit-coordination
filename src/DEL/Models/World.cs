@@ -8,6 +8,7 @@ namespace ImplicitCoordination.DEL
     {
         private static ushort Counter = 0;
         private readonly ushort id;
+        public static Problem Problem;
         public ushort Id => this.id;
         private string name;
         public string Name
@@ -111,9 +112,14 @@ namespace ImplicitCoordination.DEL
             }
         }
 
-        public bool IsValid(State s, Formula f)
+        public bool IsGroundPredicateValid(State s, Formula f)
         {
             return f.Evaluate(s, this);
+        }
+
+        public bool IsValid(State s, Formula f)
+        {
+            return f.EvaluateSchematic(s, this, Problem.Objects);
         }
 
         //todo: deprecate. Use constructor instead

@@ -9,6 +9,7 @@ namespace ImplicitCoordination.DEL
     {
         private static ushort Counter = 0;
         private readonly ushort id;
+        public static Problem Problem;
         public ushort Id => this.id;
         public string Name => $"s{id}";
         public State Parent { get; set; }
@@ -150,7 +151,7 @@ namespace ImplicitCoordination.DEL
 
                 foreach (Event e in action.designatedWorlds)
                 {
-                    if (w.IsValid(this, e.pre))
+                    if (w.IsGroundPredicateValid(this, e.pre))
                     {
                         eventExistsForWorld = true;
                         break;
@@ -183,7 +184,7 @@ namespace ImplicitCoordination.DEL
             {
                 foreach (Event e in action.possibleWorlds)
                 {
-                    if (w.IsValid(this, e.pre))
+                    if (w.IsGroundPredicateValid(this, e.pre))
                     {
                         // If precondition of e holds in w, create child world w'
                         World wPrime = w.CreateChild(action, e);

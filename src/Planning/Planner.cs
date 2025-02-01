@@ -22,6 +22,8 @@ namespace ImplicitCoordination.Planning
             Domain = domain;
             Problem = problem;
             Root = problem.initialState;
+            State.Problem = Problem;
+            World.Problem = Problem;
         }
     
         public void Plan()

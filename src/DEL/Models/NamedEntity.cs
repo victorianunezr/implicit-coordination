@@ -20,7 +20,6 @@ namespace ImplicitCoordination.DEL
             if (obj is not NamedEntity other)
                 return false;
 
-            // Compare case-insensitively for both name and type
             bool sameName = string.Equals(this.Name, other.Name, System.StringComparison.OrdinalIgnoreCase);
             bool sameType = string.Equals(this.Type, other.Type, System.StringComparison.OrdinalIgnoreCase);
 
@@ -29,7 +28,6 @@ namespace ImplicitCoordination.DEL
 
         public override int GetHashCode()
         {
-            // Case-insensitive hash code by forcing to lower or upper
             unchecked
             {
                 int hash = 17;

@@ -107,7 +107,7 @@ namespace DEL.Tests
             Formula f = Formula.And(Formula.Atom(p), Formula.Atom(r));
 
             // Act - Assert
-            Assert.IsTrue(w.IsValid(s, f));
+            Assert.IsTrue(w.IsGroundPredicateValid(s, f));
         }
 
         [Test]
