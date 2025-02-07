@@ -90,11 +90,11 @@ namespace ImplicitCoordination.DEL
         }
         
         // Schematic-aware Evaluate that tries all variable assignments if needed
-        public bool EvaluateSchematic(State s, World w, IEnumerable<Object> allObjects)
+        public EvaluationResult EvaluateSchematic(State s, World w, IEnumerable<Object> allObjects)
         {
             // If there are no variables in this formula, do normal Evaluate
             if (!HasVariables(this))
-                return Evaluate(s, w);
+                return new EvaluationResult { Satisfied = Evaluate(s, w), Assignment = new Dictionary<string, Object>() };
 
             // Otherwise, gather variables, attempt all assignments
             var vars = new HashSet<string>();
@@ -104,9 +104,9 @@ namespace ImplicitCoordination.DEL
             {
                 var groundFormula = SubstituteVariables(this, assignment);
                 if (groundFormula.Evaluate(s, w))
-                    return true;
+                    return new EvaluationResult { Satisfied = true, Assignment = assignment };
             }
-            return false;
+            return new EvaluationResult { Satisfied = false, Assignment = null };
         }
 
         // Helper to check if there's at least one variable in the formula
@@ -347,5 +347,47 @@ namespace ImplicitCoordination.DEL
                     return false;
             }
         }
+
+        public override string ToString()
+        {
+            switch (this.type)
+            {
+                case FormulaType.Top:
+                    return "⊤";
+                case FormulaType.Bottom:
+                    return "⊥";
+                case FormulaType.Atom:
+                    if (this.groundPredicate != null)
+                        return this.groundPredicate.ToString();
+                    else if (this.predicate != null)
+                        return this.predicate.ToString();
+                    else
+                        return "Atom(?)";
+                case FormulaType.Not:
+                    return "¬(" + (child != null ? child.ToString() : "null") + ")";
+                case FormulaType.And:
+                    return "(" + (leftChild != null ? leftChild.ToString() : "null") + " ∧ " + (rightChild != null ? rightChild.ToString() : "null") + ")";
+                case FormulaType.Or:
+                    return "(" + (leftChild != null ? leftChild.ToString() : "null") + " ∨ " + (rightChild != null ? rightChild.ToString() : "null") + ")";
+                case FormulaType.Implies:
+                    return "(" + (leftChild != null ? leftChild.ToString() : "null") + " → " + (rightChild != null ? rightChild.ToString() : "null") + ")";
+                case FormulaType.Disjunction:
+                    return "(" + string.Join(" ∨ ", (operands ?? new List<Formula>()).Select(o => o.ToString())) + ")";
+                case FormulaType.Conjunction:
+                    return "(" + string.Join(" ∧ ", (operands ?? new List<Formula>()).Select(o => o.ToString())) + ")";
+                case FormulaType.Knows:
+                    return "K(" + (agent != null ? agent.ToString() : "null") + ", " + (child != null ? child.ToString() : "null") + ")";
+                case FormulaType.CommonKnow:
+                    return "C(" + (child != null ? child.ToString() : "null") + ")";
+                default:
+                    return base.ToString();
+            }
+        }
+    }
+
+    public class EvaluationResult
+    {
+        public bool Satisfied { get; set; }
+        public Dictionary<string, Object> Assignment { get; set; }
     }
 }

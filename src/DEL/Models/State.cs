@@ -151,7 +151,7 @@ namespace ImplicitCoordination.DEL
 
                 foreach (Event e in action.designatedWorlds)
                 {
-                    if (w.IsGroundPredicateValid(this, e.pre))
+                    if (w.IsValid(this, e.pre).Satisfied)
                     {
                         eventExistsForWorld = true;
                         break;
@@ -184,13 +184,15 @@ namespace ImplicitCoordination.DEL
             {
                 foreach (Event e in action.possibleWorlds)
                 {
-                    if (w.IsGroundPredicateValid(this, e.pre))
+                    var evalResult = w.IsValid(this, e.pre);
+
+                    if (evalResult.Satisfied)
                     {
                         // If precondition of e holds in w, create child world w'
                         World wPrime = w.CreateChild(action, e);
 
                         // Update valuation of w' according to postcondition of e. Valuation only changes if e.post != null
-                        UpdateValuation(wPrime, e.effect);
+                        UpdateValuation(wPrime, e.effect, evalResult.Assignment);
 
                         newPossibleWorlds.Add(wPrime);
 
@@ -216,26 +218,27 @@ namespace ImplicitCoordination.DEL
         }
 
 
-        /// <summary>
-        /// Updates the valuation function of w according to the postcondition of the event e.
-        /// </summary>
-        /// <param name="w">New world in W' of which valuation function is updated</param>
-        /// <param name="postcondition">Postcondition of e.</param>
-        /// <remarks>
-        /// The valuation of w is initalized as a copy of the parent world's valuation.
-        /// This means that the new valuation of p will remain the same if it is not set to a value in the postcondition of e.
-        /// </remarks>
-        public static void UpdateValuation(World w, IDictionary<Predicate, bool> postcondition)
+        // UpdateValuation applies the effect of an event to a new world wPrime.
+        // 'postcondition' is a dictionary mapping schematic Predicates to their desired truth value.
+        // 'assignment' is a mapping from variable names to Objects, produced by the action instantiation.
+        public static void UpdateValuation(World wPrime, IDictionary<Predicate, bool> postcondition, Dictionary<string, Object> assignment)
         {
             if (postcondition != null)
             {
-                foreach (var entry in postcondition)
+                foreach (var kvp in postcondition)
                 {
-                    w.SetValuation(entry.Key, entry.Value);
+                    GroundPredicate gp = SubstituteVariables(kvp.Key, assignment);
+                    if (Problem.GroundPredicateToIndex.TryGetValue(gp, out int idx))
+                    {
+                        wPrime.Facts.Set(idx, kvp.Value);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Warning: Ground predicate {gp} not found in index.");
+                    }
                 }
             }
         }
-
         /// <summary>
         /// Takes in a copy of the source accessibility relation and applies the changes according to the product update on it
         /// </summary>
@@ -267,11 +270,25 @@ namespace ImplicitCoordination.DEL
             }
         }
 
-        // public bool Equals(State other)
-        // {
-        //     if (!this.designatedWorlds.ContainsSameWorlds(other.designatedWorlds)) return false;
-        //     if (!this.possibleWorlds.ContainsSameWorlds(other.possibleWorlds)) return false;
-        //     return this.accessibilityHash.SequenceEqual(other.accessibilityHash);
-        // }
+        private static GroundPredicate SubstituteVariables(Predicate p, Dictionary<string, Object> assignment)
+        {
+            var newArgs = new List<Object>();
+            foreach (var param in p.Parameters)
+            {
+                if (param.Name.StartsWith("?"))
+                {
+                    if (assignment.TryGetValue(param.Name, out Object obj))
+                        newArgs.Add(obj);
+                    else
+                        newArgs.Add(new Object(param.Name, param.Type));
+                }
+                else
+                {
+                    newArgs.Add(new Object(param.Name, param.Type));
+                }
+            }
+            return new GroundPredicate(p.name, newArgs);
+        }
+
     }
 }

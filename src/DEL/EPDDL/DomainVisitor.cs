@@ -50,17 +50,7 @@ namespace ImplicitCoordination.DEL
         public override object VisitPredicateDef(EPDDLParser.PredicateDefContext context)
         {
             string predicateName = context.predicateName().GetText();
-            List<Parameter> parameters = new List<Parameter>();
-
-            foreach (var variableContext in context.typedVariableList().VARIABLE())
-            {
-                string variableName = variableContext.GetText();
-                // Check for type annotation after `-`, if present
-                var typeContext = context.typedVariableList().type();
-                string variableType = typeContext != null ? typeContext.GetText() : "unknown";
-
-                parameters.Add(new Parameter(variableName, variableType));
-            }
+            List<Parameter> parameters = VisitTypedVariableList(context.typedVariableList());;
 
             Predicate predicate = new Predicate(predicateName, parameters);
             

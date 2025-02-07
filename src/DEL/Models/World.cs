@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using ImplicitCoordination.Planning;
 
@@ -117,7 +118,7 @@ namespace ImplicitCoordination.DEL
             return f.Evaluate(s, this);
         }
 
-        public bool IsValid(State s, Formula f)
+        public EvaluationResult IsValid(State s, Formula f)
         {
             return f.EvaluateSchematic(s, this, Problem.Objects);
         }
@@ -168,7 +169,7 @@ namespace ImplicitCoordination.DEL
         {
             foreach (Event e in action.designatedWorlds)
             {
-                if (e.pre.Evaluate(state, this)) return true;
+                if (e.pre.EvaluateSchematic(state, this, Problem.Objects).Satisfied) return true;
             }
             return false;
         }
@@ -179,7 +180,7 @@ namespace ImplicitCoordination.DEL
             {
                 foreach (Event e in a.possibleWorlds)
                 {
-                    if (e.pre.Evaluate(s, this)) return true;
+                    if (e.pre.EvaluateSchematic(s, this, Problem.Objects).Satisfied) return true;
                 }
             }
             return false;
@@ -218,6 +219,18 @@ namespace ImplicitCoordination.DEL
             if (!Problem.GroundPredicateToIndex.TryGetValue(gp, out int idx))
                 return false;  // This ground predicate doesn't exist in the problem indexing
             return Facts.Get(idx);
+        }
+
+        public void PrintFacts()
+        {
+            Console.WriteLine("Facts for world " + Name + ":");
+            for (int i = 0; i < Facts.Length; i++)
+            {
+                if (Facts.Get(i))
+                {
+                    Console.WriteLine(Problem.IndexToGroundPredicate[i].ToString());
+                }
+            }
         }
     }
 }
