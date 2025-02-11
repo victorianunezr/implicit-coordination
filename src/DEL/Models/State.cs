@@ -38,6 +38,8 @@ namespace ImplicitCoordination.DEL
             : base(possibleWorlds, designatedWorlds, accessibility)
         {
             Parent = parent;
+            depth = parent.depth;
+            depth++;
             ActionName = actionName;
             id = Counter;
             Counter++;
@@ -219,13 +221,13 @@ namespace ImplicitCoordination.DEL
 
 
         // UpdateValuation applies the effect of an event to a new world wPrime.
-        // 'postcondition' is a dictionary mapping schematic Predicates to their desired truth value.
+        // 'effect' is a dictionary mapping schematic Predicates to their desired truth value.
         // 'assignment' is a mapping from variable names to Objects, produced by the action instantiation.
-        public static void UpdateValuation(World wPrime, IDictionary<Predicate, bool> postcondition, Dictionary<string, Object> assignment)
+        public static void UpdateValuation(World wPrime, IDictionary<Predicate, bool> effect, Dictionary<string, Object> assignment)
         {
-            if (postcondition != null)
+            if (effect != null)
             {
-                foreach (var kvp in postcondition)
+                foreach (var kvp in effect)
                 {
                     GroundPredicate gp = SubstituteVariables(kvp.Key, assignment);
                     if (Problem.GroundPredicateToIndex.TryGetValue(gp, out int idx))

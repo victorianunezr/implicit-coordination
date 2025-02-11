@@ -22,6 +22,7 @@
                     (rightmost pos4)
                     (goal pos0)
                     (turn alice)
+                    (nextturn bob)
                 )
             )
             (w2
@@ -35,6 +36,7 @@
                     (rightmost pos4)
                     (goal pos4)
                     (turn alice)
+                    (nextturn bob)
                 )
             )
         )

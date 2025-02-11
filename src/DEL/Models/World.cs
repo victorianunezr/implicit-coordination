@@ -89,6 +89,9 @@ namespace ImplicitCoordination.DEL
         public World(World other)
         {
             Facts = new BitArray(other.Facts);
+            Name = name;
+            this.id = Counter;
+            Counter++;
         }
 
         public bool IsTrue(Predicate p)
@@ -143,7 +146,7 @@ namespace ImplicitCoordination.DEL
         /// <returns></returns>
         public World CreateChild(Action a, Event e)
         {
-            World childWorld = this.Copy();
+            World childWorld = new World(this);
             WorldEdge edge = new WorldEdge(childWorld, this, e, a);
             this.outgoingEdges.Add(edge);
             childWorld.incomingEdge = edge;
