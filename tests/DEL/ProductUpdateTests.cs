@@ -69,9 +69,9 @@ namespace DEL.Tests
             World vPrime = this.v.Copy();
 
             // Act
-            State.UpdateValuation(wPrime, this.e.effect);
-            State.UpdateValuation(uPrime, this.e.effect);
-            State.UpdateValuation(vPrime, this.e.effect);
+            State.UpdateValuation(wPrime, this.e.effect, new Dictionary<string, Object>());
+            State.UpdateValuation(uPrime, this.e.effect, new Dictionary<string, Object>());
+            State.UpdateValuation(vPrime, this.e.effect, new Dictionary<string, Object>());
 
             // Assert
             Assert.IsFalse(wPrime.IsTrue(p));
@@ -94,9 +94,9 @@ namespace DEL.Tests
             World vPrime = this.v.Copy();
 
             // Act
-            State.UpdateValuation(wPrime, this.f.effect);
-            State.UpdateValuation(uPrime, this.f.effect);
-            State.UpdateValuation(vPrime, this.f.effect);
+            State.UpdateValuation(wPrime, this.f.effect, new Dictionary<string, Object>());
+            State.UpdateValuation(uPrime, this.f.effect, new Dictionary<string, Object>());
+            State.UpdateValuation(vPrime, this.f.effect, new Dictionary<string, Object>());
 
             // Assert
             Assert.IsTrue(wPrime.IsTrue(p));

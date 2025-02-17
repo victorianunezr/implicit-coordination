@@ -252,7 +252,8 @@ namespace ImplicitCoordination.Planning
         private IEnumerable<Cost> ObjectiveCostAggregator(World w, State state)
         {
             return w.outgoingEdges
-                .GroupBy(edge => edge.action)
+                .Where(edge => !edge.isPruned && !edge.childWorld.isPruned)
+                .GroupBy(edge => new { edge.action, edge.actingAgent })
                 .Select(group => group.Max(edge => edge.childWorld.objectiveCost));
         }
 
@@ -260,13 +261,13 @@ namespace ImplicitCoordination.Planning
         {
             return w.outgoingEdges
                 .Where(edge => !edge.isPruned && !edge.childWorld.isPruned)
-                .GroupBy(edge => edge.action)
+                .GroupBy(edge => new { edge.action, edge.actingAgent })
                 .Select(group =>
                 {
-                    var actionOwner = group.First().action.owner;
+                    var actingAgent = group.First().actingAgent;
 
                     // Costs from accessible worlds' children
-                    var accessibleChildCosts = state.accessibility.GetAccessibleWorlds(actionOwner, w, includeCutEdges:false)
+                    var accessibleChildCosts = state.accessibility.GetAccessibleWorlds(actingAgent, w, includeCutEdges:false)
                         .OfType<World>()
                         .Where(world => !world.isPruned)
                         .SelectMany(world => world.outgoingEdges)
@@ -357,7 +358,7 @@ namespace ImplicitCoordination.Planning
 
                     foreach (var edge in w.outgoingEdges)
                     {
-                        var agent = edge.action.owner;
+                        var agent = edge.actingAgent;
                         if (agent == null) throw new Exception($"Action {edge.action.name} has no owner."); // Or handle no-agent case
 
                         // Prune edges whose cost is higher than the world’s cost for that agent

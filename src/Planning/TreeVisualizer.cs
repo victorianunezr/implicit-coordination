@@ -32,7 +32,7 @@ namespace ImplicitCoordination.Planning
                     sb.AppendLine($"{indent} │   │    Accessibility Edges:");
                     foreach (var edge in world.outgoingEdges)
                     {
-                        sb.AppendLine($"{indent} │   │      - ({edge.action.owner}) -> World {edge.childWorld}");
+                        sb.AppendLine($"{indent} │   │      - ({edge.actingAgent}) -> World {edge.childWorld}");
                     }
                 }
                 else

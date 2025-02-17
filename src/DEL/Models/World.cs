@@ -144,10 +144,10 @@ namespace ImplicitCoordination.DEL
         /// <param name="w"></param>
         /// <param name="e"></param>
         /// <returns></returns>
-        public World CreateChild(Action a, Event e)
+        public World CreateChild(Action action, Event evt, Agent actionOwner=null)
         {
             World childWorld = new World(this);
-            WorldEdge edge = new WorldEdge(childWorld, this, e, a);
+            WorldEdge edge = new WorldEdge(childWorld, this, evt, action, actionOwner);
             this.outgoingEdges.Add(edge);
             childWorld.incomingEdge = edge;
             return childWorld;

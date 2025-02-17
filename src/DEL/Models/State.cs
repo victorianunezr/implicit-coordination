@@ -191,7 +191,8 @@ namespace ImplicitCoordination.DEL
                     if (evalResult.Satisfied)
                     {
                         // If precondition of e holds in w, create child world w'
-                        World wPrime = w.CreateChild(action, e);
+                        Agent actingAgent = GetActingAgent(evalResult.Assignment);
+                        World wPrime = w.CreateChild(action, e, actingAgent);
 
                         // Update valuation of w' according to postcondition of e. Valuation only changes if e.post != null
                         UpdateValuation(wPrime, e.effect, evalResult.Assignment);
@@ -292,5 +293,13 @@ namespace ImplicitCoordination.DEL
             return new GroundPredicate(p.name, newArgs);
         }
 
+        public Agent GetActingAgent(Dictionary<string, Object> assignment)
+        {
+            if (assignment.TryGetValue("?agent", out Object obj))
+            {
+                return new Agent(obj.Name);
+            }
+            throw new Exception("No acting agent found in the assignment.");
+        }
     }
 }
