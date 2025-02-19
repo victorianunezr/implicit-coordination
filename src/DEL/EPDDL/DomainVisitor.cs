@@ -30,7 +30,7 @@ namespace ImplicitCoordination.DEL
                 }
                 else
                 {
-                    Console.WriteLine("Unprocessed domain item detected.");
+                    // Console.WriteLine("Unprocessed domain item detected.");
                 }
             }
             return domain;
@@ -66,6 +66,7 @@ namespace ImplicitCoordination.DEL
 
             accessibilityRelationVisitor.model = action;
             CurrentAction = action;
+            formulaVisitor.CurrentAction = action;
 
             // Visit each event definition within the action
             var events = context.eventsDef().eventDef();

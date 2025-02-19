@@ -220,7 +220,7 @@ namespace ImplicitCoordination.DEL
         public bool IsTrue(GroundPredicate gp)
         {
             if (!Problem.GroundPredicateToIndex.TryGetValue(gp, out int idx))
-                return false;  // This ground predicate doesn't exist in the problem indexing
+                throw new Exception("This ground predicate doesn't exist in the problem indexing");
             return Facts.Get(idx);
         }
 

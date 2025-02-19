@@ -21,6 +21,7 @@ namespace ImplicitCoordination.DEL
             return $"{Name}({argsList})";
         }
 
+        // Equality is based on Predicate's name and arguments' names, but ignores arguments' types.
         public override bool Equals(object obj)
         {
             if (obj is GroundPredicate other)
@@ -29,7 +30,7 @@ namespace ImplicitCoordination.DEL
                 if (Arguments.Count != other.Arguments.Count) return false;
                 for (int i = 0; i < Arguments.Count; i++)
                 {
-                    if (!Arguments[i].Equals(other.Arguments[i])) return false;
+                    if (!Arguments[i].Name.Equals(other.Arguments[i].Name)) return false;
                 }
                 return true;
             }
@@ -44,11 +45,11 @@ namespace ImplicitCoordination.DEL
                 hash = hash * 31 + Name.GetHashCode();
                 foreach (var arg in Arguments)
                 {
-                    hash = hash * 31 + arg.GetHashCode();
+                    // Use the argument's name hash code rather than the object's hash code.
+                    hash = hash * 31 + (arg.Name?.GetHashCode() ?? 0);
                 }
                 return hash;
             }
         }
-
     }
 }

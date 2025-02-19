@@ -97,10 +97,10 @@ namespace ImplicitCoordination.DEL
                 return new EvaluationResult { Satisfied = Evaluate(s, w), Assignment = new Dictionary<string, Object>() };
 
             // Otherwise, gather variables, attempt all assignments
-            var vars = new HashSet<string>();
-            CollectVariables(this, vars);
+            var parameters = new HashSet<Parameter>();
+            CollectParameters(this, parameters);
 
-            foreach (var assignment in GenerateAssignments(vars.ToList(), allObjects.ToList()))
+            foreach (var assignment in GenerateAssignments(parameters.ToList(), allObjects.ToList()))
             {
                 var groundFormula = SubstituteVariables(this, assignment);
                 if (groundFormula.Evaluate(s, w))
@@ -112,43 +112,42 @@ namespace ImplicitCoordination.DEL
         // Helper to check if there's at least one variable in the formula
         private bool HasVariables(Formula f)
         {
-            var vars = new HashSet<string>();
-            CollectVariables(f, vars);
-            return vars.Any();
+            var parameters = new HashSet<Parameter>();
+            CollectParameters(f, parameters);
+            return parameters.Any();
         }
 
-        // Recursively collect variable names from schematic predicates
-        private void CollectVariables(Formula f, HashSet<string> vars)
+        private void CollectParameters(Formula f, HashSet<Parameter> parameters)
         {
             switch (f.type)
             {
                 case FormulaType.Atom:
-                    // If schematic, gather variable param names
                     if (f.predicate != null)
                     {
                         foreach (var param in f.predicate.Parameters)
+                        {
                             if (IsVariable(param.Name))
-                                vars.Add(param.Name);
+                                parameters.Add(param);
+                        }
                     }
                     break;
-
                 case FormulaType.Not:
-                    CollectVariables(f.child, vars);
+                    CollectParameters(f.child, parameters);
                     break;
                 case FormulaType.And:
                 case FormulaType.Or:
                 case FormulaType.Implies:
-                    CollectVariables(f.leftChild, vars);
-                    CollectVariables(f.rightChild, vars);
+                    CollectParameters(f.leftChild, parameters);
+                    CollectParameters(f.rightChild, parameters);
                     break;
                 case FormulaType.Disjunction:
                 case FormulaType.Conjunction:
-                    foreach (var sf in f.operands)
-                        CollectVariables(sf, vars);
+                    foreach (var subFormula in f.operands)
+                        CollectParameters(subFormula, parameters);
                     break;
                 case FormulaType.Knows:
                 case FormulaType.CommonKnow:
-                    CollectVariables(f.child, vars);
+                    CollectParameters(f.child, parameters);
                     break;
             }
         }
@@ -159,23 +158,53 @@ namespace ImplicitCoordination.DEL
         }
 
         // Generate all variable->object assignments (Cartesian product)
-        private IEnumerable<Dictionary<string, Object>> GenerateAssignments(List<string> varList, List<Object> allObjs)
+        private IEnumerable<Dictionary<string, Object>> GenerateAssignments(
+            List<Parameter> parameters,
+            List<Object> allObjs)
         {
-            if (!varList.Any())
+            if (!parameters.Any())
             {
                 yield return new Dictionary<string, Object>();
                 yield break;
             }
 
-            var firstVar = varList[0];
-            var restVars = varList.Skip(1).ToList();
+            var firstParam = parameters[0];
+            var restparameters = parameters.Skip(1).ToList();
 
-            foreach (var obj in allObjs)
+            List<Object> candidateObjs;
+            if (firstParam.Name.StartsWith("?"))
             {
-                foreach (var partial in GenerateAssignments(restVars, allObjs))
+                // If a type is specified and not "unknown", filter objects by type.
+                if (!string.IsNullOrEmpty(firstParam.Type) && !firstParam.Type.Equals("unknown", StringComparison.OrdinalIgnoreCase))
+                {
+                    candidateObjs = allObjs
+                        .Where(o => string.Equals(o.Type, firstParam.Type, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                    if (!candidateObjs.Any())
+                        candidateObjs = allObjs; // fallback if no object of the expected type exists
+                }
+                else
+                {
+                    candidateObjs = allObjs;
+                }
+            }
+            else
+            {
+                // If not a variable, treat the parameter as a constant.
+                candidateObjs = allObjs
+                    .Where(o => string.Equals(o.Name, firstParam.Name, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                if (!candidateObjs.Any())
+                    candidateObjs = allObjs;
+            }
+
+            foreach (var obj in candidateObjs)
+            {
+                foreach (var partial in GenerateAssignments(restparameters, allObjs))
                 {
                     var newMap = new Dictionary<string, Object>(partial);
-                    newMap[firstVar] = obj;
+                    if (firstParam.Name.StartsWith("?"))
+                        newMap[firstParam.Name] = obj;
                     yield return newMap;
                 }
             }

@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ImplicitCoordination.DEL
 {
     public class FormulaVisitor : EPDDLParserBaseVisitor<Formula>
     {
         public static Problem Problem;
-
+        public Action CurrentAction;
+        
         public override Formula VisitFormulaOrEmpty(EPDDLParser.FormulaOrEmptyContext context)
         {
             if (context == null || context.formula() == null)
@@ -129,15 +131,30 @@ namespace ImplicitCoordination.DEL
                 {
                     hasVariable = true;
                     string varName = termCtx.GetText(); 
-                    paramArgs.Add(new Parameter(varName, "variable"));
+                    Parameter param = CurrentAction.Parameters.FirstOrDefault(
+                        p => p.Name.Equals(varName, StringComparison.OrdinalIgnoreCase));
+
+                    if (param == null)
+                    {
+                        throw new KeyNotFoundException($"No parameter found with name '{varName}'.");
+                    }
+
+                    paramArgs.Add(param);
                 }
                 else if (termCtx.groundTerm() != null)
                 {
                     // It's a ground term with a NAME token, e.g. "pos0"
                     string nameText = termCtx.groundTerm().GetText();
-                    Object obj = Problem.GetObjectByName(nameText);
-                    if (obj == null) { throw new Exception($"Unknown object: {nameText}"); }
-                    objectArgs.Add(obj);
+                    if (Problem != null)
+                    {
+                        Object obj = Problem.GetObjectByName(nameText);
+                        if (obj == null) { throw new Exception($"Unknown object: {nameText}"); }
+                        objectArgs.Add(obj);
+                    }
+                    else // We are parsing the Domain. Constant term will be added as parameter.
+                    {
+                        paramArgs.Add(new Parameter(nameText, "constant"));
+                    }
                 }
                 else
                 {

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace ImplicitCoordination.DEL
 {
-    //todo: fully implement action owner
     public class Action : EpistemicModel
     {
         public HashSet<Agent> AllowedAgents { get; set; } = new();
