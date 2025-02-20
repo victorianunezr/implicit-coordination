@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ImplicitCoordination.DEL
@@ -6,10 +8,11 @@ namespace ImplicitCoordination.DEL
     public class AccessibilityRelationVisitor : EPDDLParserBaseVisitor<object>
     {
         public EpistemicModel model;
+        public HashSet<Agent> agents = new();
 
         public override AccessibilityRelation VisitAccessibilityDef(EPDDLParser.AccessibilityDefContext context)
         {
-            var accessibilityRelation = new AccessibilityRelation();
+            var accessibilityRelation = new AccessibilityRelation(agents);
 
             // Handle trivial accessibility definition
             if (context.TRIVIAL_DEF() != null)
@@ -35,7 +38,7 @@ namespace ImplicitCoordination.DEL
                     }
 
                     // Add the relation for each agent in the list
-                    foreach (var agentContext in relContext.agentName())
+                    foreach (var agentContext in relContext.NAME())
                     {
                         var agentName = agentContext.GetText();
 

@@ -6,6 +6,7 @@
     (:objects
         pos0 pos1 pos2 pos3 pos4 - position
         alice bob - agent
+        move-left move-right - action-name
     )
 
     (:init
@@ -23,6 +24,10 @@
                     (goal pos0)
                     (turn alice)
                     (nextturn bob)
+                    (owner alice move-left)
+                    (owner alice move-right)
+                    (owner bob move-left)
+                    (owner bob move-right)
                 )
             )
             (w2
@@ -37,12 +42,16 @@
                     (goal pos4)
                     (turn alice)
                     (nextturn bob)
+                    (owner alice move-left)
+                    (owner alice move-right)
+                    (owner bob move-left)
+                    (owner bob move-right)
                 )
             )
         )
         :accessibility
         (
-            (w1 w2 Alice)
+            (w1 w2 bob)
         )
     )
 

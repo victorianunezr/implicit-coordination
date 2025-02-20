@@ -16,12 +16,12 @@ namespace ImplicitCoordination
                 string problemFilePath = "/Users/victorianunezr/repos/implicit-coordination/epddl/problem/goalrecognition-lever.txt";
 
                 // Parse Domain
-                Console.WriteLine("Parsing Domain...");
+                Console.WriteLine("Parsing the Domain...");
                 var domain = ParseDomain(domainFilePath);
                 Console.WriteLine($"Domain '{domain.name}' parsed successfully with {domain.actions.Count} actions and {domain.Predicates.Count} predicates.\n");
 
                 // Parse Problem
-                Console.WriteLine("Parsing Problem...");
+                Console.WriteLine("Parsing the Problem...");
                 var problem = ParseProblem(problemFilePath, domain);
                 Console.WriteLine($"Problem '{problem.name}' parsed successfully.");
                 Console.WriteLine($"Initial state has {problem.initialState.possibleWorlds.Count} worlds.");

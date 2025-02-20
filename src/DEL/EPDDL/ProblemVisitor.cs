@@ -30,6 +30,9 @@ namespace ImplicitCoordination.DEL
                 problem.Objects = VisitObjectNamesDef(objectDefContextItem.First().objectNamesDef());
             }
 
+            var agents = ExtractAgents(problem.Objects);
+            if (!agents.Any()) throw new Exception("Found no agents in Objects definition.");
+
             problem.PopulateGroundPredicates(domain);
 
             var initDefContextItem = context.problemItemDef().Where(item => item.initDef() != null);
@@ -59,6 +62,14 @@ namespace ImplicitCoordination.DEL
             }
 
             return objects;
+        }
+
+        public IEnumerable<Agent> ExtractAgents(IEnumerable<Object> objects)
+        {
+            return objects
+                .Where(o => o.Type.Equals("agent", StringComparison.OrdinalIgnoreCase))
+                .Select(o => new Agent(o.Name))
+                .ToList();
         }
 
         public override IEnumerable<Object> VisitTypedLine(EPDDLParser.TypedLineContext context)

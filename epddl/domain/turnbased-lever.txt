@@ -1,5 +1,5 @@
 (define (domain lever-domain)
-    (:types position agent)
+    (:types position agent action-name)
     
     (:predicates
         (at ?pos - position)
@@ -9,6 +9,7 @@
         (turn ?agent - agent)
         (nextturn ?agent - agent)
         (goal ?pos - position)
+        (owner ?agent - agent ?action-name - action-name)
     )
     
     (:action move-left
@@ -23,6 +24,7 @@
                         (adjacent ?next-pos ?pos)
                         (turn ?agent)
                         (nextturn ?next-agent)
+                        (owner ?agent move-left)
                     )
                     :effect (
                         (at ?next-pos) 
@@ -48,6 +50,7 @@
                         (adjacent ?pos ?next-pos)
                         (turn ?agent)
                         (nextturn ?next-agent)
+                        (owner ?agent move-right)
                     )
                     :effect (
                         (at ?next-pos) 
