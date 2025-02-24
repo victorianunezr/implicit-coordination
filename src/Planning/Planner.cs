@@ -28,29 +28,13 @@ namespace ImplicitCoordination.Planning
     
         public void Plan()
         {
-            DebugLogger.IsEnabled = true;
-
-            Frontier.Enqueue(Root);
-
-            while (!SolutionFound())
+            try
             {
-                if (NotSolvable())
-                {
-                    Console.WriteLine(NoSolutionMessage);
-                    return;
-                }
+                DebugLogger.IsEnabled = true;
 
-                // Step 1
-                Console.WriteLine("Step 1: Build tree.");
-                BuildTree();
+                Frontier.Enqueue(Root);
 
-                // Step 2
-                Console.WriteLine("Step 2: Computing objective costs.");
-                ComputeObjectiveCosts();
-
-                // Step 3
-                // if any root world has cost +, iterate on depth
-                while (UndefinedCostsInRoot())
+                while (!SolutionFound())
                 {
                     if (NotSolvable())
                     {
@@ -58,32 +42,60 @@ namespace ImplicitCoordination.Planning
                         return;
                     }
 
-                    Console.WriteLine("Some root world has cost '+'");
-
-                    Leaves.Clear();
-
-                    Console.WriteLine("Iterating on cutoff depth. Expanding tree further.");
-
+                    // Step 1
+                    Console.WriteLine("Step 1: Build tree.");
                     BuildTree();
 
-                    Console.WriteLine("Recomputing objective costs...");
+                    // Step 2
+                    Console.WriteLine("Step 2: Computing objective costs.");
                     ComputeObjectiveCosts();
-                }
 
-                // Step 4
-                Console.WriteLine("Step 4: Cutting indistinguishability edges.");
-                CutIndistinguishabilityEdges();
+                    // Step 3
+                    // if any root world has cost +, iterate on depth
+                    while (UndefinedCostsInRoot())
+                    {
+                        if (NotSolvable())
+                        {
+                            Console.WriteLine(NoSolutionMessage);
+                            return;
+                        }
 
-                while (NewWorldsPruned)
-                {
-                    // Step 5
-                    Console.WriteLine("Step 5: Computing subjective costs.");
-                    ComputeSubjectiveCosts();
-                    
-                    // Step 6
-                    Console.WriteLine("Step 6: Pruning tree");
-                    Prune();
+                        Console.WriteLine("Some root world has cost '+'");
+
+                        Leaves.Clear();
+
+                        Console.WriteLine("Iterating on cutoff depth. Expanding tree further.");
+
+                        BuildTree();
+
+                        Console.WriteLine("Recomputing objective costs...");
+                        ComputeObjectiveCosts();
+                    }
+
+                    // Step 4
+                    Console.WriteLine("Step 4: Cutting indistinguishability edges.");
+                    CutIndistinguishabilityEdges();
+
+                    while (NewWorldsPruned)
+                    {
+                        // Step 5
+                        Console.WriteLine("Step 5: Computing subjective costs.");
+                        ComputeSubjectiveCosts();
+                        
+                        // Step 6
+                        Console.WriteLine("Step 6: Pruning tree");
+                        Prune();
+                    }
                 }
+            }
+            catch {
+                Console.WriteLine("yep im here");
+            }
+            finally
+            {
+                // Print tree
+                TreeVisualizer.ExportWorldGraphAsDot(Root, "/Users/victorianunezr/repos/implicit-coordination/epddl/output/goalrecognition-lever.dot");
+                TreeVisualizer.PrintStateAsYaml(Root, "/Users/victorianunezr/repos/implicit-coordination/epddl/output/goalrecognition-lever.yaml");
             }
         }
 
@@ -123,10 +135,11 @@ namespace ImplicitCoordination.Planning
                     if (s.IsApplicable(action))
                     {
                         State sPrime = s.ProductUpdate(action);
+                        s.Children.Add(sPrime);
 
                         if (cutoffDepth == int.MaxValue)
                         {
-                            if (sPrime.HasGoalWorld(this.Problem.goalFormula))
+                            if (sPrime.HasGoalWorld(Problem.goalFormula))
                             {
                                 cutoffDepth = sPrime.depth;
                                 DebugLogger.Print($"Found goal world at depth {cutoffDepth}.");

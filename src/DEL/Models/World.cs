@@ -7,7 +7,7 @@ namespace ImplicitCoordination.DEL
 {
     public class World : IWorld
     {
-        private static ushort Counter = 0;
+        private static ushort Counter = 1;
         private readonly ushort id;
         public static Problem Problem;
         public ushort Id => this.id;
@@ -75,22 +75,23 @@ namespace ImplicitCoordination.DEL
         {
             Facts = new BitArray(totalGroundPredicatesCount, false);
             this.id = Counter;
+            Name = name;
             Counter++;
         }
 
         public World(string name, int totalGroundPredicatesCount=32)
         {
-            Name = name;
             Facts = new BitArray(totalGroundPredicatesCount, false);
             this.id = Counter;
+            Name = name;
             Counter++;
         }
 
         public World(World other)
         {
             Facts = new BitArray(other.Facts);
-            Name = name;
             this.id = Counter;
+            Name = name;
             Counter++;
         }
 
@@ -234,6 +235,20 @@ namespace ImplicitCoordination.DEL
                     Console.WriteLine(Problem.IndexToGroundPredicate[i].ToString());
                 }
             }
+        }
+
+        public string GetFactsAsString()
+        {
+            var factStrings = new List<string>();
+            for (int i = 0; i < Facts.Length; i++)
+            {
+                if (Facts.Get(i))
+                {
+                    // Assuming Problem.IndexToGroundPredicate is a static list that maps indices to ground predicates
+                    factStrings.Add(Problem.IndexToGroundPredicate[i].ToString());
+                }
+            }
+            return string.Join(Environment.NewLine, factStrings);
         }
     }
 }

@@ -2,7 +2,7 @@ using System;
 
 public static class DebugLogger
 {
-    public static bool IsEnabled { get; set; } = false;
+    public static bool IsEnabled { get; set; } = true;
 
     public static void Print(string message)
     {

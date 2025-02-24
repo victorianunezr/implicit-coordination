@@ -1,0 +1,302 @@
+state:
+  id: 0
+  worlds:
+    - name: "w1"
+      objective: 2
+      subjective: Unknown
+      pruned: False
+      facts:
+        - "adjacent(pos0, pos1)"
+        - "adjacent(pos1, pos2)"
+        - "adjacent(pos2, pos3)"
+        - "adjacent(pos3, pos4)"
+        - "at(pos2)"
+        - "goal(pos0)"
+        - "leftmost(pos0)"
+        - "nextturn(bob)"
+        - "owner(alice, move-left)"
+        - "owner(alice, move-right)"
+        - "owner(bob, move-left)"
+        - "owner(bob, move-right)"
+        - "rightmost(pos4)"
+        - "turn(alice)"
+    - name: "w2"
+      objective: 2
+      subjective: Unknown
+      pruned: False
+      facts:
+        - "adjacent(pos0, pos1)"
+        - "adjacent(pos1, pos2)"
+        - "adjacent(pos2, pos3)"
+        - "adjacent(pos3, pos4)"
+        - "at(pos2)"
+        - "goal(pos4)"
+        - "leftmost(pos0)"
+        - "nextturn(bob)"
+        - "owner(alice, move-left)"
+        - "owner(alice, move-right)"
+        - "owner(bob, move-left)"
+        - "owner(bob, move-right)"
+        - "rightmost(pos4)"
+        - "turn(alice)"
+  children:
+    state:
+      id: 0
+      worlds:
+        - name: "w0"
+          objective: 1
+          subjective: Unknown
+          pruned: False
+          facts:
+            - "adjacent(pos0, pos1)"
+            - "adjacent(pos1, pos2)"
+            - "adjacent(pos2, pos3)"
+            - "adjacent(pos3, pos4)"
+            - "at(pos1)"
+            - "goal(pos0)"
+            - "leftmost(pos0)"
+            - "nextturn(alice)"
+            - "nextturn(bob)"
+            - "owner(alice, move-left)"
+            - "owner(alice, move-right)"
+            - "owner(bob, move-left)"
+            - "owner(bob, move-right)"
+            - "rightmost(pos4)"
+            - "turn(bob)"
+        - name: "w0"
+          objective: 1
+          subjective: Unknown
+          pruned: False
+          facts:
+            - "adjacent(pos0, pos1)"
+            - "adjacent(pos1, pos2)"
+            - "adjacent(pos2, pos3)"
+            - "adjacent(pos3, pos4)"
+            - "at(pos1)"
+            - "goal(pos4)"
+            - "leftmost(pos0)"
+            - "nextturn(alice)"
+            - "nextturn(bob)"
+            - "owner(alice, move-left)"
+            - "owner(alice, move-right)"
+            - "owner(bob, move-left)"
+            - "owner(bob, move-right)"
+            - "rightmost(pos4)"
+            - "turn(bob)"
+      children:
+        state:
+          id: 2
+          worlds:
+            - name: "w0"
+              objective: 0
+              subjective: Unknown
+              pruned: False
+              facts:
+                - "adjacent(pos0, pos1)"
+                - "adjacent(pos1, pos2)"
+                - "adjacent(pos2, pos3)"
+                - "adjacent(pos3, pos4)"
+                - "at(pos0)"
+                - "goal(pos0)"
+                - "leftmost(pos0)"
+                - "nextturn(alice)"
+                - "nextturn(bob)"
+                - "owner(alice, move-left)"
+                - "owner(alice, move-right)"
+                - "owner(bob, move-left)"
+                - "owner(bob, move-right)"
+                - "rightmost(pos4)"
+                - "turn(alice)"
+            - name: "w0"
+              objective: +
+              subjective: Unknown
+              pruned: False
+              facts:
+                - "adjacent(pos0, pos1)"
+                - "adjacent(pos1, pos2)"
+                - "adjacent(pos2, pos3)"
+                - "adjacent(pos3, pos4)"
+                - "at(pos0)"
+                - "goal(pos4)"
+                - "leftmost(pos0)"
+                - "nextturn(alice)"
+                - "nextturn(bob)"
+                - "owner(alice, move-left)"
+                - "owner(alice, move-right)"
+                - "owner(bob, move-left)"
+                - "owner(bob, move-right)"
+                - "rightmost(pos4)"
+                - "turn(alice)"
+        state:
+          id: 3
+          worlds:
+            - name: "w0"
+              objective: +
+              subjective: Unknown
+              pruned: False
+              facts:
+                - "adjacent(pos0, pos1)"
+                - "adjacent(pos1, pos2)"
+                - "adjacent(pos2, pos3)"
+                - "adjacent(pos3, pos4)"
+                - "at(pos2)"
+                - "goal(pos0)"
+                - "leftmost(pos0)"
+                - "nextturn(alice)"
+                - "nextturn(bob)"
+                - "owner(alice, move-left)"
+                - "owner(alice, move-right)"
+                - "owner(bob, move-left)"
+                - "owner(bob, move-right)"
+                - "rightmost(pos4)"
+                - "turn(alice)"
+            - name: "w0"
+              objective: +
+              subjective: Unknown
+              pruned: False
+              facts:
+                - "adjacent(pos0, pos1)"
+                - "adjacent(pos1, pos2)"
+                - "adjacent(pos2, pos3)"
+                - "adjacent(pos3, pos4)"
+                - "at(pos2)"
+                - "goal(pos4)"
+                - "leftmost(pos0)"
+                - "nextturn(alice)"
+                - "nextturn(bob)"
+                - "owner(alice, move-left)"
+                - "owner(alice, move-right)"
+                - "owner(bob, move-left)"
+                - "owner(bob, move-right)"
+                - "rightmost(pos4)"
+                - "turn(alice)"
+    state:
+      id: 1
+      worlds:
+        - name: "w0"
+          objective: 1
+          subjective: Unknown
+          pruned: False
+          facts:
+            - "adjacent(pos0, pos1)"
+            - "adjacent(pos1, pos2)"
+            - "adjacent(pos2, pos3)"
+            - "adjacent(pos3, pos4)"
+            - "at(pos3)"
+            - "goal(pos0)"
+            - "leftmost(pos0)"
+            - "nextturn(alice)"
+            - "nextturn(bob)"
+            - "owner(alice, move-left)"
+            - "owner(alice, move-right)"
+            - "owner(bob, move-left)"
+            - "owner(bob, move-right)"
+            - "rightmost(pos4)"
+            - "turn(bob)"
+        - name: "w0"
+          objective: 1
+          subjective: Unknown
+          pruned: False
+          facts:
+            - "adjacent(pos0, pos1)"
+            - "adjacent(pos1, pos2)"
+            - "adjacent(pos2, pos3)"
+            - "adjacent(pos3, pos4)"
+            - "at(pos3)"
+            - "goal(pos4)"
+            - "leftmost(pos0)"
+            - "nextturn(alice)"
+            - "nextturn(bob)"
+            - "owner(alice, move-left)"
+            - "owner(alice, move-right)"
+            - "owner(bob, move-left)"
+            - "owner(bob, move-right)"
+            - "rightmost(pos4)"
+            - "turn(bob)"
+      children:
+        state:
+          id: 4
+          worlds:
+            - name: "w0"
+              objective: +
+              subjective: Unknown
+              pruned: False
+              facts:
+                - "adjacent(pos0, pos1)"
+                - "adjacent(pos1, pos2)"
+                - "adjacent(pos2, pos3)"
+                - "adjacent(pos3, pos4)"
+                - "at(pos2)"
+                - "goal(pos0)"
+                - "leftmost(pos0)"
+                - "nextturn(alice)"
+                - "nextturn(bob)"
+                - "owner(alice, move-left)"
+                - "owner(alice, move-right)"
+                - "owner(bob, move-left)"
+                - "owner(bob, move-right)"
+                - "rightmost(pos4)"
+                - "turn(alice)"
+            - name: "w0"
+              objective: +
+              subjective: Unknown
+              pruned: False
+              facts:
+                - "adjacent(pos0, pos1)"
+                - "adjacent(pos1, pos2)"
+                - "adjacent(pos2, pos3)"
+                - "adjacent(pos3, pos4)"
+                - "at(pos2)"
+                - "goal(pos4)"
+                - "leftmost(pos0)"
+                - "nextturn(alice)"
+                - "nextturn(bob)"
+                - "owner(alice, move-left)"
+                - "owner(alice, move-right)"
+                - "owner(bob, move-left)"
+                - "owner(bob, move-right)"
+                - "rightmost(pos4)"
+                - "turn(alice)"
+        state:
+          id: 5
+          worlds:
+            - name: "w0"
+              objective: +
+              subjective: +
+              pruned: False
+              facts:
+                - "adjacent(pos0, pos1)"
+                - "adjacent(pos1, pos2)"
+                - "adjacent(pos2, pos3)"
+                - "adjacent(pos3, pos4)"
+                - "at(pos4)"
+                - "goal(pos0)"
+                - "leftmost(pos0)"
+                - "nextturn(alice)"
+                - "nextturn(bob)"
+                - "owner(alice, move-left)"
+                - "owner(alice, move-right)"
+                - "owner(bob, move-left)"
+                - "owner(bob, move-right)"
+                - "rightmost(pos4)"
+                - "turn(alice)"
+            - name: "w0"
+              objective: 0
+              subjective: 0
+              pruned: False
+              facts:
+                - "adjacent(pos0, pos1)"
+                - "adjacent(pos1, pos2)"
+                - "adjacent(pos2, pos3)"
+                - "adjacent(pos3, pos4)"
+                - "at(pos4)"
+                - "goal(pos4)"
+                - "leftmost(pos0)"
+                - "nextturn(alice)"
+                - "nextturn(bob)"
+                - "owner(alice, move-left)"
+                - "owner(alice, move-right)"
+                - "owner(bob, move-left)"
+                - "owner(bob, move-right)"
+                - "rightmost(pos4)"
+                - "turn(alice)"

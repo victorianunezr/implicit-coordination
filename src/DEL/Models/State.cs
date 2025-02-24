@@ -7,7 +7,7 @@ namespace ImplicitCoordination.DEL
 {
     public class State : EpistemicModel
     {
-        private static ushort Counter = 0;
+        private static ushort Counter = 1;
         private readonly ushort id;
         public static Problem Problem;
         public ushort Id => this.id;

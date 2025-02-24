@@ -31,8 +31,6 @@ namespace ImplicitCoordination
                 Planner planner = new Planner(domain, problem);
                 planner.Plan();
 
-                // Print tree
-                TreeVisualizer.PrintTreeToFile(planner.Root, "/Users/victorianunezr/repos/implicit-coordination/epddl/output/goalrecognition-lever.txt");
                 // // Example access to domain and problem objects
                 // Console.WriteLine("Sample Actions in Domain:");
                 // foreach (var action in domain.actions)
