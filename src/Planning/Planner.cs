@@ -34,8 +34,8 @@ namespace ImplicitCoordination.Planning
 
                 Frontier.Enqueue(Root);
 
-                while (!SolutionFound())
-                {
+                // while (!SolutionFound())
+                // {
                     if (NotSolvable())
                     {
                         Console.WriteLine(NoSolutionMessage);
@@ -60,7 +60,7 @@ namespace ImplicitCoordination.Planning
                             return;
                         }
 
-                        Console.WriteLine("Some root world has cost '+'");
+                        Console.WriteLine("Some root world has objective cost '+'");
 
                         Leaves.Clear();
 
@@ -86,7 +86,7 @@ namespace ImplicitCoordination.Planning
                         Console.WriteLine("Step 6: Pruning tree");
                         Prune();
                     }
-                }
+                // }
             }
             catch {
                 Console.WriteLine("yep im here");
@@ -165,12 +165,16 @@ namespace ImplicitCoordination.Planning
             var queue = new Queue<State>();
             var visited = new HashSet<State>();
 
-            queue.Enqueue(Root);
-            visited.Add(Root);
+            // We don't cut the edges in root, so start from its children
+            foreach (var state in Root.Children)
+            {
+                queue.Enqueue(state);
+            }
 
             while (queue.Count > 0)
             {
                 var current = queue.Dequeue();
+                visited.Add(current);
                 
                 foreach (var agentEdges in current.accessibility.graph)
                 {
@@ -178,9 +182,10 @@ namespace ImplicitCoordination.Planning
 
                     foreach (var (world1, world2) in edges)
                     {
-                        if (world1 is World w1 && world2 is World w2)
+                        if (world1 != world2 && world1 is World w1 && world2 is World w2)
                         {
-                            if (w1.objectiveCost.Type == CostType.Finite && (w2.objectiveCost.Type == CostType.Infinity || w2.objectiveCost.Type == CostType.Undefined))
+                            if ((w1.objectiveCost.Type == CostType.Finite && (w2.objectiveCost.Type == CostType.Infinity || w2.objectiveCost.Type == CostType.Undefined))
+                            || (w2.objectiveCost.Type == CostType.Finite && (w1.objectiveCost.Type == CostType.Infinity || w1.objectiveCost.Type == CostType.Undefined)))
                             {
                                 current.accessibility.cutEdges.Add((world1, world2));
                                 DebugLogger.Print($"Cutting edge between world {w1.Name} and {w2.Name}.");
@@ -193,7 +198,6 @@ namespace ImplicitCoordination.Planning
                 {
                     if (!visited.Contains(state))
                     {
-                        visited.Add(state);
                         queue.Enqueue(state);
                     }
                 }
@@ -249,16 +253,11 @@ namespace ImplicitCoordination.Planning
             else
             {
                 var costs = costAggregator(w, state).ToList();
-
-                if (costs.Any())
-                {
-                    var minActionCost = costs.Min();
+                var minActionCost = costs.Min();
+                if (minActionCost.Type == CostType.Finite)
                     costAssigner(w, Cost.Finite(minActionCost.Value + 1));
-                }
                 else
-                {
-                    costAssigner(w, Cost.Infinity());
-                }
+                    costAssigner(w, minActionCost);
             }
         }
 
@@ -278,12 +277,14 @@ namespace ImplicitCoordination.Planning
                 .Select(group =>
                 {
                     var actingAgent = group.First().actingAgent;
+                    var groupAction = group.Key.action;
 
                     // Costs from accessible worlds' children
                     var accessibleChildCosts = state.accessibility.GetAccessibleWorlds(actingAgent, w, includeCutEdges:false)
                         .OfType<World>()
                         .Where(world => !world.isPruned)
                         .SelectMany(world => world.outgoingEdges)
+                        .Where(edge => edge.action.Equals(groupAction) && edge.actingAgent.Equals(actingAgent))
                         .Select(edge => edge.childWorld.subjectiveCost);
 
                     // Costs from the current world's children
@@ -300,40 +301,36 @@ namespace ImplicitCoordination.Planning
             Func<World, State, IEnumerable<Cost>> costAggregator,
             Action<World, Cost> costAssigner)
         {
-            var visitedStates = new HashSet<State>();
-            var stateStack = new Stack<State>();
+            var processedStates = new HashSet<State>();
+            // Start with the leaves (states with no children).
+            var currentLayer = new HashSet<State>(Leaves);
 
-            foreach (var leaf in Leaves)
+            while (currentLayer.Any())
             {
-                if (!visitedStates.Contains(leaf))
+                // Process every state in the current layer.
+                foreach (var state in currentLayer)
                 {
-                    stateStack.Push(leaf);
-                }
-            }
-
-            while (stateStack.Count > 0)
-            {
-                var currentState = stateStack.Pop();
-
-                if (visitedStates.Contains(currentState))
-                    continue;
-
-                foreach (var world in currentState.possibleWorlds.OfType<World>())
-                {
-                    ComputeWorldCost(
-                        currentState, 
-                        world, 
-                        costAggregator,
-                        costAssigner
-                    );
+                    foreach (var world in state.possibleWorlds.OfType<World>())
+                    {
+                        ComputeWorldCost(state, world, costAggregator, costAssigner);
+                    }
+                    processedStates.Add(state);
                 }
 
-                visitedStates.Add(currentState);
-
-                if (currentState.Parent != null && !visitedStates.Contains(currentState.Parent))
+                // Build the next layer: for each state in the current layer, consider its parent.
+                // Only add a parent if all of its children have been processed.
+                var nextLayer = new HashSet<State>();
+                foreach (var state in currentLayer)
                 {
-                    stateStack.Push(currentState.Parent);
+                    if (state.Parent != null && !processedStates.Contains(state.Parent))
+                    {
+                        if (state.Parent.Children.All(child => processedStates.Contains(child)))
+                        {
+                            nextLayer.Add(state.Parent);
+                        }
+                    }
                 }
+                currentLayer = nextLayer;
             }
         }
 
@@ -365,19 +362,20 @@ namespace ImplicitCoordination.Planning
                 // Compute costs and prune outgoing edges
                 foreach (var w in state.possibleWorlds.OfType<World>())
                 {
-                    if (w.isPruned) continue;  // Skip if already pruned
+                    if (w.isPruned) continue;
 
                     ComputeWorldAgentCosts(state, w);
 
                     foreach (var edge in w.outgoingEdges)
                     {
                         var agent = edge.actingAgent;
-                        if (agent == null) throw new Exception($"Action {edge.action.name} has no owner."); // Or handle no-agent case
+                        if (agent == null) throw new Exception($"Action {edge.action.name} has no owner.");
 
                         // Prune edges whose cost is higher than the world’s cost for that agent
                         if (w.worldAgentCost[agent] < edge.cost)
                         {
                             edge.isPruned = true;
+                            DebugLogger.Print($"Pruning edge between {edge.parentWorld} and {edge.childWorld}");
                             NewWorldsPruned = true;
                         }
                     }

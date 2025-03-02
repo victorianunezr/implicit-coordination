@@ -151,81 +151,103 @@ namespace ImplicitCoordination.Planning
         }
 
         public static void ExportWorldGraphAsDot(State rootState, string filePath)
+{
+    bool showAccessibilityEdges = false;
+
+    var sb = new StringBuilder();
+    sb.AppendLine("digraph Worlds {");
+    sb.AppendLine("  rankdir=TB;  // CHANGED: States arranged top-to-bottom");
+    sb.AppendLine("  node [shape=box];");
+
+    // Put each state's worlds in a subgraph with rank=same
+    foreach (var state in GetAllStates(rootState))
+    {
+        var stateWorlds = state.possibleWorlds.OfType<World>().ToList();
+        if (stateWorlds.Any())
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("digraph Worlds {");
-            sb.AppendLine("  node [shape=box];");
-            
-            // Organize worlds by state and output each state's worlds in a subgraph (rank=same)
-            foreach (var state in GetAllStates(rootState))
+            sb.AppendLine($"  subgraph cluster_state{state.Id} {{");
+            sb.AppendLine("    rank = same;"); 
+            sb.AppendLine($"    label = \"State {state.Id}\";");
+            foreach (var world in stateWorlds)
             {
-                var stateWorlds = state.possibleWorlds.OfType<World>().ToList();
-                if (stateWorlds.Any())
+                if (world.isPruned) // CHANGED: Mark pruned worlds visually
+                    sb.AppendLine($"    \"{world.Id}\" [label=\"{world.Name}\\nObj: {world.objectiveCost}\\nSubj: {world.subjectiveCost}\", style=filled, fillcolor=lightgray];");
+                else
+                    sb.AppendLine($"    \"{world.Id}\" [label=\"{world.Name}\\nObj: {world.objectiveCost}\\nSubj: {world.subjectiveCost}\"];");
+            }
+            sb.AppendLine("  }");
+        }
+    }
+
+    // Accessibility edges (within states)
+    if (showAccessibilityEdges)
+    {
+
+        foreach (var state in GetAllStates(rootState))
+        {
+            if (state.accessibility?.graph != null)
+            {
+                foreach (var kvp in state.accessibility.graph)
                 {
-                    sb.AppendLine("  subgraph cluster_" + state.Id + " {");
-                    sb.AppendLine("    rank = same;");
-                    foreach (var world in stateWorlds)
+                    var edges = kvp.Value
+                        .Where(tuple => tuple.Item1 != tuple.Item2)
+                        .GroupBy(tuple => new { Source = ((World)tuple.Item1).Id, Target = ((World)tuple.Item2).Id });
+                    foreach (var group in edges)
                     {
-                        sb.AppendLine($"    \"{world.Id}\" [label=\"{world.Name}\\nObj: {world.objectiveCost}\\nSubj: {world.subjectiveCost}\"];");
+                        var agentName = ((Agent)kvp.Key).name;
+                        sb.AppendLine($"  \"{group.Key.Source}\" -> \"{group.Key.Target}\" [label=\"{agentName}\", color=blue, style=dashed, arrowhead=none];");
                     }
-                    sb.AppendLine("  }");
                 }
             }
-            
-            // Group and output accessibility edges (within states)
-            foreach (var state in GetAllStates(rootState))
-            {
-                if (state.accessibility != null && state.accessibility.graph != null)
-                {
-                    foreach (var kvp in state.accessibility.graph)
-                    {
-                        var edges = kvp.Value
-                            .Where(tuple => tuple.Item1 != tuple.Item2)
-                            .GroupBy(tuple => new { Source = ((World)tuple.Item1).Id, Target = ((World)tuple.Item2).Id });
-                        foreach (var group in edges)
-                        {
-                            var agentNames = string.Join(", ", group.Select(edge => ((Agent)kvp.Key).name).Distinct());
-                            sb.AppendLine($"  \"{group.Key.Source}\" -> \"{group.Key.Target}\" [label=\"{agentNames}\", color=blue, style=dashed];");
-                        }
-                    }
-                }
-            }
-            
-            // Group and output action transition edges (across states)
-            var allWorlds = GetAllWorlds(rootState);
-            foreach (var group in allWorlds.SelectMany(w => w.outgoingEdges
-                                        .Where(e => !e.childWorld.isPruned && e.childWorld.Id != w.Id))
-                                        .GroupBy(e => new { Source = ((World)e.parentWorld).Id, Target = ((World)e.childWorld).Id }))
-            {
-                var labels = group.Select(e => $"{e.actingAgent.name}:{e.action.name}").Distinct();
-                string label = string.Join(", ", labels);
-                sb.AppendLine($"  \"{group.Key.Source}\" -> \"{group.Key.Target}\" [label=\"{label}\", color=red, style=solid];");
-            }
-            
-            sb.AppendLine("}");
-            File.WriteAllText(filePath, sb.ToString());
         }
+    }
 
-        private static IEnumerable<World> GetAllWorlds(State root)
+    // Action transition edges (across states)
+    var allWorlds = GetAllWorlds(rootState);
+    foreach (var group in allWorlds
+        .SelectMany(w => w.outgoingEdges.Where(e => e.childWorld.Id != w.Id))
+        .GroupBy(e => new { Source = ((World)e.parentWorld).Id, Target = ((World)e.childWorld).Id }))
+    {
+        var nonPrunedEdges = group.Where(e => !e.childWorld.isPruned).ToList();
+        var prunedEdges = group.Where(e => e.childWorld.isPruned).ToList();
+
+        if (nonPrunedEdges.Any())
         {
-            var worlds = new List<World>();
-            worlds.AddRange(root.possibleWorlds.OfType<World>());
-            foreach (var child in root.Children)
-            {
-                worlds.AddRange(GetAllWorlds(child));
-            }
-            return worlds.Distinct();
+            var labels = nonPrunedEdges.Select(e => $"{e.actingAgent.name}:{e.action.name}").Distinct();
+            string label = string.Join(", ", labels);
+            sb.AppendLine($"  \"{group.Key.Source}\" -> \"{group.Key.Target}\" [label=\"{label}\", color=red, style=solid];");
         }
-
-        private static IEnumerable<State> GetAllStates(State root)
+        if (prunedEdges.Any())
         {
-            var states = new List<State> { root };
-            foreach (var child in root.Children)
-            {
-                states.AddRange(GetAllStates(child));
-            }
-            return states;
+            var labels = prunedEdges.Select(e => $"{e.actingAgent.name}:{e.action.name}").Distinct();
+            string label = string.Join(", ", labels);
+            sb.AppendLine($"  \"{group.Key.Source}\" -> \"{group.Key.Target}\" [label=\"{label}\", color=\"#FF000080\", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity");
         }
+    }
 
+    sb.AppendLine("}");
+    File.WriteAllText(filePath, sb.ToString());
+}
+
+private static IEnumerable<World> GetAllWorlds(State root)
+{
+    var worlds = new List<World>();
+    worlds.AddRange(root.possibleWorlds.OfType<World>());
+    foreach (var child in root.Children)
+    {
+        worlds.AddRange(GetAllWorlds(child));
+    }
+    return worlds.Distinct();
+}
+
+private static IEnumerable<State> GetAllStates(State root)
+{
+    var states = new List<State> { root };
+    foreach (var child in root.Children)
+    {
+        states.AddRange(GetAllStates(child));
+    }
+    return states;
+}
    }
 }

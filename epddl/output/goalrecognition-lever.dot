@@ -1,53 +1,58 @@
 digraph Worlds {
+  rankdir=TB;  // CHANGED: States arranged top-to-bottom
   node [shape=box];
-  subgraph cluster_0 {
+  subgraph cluster_state0 {
     rank = same;
-    "1" [label="w1\nObj: 2\nSubj: Unknown"];
-    "2" [label="w2\nObj: 2\nSubj: Unknown"];
+    label = "State 0";
+    "1" [label="w1\nObj: 2\nSubj: 2"];
+    "2" [label="w2\nObj: 2\nSubj: 2"];
   }
-  subgraph cluster_1 {
+  subgraph cluster_state1 {
     rank = same;
-    "3" [label="w3\nObj: 1\nSubj: Unknown"];
-    "4" [label="w4\nObj: 1\nSubj: Unknown"];
+    label = "State 1";
+    "3" [label="w3\nObj: 1\nSubj: 1", style=filled, fillcolor=lightgray];
+    "4" [label="w4\nObj: +\nSubj: +", style=filled, fillcolor=lightgray];
   }
-  subgraph cluster_3 {
+  subgraph cluster_state3 {
     rank = same;
-    "7" [label="w7\nObj: 0\nSubj: Unknown"];
-    "8" [label="w8\nObj: +\nSubj: Unknown"];
+    label = "State 3";
+    "7" [label="w7\nObj: 0\nSubj: 0", style=filled, fillcolor=lightgray];
+    "8" [label="w8\nObj: +\nSubj: +", style=filled, fillcolor=lightgray];
   }
-  subgraph cluster_4 {
+  subgraph cluster_state4 {
     rank = same;
-    "9" [label="w9\nObj: +\nSubj: Unknown"];
-    "10" [label="w10\nObj: +\nSubj: Unknown"];
+    label = "State 4";
+    "9" [label="w9\nObj: +\nSubj: +", style=filled, fillcolor=lightgray];
+    "10" [label="w10\nObj: +\nSubj: +", style=filled, fillcolor=lightgray];
   }
-  subgraph cluster_2 {
+  subgraph cluster_state2 {
     rank = same;
-    "5" [label="w5\nObj: 1\nSubj: Unknown"];
-    "6" [label="w6\nObj: 1\nSubj: Unknown"];
+    label = "State 2";
+    "5" [label="w5\nObj: +\nSubj: +", style=filled, fillcolor=lightgray];
+    "6" [label="w6\nObj: 1\nSubj: 1", style=filled, fillcolor=lightgray];
   }
-  subgraph cluster_5 {
+  subgraph cluster_state5 {
     rank = same;
-    "11" [label="w11\nObj: +\nSubj: Unknown"];
-    "12" [label="w12\nObj: +\nSubj: Unknown"];
+    label = "State 5";
+    "11" [label="w11\nObj: +\nSubj: +", style=filled, fillcolor=lightgray];
+    "12" [label="w12\nObj: +\nSubj: +", style=filled, fillcolor=lightgray];
   }
-  subgraph cluster_6 {
+  subgraph cluster_state6 {
     rank = same;
-    "13" [label="w13\nObj: +\nSubj: +"];
-    "14" [label="w14\nObj: 0\nSubj: 0"];
+    label = "State 6";
+    "13" [label="w13\nObj: +\nSubj: +", style=filled, fillcolor=lightgray];
+    "14" [label="w14\nObj: 0\nSubj: 0", style=filled, fillcolor=lightgray];
   }
-  "1" -> "2" [label="w1", color=blue, style=dashed];
-  "1" -> "2" [label="w2", color=blue, style=dashed];
-  "1" -> "2" [label="bob", color=blue, style=dashed];
-  "1" -> "3" [label="alice:move-left", color=red, style=solid];
-  "1" -> "5" [label="alice:move-right", color=red, style=solid];
-  "2" -> "4" [label="alice:move-left", color=red, style=solid];
-  "2" -> "6" [label="alice:move-right", color=red, style=solid];
-  "3" -> "7" [label="bob:move-left", color=red, style=solid];
-  "3" -> "9" [label="bob:move-right", color=red, style=solid];
-  "4" -> "8" [label="bob:move-left", color=red, style=solid];
-  "4" -> "10" [label="bob:move-right", color=red, style=solid];
-  "5" -> "11" [label="bob:move-left", color=red, style=solid];
-  "5" -> "13" [label="bob:move-right", color=red, style=solid];
-  "6" -> "12" [label="bob:move-left", color=red, style=solid];
-  "6" -> "14" [label="bob:move-right", color=red, style=solid];
+  "1" -> "3" [label="alice:move-left", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
+  "1" -> "5" [label="alice:move-right", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
+  "2" -> "4" [label="alice:move-left", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
+  "2" -> "6" [label="alice:move-right", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
+  "3" -> "7" [label="bob:move-left", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
+  "3" -> "9" [label="bob:move-right", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
+  "4" -> "8" [label="bob:move-left", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
+  "4" -> "10" [label="bob:move-right", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
+  "5" -> "11" [label="bob:move-left", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
+  "5" -> "13" [label="bob:move-right", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
+  "6" -> "12" [label="bob:move-left", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
+  "6" -> "14" [label="bob:move-right", color="#FF000080", style=dotted]; // CHANGED: Mark pruned edges with dotted style and lower opacity
 }

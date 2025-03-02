@@ -37,12 +37,20 @@ namespace ImplicitCoordination.DEL
                         throw new InvalidOperationException($"Events/worlds {world1Name} or {world2Name} not found in action/state");
                     }
 
-                    // Add the relation for each agent in the list
-                    foreach (var agentContext in relContext.NAME())
-                    {
-                        var agentName = agentContext.GetText();
+                    var agentNames = relContext.NAME().Skip(2).Select(n => n.GetText()).ToList();
 
-                        accessibilityRelation.AddEdge(new Agent(agentName), (world1, world2));
+                    // Add the relation for each agent in the list
+                    foreach (var agentName in agentNames)
+                    {
+                        try
+                        {
+                            accessibilityRelation.TryAddEdge(new Agent(agentName), (world1, world2));
+                        }
+                        catch (KeyNotFoundException)
+                        {
+                            throw new KeyNotFoundException("Agent found in accessibility definition does not match an agent define in Problem objects.");
+                        }
+                            
                     }
                 }
             }

@@ -2,7 +2,7 @@ state s0:
   worlds:
     - name: "w1"
       objective: 2
-      subjective: Unknown
+      subjective: 2
       pruned: False
       facts:
         - "adjacent(pos0, pos1)"
@@ -21,7 +21,7 @@ state s0:
         - "turn(alice)"
     - name: "w2"
       objective: 2
-      subjective: Unknown
+      subjective: 2
       pruned: False
       facts:
         - "adjacent(pos0, pos1)"
@@ -43,8 +43,8 @@ state s0:
       worlds:
         - name: "w3"
           objective: 1
-          subjective: Unknown
-          pruned: False
+          subjective: 1
+          pruned: True
           facts:
             - "adjacent(pos0, pos1)"
             - "adjacent(pos1, pos2)"
@@ -62,9 +62,9 @@ state s0:
             - "rightmost(pos4)"
             - "turn(bob)"
         - name: "w4"
-          objective: 1
-          subjective: Unknown
-          pruned: False
+          objective: +
+          subjective: +
+          pruned: True
           facts:
             - "adjacent(pos0, pos1)"
             - "adjacent(pos1, pos2)"
@@ -86,8 +86,8 @@ state s0:
           worlds:
             - name: "w7"
               objective: 0
-              subjective: Unknown
-              pruned: False
+              subjective: 0
+              pruned: True
               facts:
                 - "adjacent(pos0, pos1)"
                 - "adjacent(pos1, pos2)"
@@ -106,8 +106,8 @@ state s0:
                 - "turn(alice)"
             - name: "w8"
               objective: +
-              subjective: Unknown
-              pruned: False
+              subjective: +
+              pruned: True
               facts:
                 - "adjacent(pos0, pos1)"
                 - "adjacent(pos1, pos2)"
@@ -128,8 +128,8 @@ state s0:
           worlds:
             - name: "w9"
               objective: +
-              subjective: Unknown
-              pruned: False
+              subjective: +
+              pruned: True
               facts:
                 - "adjacent(pos0, pos1)"
                 - "adjacent(pos1, pos2)"
@@ -148,8 +148,8 @@ state s0:
                 - "turn(alice)"
             - name: "w10"
               objective: +
-              subjective: Unknown
-              pruned: False
+              subjective: +
+              pruned: True
               facts:
                 - "adjacent(pos0, pos1)"
                 - "adjacent(pos1, pos2)"
@@ -169,9 +169,9 @@ state s0:
     state s2:
       worlds:
         - name: "w5"
-          objective: 1
-          subjective: Unknown
-          pruned: False
+          objective: +
+          subjective: +
+          pruned: True
           facts:
             - "adjacent(pos0, pos1)"
             - "adjacent(pos1, pos2)"
@@ -190,8 +190,8 @@ state s0:
             - "turn(bob)"
         - name: "w6"
           objective: 1
-          subjective: Unknown
-          pruned: False
+          subjective: 1
+          pruned: True
           facts:
             - "adjacent(pos0, pos1)"
             - "adjacent(pos1, pos2)"
@@ -213,8 +213,8 @@ state s0:
           worlds:
             - name: "w11"
               objective: +
-              subjective: Unknown
-              pruned: False
+              subjective: +
+              pruned: True
               facts:
                 - "adjacent(pos0, pos1)"
                 - "adjacent(pos1, pos2)"
@@ -233,8 +233,8 @@ state s0:
                 - "turn(alice)"
             - name: "w12"
               objective: +
-              subjective: Unknown
-              pruned: False
+              subjective: +
+              pruned: True
               facts:
                 - "adjacent(pos0, pos1)"
                 - "adjacent(pos1, pos2)"
@@ -256,7 +256,7 @@ state s0:
             - name: "w13"
               objective: +
               subjective: +
-              pruned: False
+              pruned: True
               facts:
                 - "adjacent(pos0, pos1)"
                 - "adjacent(pos1, pos2)"
@@ -276,7 +276,7 @@ state s0:
             - name: "w14"
               objective: 0
               subjective: 0
-              pruned: False
+              pruned: True
               facts:
                 - "adjacent(pos0, pos1)"
                 - "adjacent(pos1, pos2)"

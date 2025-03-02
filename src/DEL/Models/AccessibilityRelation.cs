@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using ImplicitCoordination.utils;
 
 namespace ImplicitCoordination.DEL
@@ -41,6 +42,24 @@ namespace ImplicitCoordination.DEL
 
         private AccessibilityRelation(ICollection<Agent> agents) : this(agents, new HashSet<IWorld> { }) { }
 
+        public void AddAgents(ICollection<Agent> agents, ICollection<IWorld> worlds)
+        {
+            foreach (Agent a in agents)
+            {
+                if (!graph.ContainsKey(a))
+                    graph.Add(a, new HashSet<(IWorld, IWorld)>());
+
+                if (worlds != null)
+                {
+                    foreach (IWorld w in worlds)
+                    {
+                        // Adding reflexive edges for all agents
+                        graph[a].Add((w, w));
+                    }
+                }
+            }
+        }
+
         public void AddEdge(Agent a, (IWorld, IWorld) edge)
         {
             try
@@ -56,6 +75,18 @@ namespace ImplicitCoordination.DEL
             {
                 // Add new entry if agent doesn't exist in the graph
                 graph.Add(a, new HashSet<(IWorld, IWorld)>{ edge });
+            }
+            AddReflexiveEdgeForAllAgents(edge.Item1);
+            AddReflexiveEdgeForAllAgents(edge.Item2);
+        }
+
+        public void TryAddEdge(Agent a, (IWorld, IWorld) edge)
+        {
+            // Only add (w,v) if edge not already in set.
+            // Although this is a set, we must check because to avoid adding symmetric edges, which the set does not consider as equal.
+            if (!this.graph[a].ContainsEdge(edge))
+            {
+                this.graph[a].Add(edge);
             }
             AddReflexiveEdgeForAllAgents(edge.Item1);
             AddReflexiveEdgeForAllAgents(edge.Item2);
@@ -252,6 +283,44 @@ namespace ImplicitCoordination.DEL
         {
             return new AccessibilityRelation(this.graph.Keys, worlds);
         }
+
+        public string PrintAccessibilityRelation()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("Accessibility Relation:");
+            
+            if (graph != null)
+            {
+                foreach (var kvp in graph)
+                {
+                    sb.AppendLine($"Agent: {kvp.Key.name}");
+                    foreach (var (w1, w2) in kvp.Value)
+                    {
+                        sb.AppendLine($"\t{w1.Name} - {w2.Name}");
+                    }
+                }
+            }
+            else
+            {
+                sb.AppendLine("Graph is null.");
+            }
+
+            if (cutEdges != null && cutEdges.Count != 0)
+            {
+                sb.AppendLine("Cut Edges:");
+                foreach (var (w1, w2) in cutEdges)
+                {
+                    sb.AppendLine($"\t{w1} - {w2}");
+                }
+            }
+            else
+            {
+                sb.AppendLine("No cut edges.");
+            }
+            
+            return sb.ToString();
+        }
+
 
 
         //public bool Equals(AccessibilityRelation other)

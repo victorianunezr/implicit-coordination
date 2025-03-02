@@ -32,6 +32,9 @@ namespace ImplicitCoordination.DEL
 
             var agents = ExtractAgents(problem.Objects);
             if (!agents.Any()) throw new Exception("Found no agents in Objects definition.");
+            accessibilityRelationVisitor.agents = agents;
+
+            PopulateAccessibilityOfActions(agents);
 
             problem.PopulateGroundPredicates(domain);
 
@@ -64,12 +67,21 @@ namespace ImplicitCoordination.DEL
             return objects;
         }
 
-        public IEnumerable<Agent> ExtractAgents(IEnumerable<Object> objects)
+        public HashSet<Agent> ExtractAgents(IEnumerable<Object> objects)
         {
             return objects
                 .Where(o => o.Type.Equals("agent", StringComparison.OrdinalIgnoreCase))
                 .Select(o => new Agent(o.Name))
-                .ToList();
+                .ToHashSet();
+        }
+
+        // Add reflexive edges for all event models defined in domain, and agents defined in problem.
+        public void PopulateAccessibilityOfActions(ICollection<Agent> agents)
+        {
+            foreach (Action action in domain.actions)
+            {
+                action.accessibility.AddAgents(agents, action.possibleWorlds);
+            }
         }
 
         public override IEnumerable<Object> VisitTypedLine(EPDDLParser.TypedLineContext context)
