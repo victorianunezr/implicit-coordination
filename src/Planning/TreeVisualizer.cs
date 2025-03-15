@@ -229,25 +229,25 @@ namespace ImplicitCoordination.Planning
     File.WriteAllText(filePath, sb.ToString());
 }
 
-private static IEnumerable<World> GetAllWorlds(State root)
-{
-    var worlds = new List<World>();
-    worlds.AddRange(root.possibleWorlds.OfType<World>());
-    foreach (var child in root.Children)
-    {
-        worlds.AddRange(GetAllWorlds(child));
-    }
-    return worlds.Distinct();
-}
+        private static IEnumerable<World> GetAllWorlds(State root)
+        {
+            var worlds = new List<World>();
+            worlds.AddRange(root.possibleWorlds.OfType<World>());
+            foreach (var child in root.Children)
+            {
+                worlds.AddRange(GetAllWorlds(child));
+            }
+            return worlds.Distinct();
+        }
 
-private static IEnumerable<State> GetAllStates(State root)
-{
-    var states = new List<State> { root };
-    foreach (var child in root.Children)
-    {
-        states.AddRange(GetAllStates(child));
-    }
-    return states;
-}
+        private static IEnumerable<State> GetAllStates(State root)
+        {
+            var states = new List<State> { root };
+            foreach (var child in root.Children)
+            {
+                states.AddRange(GetAllStates(child));
+            }
+            return states;
+        }
    }
 }

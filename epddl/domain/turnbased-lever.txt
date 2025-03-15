@@ -12,7 +12,7 @@
         (owner ?agent - agent ?action-name - action-name)
     )
     
-    (:action move-left
+    (:action left
         :parameters (?agent - agent ?next-agent - agent ?pos - position ?next-pos - position)
         :owners (Alice Bob)
         :events
@@ -38,7 +38,7 @@
         :accessibility ()
     )
 
-    (:action move-right
+    (:action right
         :parameters (?agent - agent ?next-agent - agent ?pos - position ?next-pos - position)
         :owners (Alice Bob)
         :events
